@@ -107,7 +107,13 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
+      console.log('Scraper raw data received:', data);
+      
       const rawProducts: RawProduct[] = Array.isArray(data) ? data : (data.products || []);
+      
+      if (rawProducts.length === 0) {
+        console.warn('Scraper returned no products. This might be due to anti-bot detection on the server.');
+      }
       
       const mappedProducts: Product[] = rawProducts.map((item) => ({
         id: item.id?.toString() || Math.random().toString(36).substr(2, 9),
