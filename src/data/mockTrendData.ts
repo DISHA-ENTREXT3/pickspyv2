@@ -130,7 +130,7 @@ export const mockCompetitors: Record<string, CompetitorData[]> = {
 };
 
 // Generate default data for products without specific data
-export const getTrendDataForProduct = (productId: string): TrendDataPoint[] => {
+export const getTrendDataForProduct = (productId: string, weeklyGrowth?: number): TrendDataPoint[] => {
   if (mockTrendData[productId]) {
     return mockTrendData[productId];
   }
@@ -148,7 +148,7 @@ export const getTrendDataForProduct = (productId: string): TrendDataPoint[] => {
   }));
 };
 
-export const getCompetitorsForProduct = (productId: string): CompetitorData[] => {
+export const getCompetitorsForProduct = (productId: string, basePrice?: number): CompetitorData[] => {
   if (mockCompetitors[productId]) {
     return mockCompetitors[productId];
   }

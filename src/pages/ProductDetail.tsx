@@ -42,9 +42,12 @@ const ProductDetail = () => {
     );
   }
 
-  const threads = getThreadsForProduct(product.id);
-  const trendData = getTrendDataForProduct(product.id);
-  const competitors = getCompetitorsForProduct(product.id);
+  const threads: RedditThread[] = (product.redditThreads && product.redditThreads.length > 0) 
+    ? product.redditThreads 
+    : getThreadsForProduct(product.id);
+    
+  const trendData = product.weeklyGrowth ? getTrendDataForProduct(product.id, product.weeklyGrowth) : getTrendDataForProduct(product.id);
+  const competitors = product.price ? getCompetitorsForProduct(product.id, product.price) : getCompetitorsForProduct(product.id);
 
   const getSignalBadge = () => {
     switch (product.demandSignal) {
@@ -189,6 +192,10 @@ const ProductDetail = () => {
               <MessageCircle className="h-4 w-4 mr-2" />
               Reddit Threads ({threads.length})
             </TabsTrigger>
+            <TabsTrigger value="faq" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Clock className="h-4 w-4 mr-2" />
+              FAQ ({product.faqs?.length || 0})
+            </TabsTrigger>
             <TabsTrigger value="competitors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Target className="h-4 w-4 mr-2" />
               Competitors ({competitors.length})
@@ -201,6 +208,24 @@ const ProductDetail = () => {
 
           <TabsContent value="reddit" className="animate-fade-in">
             <RedditThreads threads={threads} />
+          </TabsContent>
+
+          <TabsContent value="faq" className="animate-fade-in space-y-4">
+            <h3 className="text-xl font-bold mb-4">Frequently Asked Questions</h3>
+            {product.faqs && product.faqs.length > 0 ? (
+              <div className="space-y-4">
+                {product.faqs.map((faq, idx) => (
+                  <Card key={idx} variant="glass">
+                    <CardContent className="pt-6">
+                      <h4 className="font-semibold text-lg mb-2">Q: {faq.question}</h4>
+                      <p className="text-muted-foreground">A: {faq.answer}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No FAQs available for this product yet.</p>
+            )}
           </TabsContent>
 
           <TabsContent value="competitors" className="animate-fade-in">

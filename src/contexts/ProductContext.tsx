@@ -41,6 +41,8 @@ interface RawProduct {
   rating?: number;
   review_count?: number;
   ad_signal?: string;
+  reddit_threads?: any[];
+  faqs?: any[];
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
@@ -77,6 +79,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             rating: item.rating,
             reviewCount: item.review_count,
             adSignal: item.ad_signal,
+            redditThreads: item.reddit_threads || [],
+            faqs: item.faqs || [],
           }));
           setProducts(mappedProducts);
         }
@@ -143,6 +147,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: Number(item.rating) || 0,
         reviewCount: Number(item.review_count) || 0,
         adSignal: (item.ad_signal || 'low') as Product['adSignal'],
+        redditThreads: item.reddit_threads || [],
+        faqs: item.faqs || [],
       }));
 
       // Sync with Supabase (Upsert)
@@ -168,6 +174,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
               rating: p.rating,
               review_count: p.reviewCount,
               ad_signal: p.adSignal,
+              reddit_threads: p.redditThreads || [],
+              faqs: p.faqs || [],
               created_at: new Date().toISOString()
             }))
           );

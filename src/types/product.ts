@@ -1,21 +1,25 @@
+import { RedditThread } from '@/data/mockRedditThreads';
+
 export interface Product {
   id: string;
   name: string;
   category: string;
   price: number;
   imageUrl: string;
-  velocityScore: number; // 0-100, trend momentum
-  saturationScore: number; // 0-100, market saturation (lower is better)
+  velocityScore: number;
+  saturationScore: number;
   demandSignal: 'bullish' | 'caution' | 'bearish' | 'neutral';
-  weeklyGrowth: number; // percentage
+  weeklyGrowth: number;
   redditMentions: number;
-  sentimentScore: number; // -100 to 100
+  sentimentScore: number;
   topRedditThemes: string[];
   lastUpdated: string;
   source?: 'amazon' | 'ebay';
   rating?: number;
   reviewCount?: number;
   adSignal?: 'high' | 'medium' | 'low';
+  redditThreads?: RedditThread[];
+  faqs?: { question: string; answer: string }[];
 }
 
 export interface ProductAnalysis {
