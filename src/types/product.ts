@@ -25,6 +25,20 @@ export interface Product {
   adSignal?: 'high' | 'medium' | 'low';
   redditThreads?: RedditThread[];
   faqs?: FAQ[];
+  competitors?: CompetitorData[];
+  socialSignals?: string[];
+}
+
+export interface CompetitorData {
+  id: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  marketplace: 'Amazon' | 'AliExpress' | 'eBay' | 'Shopify Store' | 'Walmart' | string;
+  shippingDays: number;
+  estimatedSales: string;
+  trend: 'up' | 'down' | 'stable';
 }
 
 export interface ProductAnalysis {

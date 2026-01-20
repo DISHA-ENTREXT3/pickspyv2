@@ -47,7 +47,9 @@ const ProductDetail = () => {
     : getThreadsForProduct(product.id);
     
   const trendData = product.weeklyGrowth ? getTrendDataForProduct(product.id, product.weeklyGrowth) : getTrendDataForProduct(product.id);
-  const competitors = product.price ? getCompetitorsForProduct(product.id, product.price) : getCompetitorsForProduct(product.id);
+  const competitors = (product.competitors && product.competitors.length > 0)
+    ? product.competitors
+    : (product.price ? getCompetitorsForProduct(product.id, product.price) : getCompetitorsForProduct(product.id));
 
   const getSignalBadge = () => {
     switch (product.demandSignal) {
@@ -179,6 +181,22 @@ const ProductDetail = () => {
               </Badge>
             ))}
           </div>
+
+          {product.socialSignals && product.socialSignals.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-border/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Target className="h-4 w-4 text-signal-bullish" />
+                <span className="text-sm font-medium">Platform Intelligence</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.socialSignals.map((signal) => (
+                  <Badge key={signal} variant="bullish" className="text-xs">
+                    ✨ {signal}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Tabbed Content */}

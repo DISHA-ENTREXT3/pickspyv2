@@ -1,3 +1,5 @@
+import { CompetitorData } from '@/types/product';
+
 export interface TrendDataPoint {
   date: string;
   velocity: number;
@@ -6,17 +8,6 @@ export interface TrendDataPoint {
   sentiment: number;
 }
 
-export interface CompetitorData {
-  id: string;
-  name: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  marketplace: 'Amazon' | 'AliExpress' | 'eBay' | 'Shopify Store';
-  shippingDays: number;
-  estimatedSales: string;
-  trend: 'up' | 'down' | 'stable';
-}
 
 export const mockTrendData: Record<string, TrendDataPoint[]> = {
   '1': [

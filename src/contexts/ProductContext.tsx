@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product, FAQ } from '@/types/product';
+import { Product, FAQ, CompetitorData } from '@/types/product';
 import { RedditThread } from '@/data/mockRedditThreads';
 import { mockProducts } from '@/data/mockProducts';
 import { supabase } from '@/lib/supabase';
@@ -44,6 +44,8 @@ interface RawProduct {
   ad_signal?: string;
   reddit_threads?: RedditThread[];
   faqs?: FAQ[];
+  competitors?: CompetitorData[];
+  social_signals?: string[];
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
@@ -150,6 +152,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         adSignal: (item.ad_signal || 'low') as Product['adSignal'],
         redditThreads: item.reddit_threads || [],
         faqs: item.faqs || [],
+        competitors: item.competitors || [],
+        socialSignals: item.social_signals || [],
       }));
 
       // Sync with Supabase (Upsert)
@@ -177,6 +181,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
               ad_signal: p.adSignal,
               reddit_threads: p.redditThreads || [],
               faqs: p.faqs || [],
+              competitors: p.competitors || [],
+              social_signals: p.socialSignals || [],
               created_at: new Date().toISOString()
             }))
           );

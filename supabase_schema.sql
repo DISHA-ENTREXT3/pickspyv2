@@ -13,6 +13,13 @@ create table if not exists products (
   sentiment_score integer,
   top_reddit_themes text[],
   last_updated text,
+  source text default 'amazon',
+  rating numeric default 0,
+  review_count integer default 0,
+  ad_signal text default 'low',
+  reddit_threads jsonb default '[]',
+  faqs jsonb default '[]',
+  competitors jsonb default '[]',
   created_at timestamp with time zone default now()
 );
 

@@ -17,6 +17,7 @@ const badgeVariants = cva(
         bearish: "border-signal-bearish/30 bg-signal-bearish/10 text-signal-bearish",
         neutral: "border-signal-neutral/30 bg-signal-neutral/10 text-signal-neutral",
         premium: "border-primary/30 bg-primary/10 text-primary",
+        glass: "border-white/10 bg-white/5 backdrop-blur-md text-white shadow-sm",
       },
     },
     defaultVariants: {

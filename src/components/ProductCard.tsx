@@ -109,6 +109,13 @@ export const ProductCard = ({
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+          {product.socialSignals?.slice(0, 2).map((signal) => (
+            <Badge key={signal} variant="glass" className="text-[9px] py-0 px-1.5 border-primary/20 bg-background/40 backdrop-blur-sm">
+              ✨ {signal}
+            </Badge>
+          ))}
+        </div>
         <div className="absolute bottom-2 left-2 z-10 transition-transform group-hover:translate-x-1">
           {getAdBadge()}
         </div>
