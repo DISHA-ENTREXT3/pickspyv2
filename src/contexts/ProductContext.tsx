@@ -93,7 +93,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       // To simulate "live" data without local backend, we fetch from our data source.
       
       // Placeholder for your deployed scraper API URL
-      const SCRAPER_API_URL = 'https://your-scraper-service.com/refresh'; 
+      const SCRAPER_API_URL = 'https://pickspy-backend.onrender.com/refresh'; 
       
       const response = await fetch(SCRAPER_API_URL, {
         method: 'POST',
