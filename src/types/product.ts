@@ -13,6 +13,9 @@ export interface Product {
   topRedditThemes: string[];
   lastUpdated: string;
   source?: 'amazon' | 'ebay';
+  rating?: number;
+  reviewCount?: number;
+  adSignal?: 'high' | 'medium' | 'low';
 }
 
 export interface ProductAnalysis {

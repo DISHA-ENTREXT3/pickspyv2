@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, Minus, MessageCircle, Clock, ArrowUpRight, Eye, Check, ShoppingCart, Info } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MessageCircle, Clock, ArrowUpRight, Eye, Check, ShoppingCart, Info, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -23,6 +23,17 @@ export const ProductCard = ({
   compareDisabled = false,
 }: ProductCardProps) => {
   const navigate = useNavigate();
+  const getAdBadge = () => {
+    switch (product.adSignal) {
+      case 'high':
+        return <Badge variant="premium">🔥 Hot Ads</Badge>;
+      case 'medium':
+        return <Badge variant="secondary">📢 Active Ads</Badge>;
+      default:
+        return <Badge variant="outline">🌑 Low Ads</Badge>;
+    }
+  };
+
   const getSignalBadge = () => {
     switch (product.demandSignal) {
       case 'bullish':
@@ -98,6 +109,9 @@ export const ProductCard = ({
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute bottom-2 left-2 z-10 transition-transform group-hover:translate-x-1">
+          {getAdBadge()}
+        </div>
       </div>
 
       <CardHeader className="pb-3 pt-4">
@@ -108,7 +122,12 @@ export const ProductCard = ({
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-2xl font-bold">${product.price}</span>
-              <span className="text-xs text-muted-foreground capitalize">{product.category.replace('-', ' ')}</span>
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-primary text-primary" />
+                <span className="text-xs font-medium">{product.rating}</span>
+                <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
+              </div>
+              <span className="text-xs text-muted-foreground capitalize ml-auto">{product.category.replace('-', ' ')}</span>
             </div>
           </div>
           {getSignalBadge()}
