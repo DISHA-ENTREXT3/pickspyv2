@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product } from '@/types/product';
 import { mockProducts } from '@/data/mockProducts';
+import { supabase } from '@/lib/supabase';
 
 interface ProductContextType {
   products: Product[];
@@ -42,28 +43,70 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch initial data from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const mappedProducts: Product[] = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            price: Number(item.price),
+            imageUrl: item.image_url || '/placeholder.svg',
+            velocityScore: item.velocity_score || 0,
+            saturationScore: item.saturation_score || 0,
+            demandSignal: (item.demand_signal || 'neutral') as any,
+            weeklyGrowth: Number(item.weekly_growth) || 0,
+            redditMentions: item.reddit_mentions || 0,
+            sentimentScore: item.sentiment_score || 0,
+            topRedditThemes: item.top_reddit_themes || [],
+            lastUpdated: item.last_updated || 'Just now',
+          }));
+          setProducts(mappedProducts);
+        }
+      } catch (error) {
+        console.error('Error fetching from Supabase:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const refreshProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://hook.us2.make.com/7j6vji8umwx0beu42jqk1jejy3in2r25', {
+      // Note: Scrapping is usually performed by a backend service.
+      // In a serverless live app, this would be a Supabase Edge Function or an external worker.
+      // Since we are shifting to a live app without local base, we will fetch from an edge service or
+      // if not available, we can trigger a cloud refresh.
+      
+      // For now, let's keep the logic where the frontend fetches updated data.
+      // If you have a deployed scraper API, use that URL here.
+      // To simulate "live" data without local backend, we fetch from our data source.
+      
+      // Placeholder for your deployed scraper API URL
+      const SCRAPER_API_URL = 'https://your-scraper-service.com/refresh'; 
+      
+      const response = await fetch(SCRAPER_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          timestamp: new Date().toISOString(),
-          source: 'webapp_refresh'
-        }),
+        }
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to trigger cloud refresh`);
       }
 
       const data = await response.json();
-      
-      // Transformation logic - "modifies it as per our webapp"
-      // We ensure the data matches the Product interface
       const rawProducts: RawProduct[] = Array.isArray(data) ? data : (data.products || []);
       
       const mappedProducts: Product[] = rawProducts.map((item) => ({
@@ -84,11 +127,36 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         lastUpdated: item.lastUpdated || item.last_updated || 'Just now',
       }));
 
+      // Sync with Supabase (Upsert)
       if (mappedProducts.length > 0) {
+        const { error: upsertError } = await supabase
+          .from('products')
+          .upsert(
+            mappedProducts.map(p => ({
+              id: p.id,
+              name: p.name,
+              category: p.category,
+              price: p.price,
+              image_url: p.imageUrl,
+              velocity_score: p.velocityScore,
+              saturation_score: p.saturationScore,
+              demand_signal: p.demandSignal,
+              weekly_growth: p.weeklyGrowth,
+              reddit_mentions: p.redditMentions,
+              sentiment_score: p.sentimentScore,
+              top_reddit_themes: p.topRedditThemes,
+              last_updated: p.lastUpdated,
+              created_at: new Date().toISOString()
+            }))
+          );
+
+        if (upsertError) console.error('Error syncing with Supabase:', upsertError);
         setProducts(mappedProducts);
       }
     } catch (error) {
       console.error('Refresh error:', error);
+      // Fallback for demo: if no cloud service is available, 
+      // users can still see current Supabase/Mock data.
       throw error;
     } finally {
       setIsLoading(false);
