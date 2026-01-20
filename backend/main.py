@@ -70,6 +70,7 @@ def save_to_supabase(products):
                 "sentiment_score": p["sentimentScore"],
                 "top_reddit_themes": p["topRedditThemes"],
                 "last_updated": p["lastUpdated"],
+                "source": p["source"]
             })
         supabase.table("products").upsert(formatted_data).execute()
         print(f"Synced {len(products)} products to Supabase.")
@@ -79,12 +80,13 @@ def save_to_supabase(products):
 def scrape_ebay_fast(query, category):
     products = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-    url = f"https://www.ebay.com/sch/i.html?_nkw={query.replace(' ', '+')}"
+    # Using more robust searches
+    url = f"https://www.ebay.com/sch/i.html?_nkw={query.replace(' ', '+')}&_sop=12"
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, headers=headers, timeout=12)
         soup = BeautifulSoup(res.text, 'html.parser')
         items = soup.select('.s-item__wrapper')
-        for item in items[1:6]: # Skip first which is usually empty/ad
+        for item in items[1:8]:
             name_el = item.select_one('.s-item__title')
             name = name_el.get_text() if name_el else ""
             if "shop on ebay" in name.lower() or not name: continue
@@ -108,7 +110,8 @@ def scrape_ebay_fast(query, category):
                 "redditMentions": random.randint(100, 500),
                 "sentimentScore": 85,
                 "topRedditThemes": ["Productive", "Quality", "Value"],
-                "lastUpdated": "Just now"
+                "lastUpdated": "Just now",
+                "source": "ebay"
             })
     except Exception as e:
         print(f"eBay error: {e}")
@@ -118,7 +121,7 @@ def scrape_amazon_mini(driver, category, url):
     products = []
     try:
         driver.get(url)
-        time.sleep(6) # Longer wait for price to inject
+        time.sleep(7) 
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         items = soup.select('div#gridItemRoot') or soup.select('.zg-grid-general-faceout')
         for item in items[:6]:
@@ -126,7 +129,6 @@ def scrape_amazon_mini(driver, category, url):
             name = name_el.get_text(strip=True) if name_el else ""
             if not name: continue
             
-            # Try to find price
             price_el = item.select_one('span[class*="p13n-sc-price"]') or item.select_one('span.a-color-price')
             price_text = price_el.get_text(strip=True).replace('$', '').replace(',', '') if price_el else "0"
             
@@ -145,7 +147,8 @@ def scrape_amazon_mini(driver, category, url):
                 "redditMentions": random.randint(400, 1500),
                 "sentimentScore": 92,
                 "topRedditThemes": ["Trending", "Must Have", "Social Media Viral"],
-                "lastUpdated": "Trending now"
+                "lastUpdated": "Trending now",
+                "source": "amazon"
             })
     except Exception as e:
         print(f"Amazon error: {e}")
@@ -156,17 +159,27 @@ async def refresh_data():
     all_data = []
     driver = None
     try:
-        # Fast eBay items
-        all_data.extend(scrape_ebay_fast("trending tech", "electronics"))
-        all_data.extend(scrape_ebay_fast("viral fitness", "sports"))
+        # 1. Faster eBay items (Broad searches to ensure results)
+        all_data.extend(scrape_ebay_fast("wireless earbuds", "electronics"))
+        all_data.extend(scrape_ebay_fast("yoga mat", "sports"))
+        all_data.extend(scrape_ebay_fast("summer dress", "fashion"))
         
-        # Amazon Beauty
+        # 2. Amazon Multiple Categories
         driver = get_driver()
+        # Beauty
         all_data.extend(scrape_amazon_mini(driver, "beauty", "https://www.amazon.com/gp/bestsellers/beauty/"))
+        # Pet Supplies
+        all_data.extend(scrape_amazon_mini(driver, "pet-supplies", "https://www.amazon.com/gp/bestsellers/pet-supplies/"))
+        # Home Decor
+        all_data.extend(scrape_amazon_mini(driver, "home-garden", "https://www.amazon.com/gp/bestsellers/kitchen/"))
+        
     finally:
         if driver: driver.quit()
     
     if all_data:
+        # Filter duplicates or empty names
+        unique_data = {p['name']: p for p in all_data if p['name']}.values()
+        all_data = list(unique_data)
         save_to_supabase(all_data)
         
     return all_data

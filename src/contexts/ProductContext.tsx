@@ -37,6 +37,7 @@ interface RawProduct {
   top_reddit_themes?: string | string[];
   lastUpdated?: string;
   last_updated?: string;
+  source?: string;
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
@@ -69,6 +70,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             sentimentScore: item.sentiment_score || 0,
             topRedditThemes: item.top_reddit_themes || [],
             lastUpdated: item.last_updated || 'Just now',
+            source: item.source,
           }));
           setProducts(mappedProducts);
         }
@@ -131,6 +133,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                          (Array.isArray(item.top_reddit_themes) ? item.top_reddit_themes :
                          (typeof item.top_reddit_themes === 'string' ? item.top_reddit_themes.split(',') : [])),
         lastUpdated: item.lastUpdated || item.last_updated || 'Just now',
+        source: item.source as any,
       }));
 
       // Sync with Supabase (Upsert)
@@ -152,6 +155,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
               sentiment_score: p.sentimentScore,
               top_reddit_themes: p.topRedditThemes,
               last_updated: p.lastUpdated,
+              source: p.source,
               created_at: new Date().toISOString()
             }))
           );

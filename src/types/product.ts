@@ -12,6 +12,7 @@ export interface Product {
   sentimentScore: number; // -100 to 100
   topRedditThemes: string[];
   lastUpdated: string;
+  source?: 'amazon' | 'ebay';
 }
 
 export interface ProductAnalysis {
