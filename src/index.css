@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    /* PickSpy Dark Intelligence Theme */
+    --background: 220 20% 6%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 175 80% 50%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 215 15% 55%;
+
+    --accent: 175 80% 50%;
+    --accent-foreground: 220 20% 6%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 15%;
+    --ring: 175 80% 50%;
+
+    --radius: 0.75rem;
+
+    /* PickSpy Custom Tokens */
+    --signal-bullish: 160 85% 45%;
+    --signal-caution: 38 95% 55%;
+    --signal-bearish: 0 75% 55%;
+    --signal-neutral: 220 15% 50%;
+
+    --glow-primary: 175 80% 50%;
+    --glow-bullish: 160 85% 45%;
+
+    --surface-glass: 220 18% 12%;
+    --surface-elevated: 220 16% 14%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(220 20% 6%) 0%, hsl(220 18% 12%) 50%, hsl(175 80% 15% / 0.3) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(220 18% 12%) 0%, hsl(220 18% 8%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(175 80% 50%) 0%, hsl(160 85% 45%) 100%);
+
+    --shadow-glow: 0 0 40px hsl(175 80% 50% / 0.15);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.5);
+
+    /* Sidebar */
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 175 80% 50%;
+    --sidebar-primary-foreground: 220 20% 6%;
+    --sidebar-accent: 220 15% 15%;
+    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 175 80% 50%;
+  }
+
+  .dark {
+    /* Already dark by default */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre, .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-card-elevated {
+    @apply bg-surface-elevated/90 backdrop-blur-xl border border-border/60 rounded-xl;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-accent);
+  }
+
+  .signal-bullish {
+    @apply text-signal-bullish;
+  }
+
+  .signal-caution {
+    @apply text-signal-caution;
+  }
+
+  .signal-bearish {
+    @apply text-signal-bearish;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+  }
+}
+
+@layer utilities {
+  .bg-surface-glass {
+    background-color: hsl(var(--surface-glass));
+  }
+
+  .bg-surface-elevated {
+    background-color: hsl(var(--surface-elevated));
+  }
+
+  .text-signal-bullish {
+    color: hsl(var(--signal-bullish));
+  }
+
+  .text-signal-caution {
+    color: hsl(var(--signal-caution));
+  }
+
+  .text-signal-bearish {
+    color: hsl(var(--signal-bearish));
+  }
+
+  .text-signal-neutral {
+    color: hsl(var(--signal-neutral));
+  }
+
+  .bg-signal-bullish {
+    background-color: hsl(var(--signal-bullish));
+  }
+
+  .bg-signal-caution {
+    background-color: hsl(var(--signal-caution));
+  }
+
+  .bg-signal-bearish {
+    background-color: hsl(var(--signal-bearish));
+  }
+
+  .border-signal-bullish {
+    border-color: hsl(var(--signal-bullish));
+  }
+
+  .border-signal-caution {
+    border-color: hsl(var(--signal-caution));
+  }
+
+  .border-signal-bearish {
+    border-color: hsl(var(--signal-bearish));
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px hsl(175 80% 50% / 0.3);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px hsl(175 80% 50% / 0.5);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
