@@ -22,7 +22,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://pickspyv2.vercel.app",
+        "https://pickspyv2-git-main-dishas-projects-a02383a3.vercel.app",
+        "http://localhost:5173", # Local dev
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
