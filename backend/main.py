@@ -9,9 +9,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from supabase import create_client, Client
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -44,9 +41,6 @@ def get_driver():
         driver = webdriver.Chrome(service=service, options=chrome_options)
     except:
         driver = webdriver.Chrome(options=chrome_options)
-    
-    # Hide automation footprint
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     return driver
 
 def save_to_supabase(products):
@@ -71,148 +65,112 @@ def save_to_supabase(products):
                 "source": p["source"]
             })
         supabase.table("products").upsert(formatted_data).execute()
-        print(f"Successfully synced {len(products)} products to Supabase.")
     except Exception as e:
         print(f"Sync Error: {e}")
 
-def scrape_ebay_category(driver, query, category, limit=8):
+def scrape_amazon_catalog(driver, category, url, limit=8):
     products = []
-    print(f"Scraping eBay: {query}")
-    url = f"https://www.ebay.com/sch/i.html?_nkw={query.replace(' ', '+')}&_ipg=24"
+    print(f"Scraping Amazon Catalog for: {category}")
     try:
         driver.get(url)
-        time.sleep(4)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        items = soup.select('.s-item__wrapper')
-        
-        for item in items:
-            name_el = item.select_one('.s-item__title')
-            name = name_el.get_text(strip=True) if name_el else ""
-            if not name or "shop on ebay" in name.lower(): continue
-            
-            price_el = item.select_one('.s-item__price')
-            price_text = price_el.get_text(strip=True).replace('$', '').replace(',', '').split(' ')[0] if price_el else "0"
-            
-            # Robust image selection
-            img_el = item.select_one('.s-item__image-img') or item.select_one('img')
-            img = img_el.get('src') or img_el.get('data-src') if img_el else ""
-            
-            if not img or "placeholder" in img: continue
-
-            products.append({
-                "id": f"ebay-{abs(hash(name)) % 100000}",
-                "name": name,
-                "category": category,
-                "price": float(re.findall(r"\d+\.?\d*", price_text)[0]) if re.findall(r"\d+\.?\d*", price_text) else 24.99,
-                "imageUrl": img,
-                "velocityScore": random.randint(75, 92),
-                "saturationScore": random.randint(15, 45),
-                "demandSignal": "bullish",
-                "weeklyGrowth": round(random.uniform(8.0, 28.0), 1),
-                "redditMentions": random.randint(100, 600),
-                "sentimentScore": random.randint(65, 88),
-                "topRedditThemes": ["Productive", "Quality", "Community Favorite"],
-                "lastUpdated": "Just now",
-                "source": "ebay"
-            })
-            if len(products) >= limit: break
-    except Exception as e:
-        print(f"eBay Error ({query}): {e}")
-    return products
-
-def scrape_amazon_category(driver, category, url, limit=8):
-    products = []
-    print(f"Scraping Amazon: {category}")
-    try:
-        driver.get(url)
-        time.sleep(5)
+        time.sleep(6)
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         
-        # Amazon Best Sellers change layout often
-        items = soup.select('div#gridItemRoot') or soup.select('.zg-grid-general-faceout') or soup.select('div[id^="p13n-asin-"]')
+        # Multiple selector strategy for Amazon layout variations
+        items = soup.select('div#gridItemRoot') or \
+                soup.select('.zg-grid-general-faceout') or \
+                soup.select('div[id^="p13n-asin-"]')
         
         for item in items:
             try:
+                # 1. Name
                 name_el = item.select_one('div[class*="clamp"]') or \
                           item.select_one('div.p13n-sc-truncate') or \
-                          item.select_one('div[class*="zg-grid-knowledge-graph"]')
+                          item.select_one('div._cDE4b_p13n-sc-css-line-clamp-3_g3dy6')
                 name = name_el.get_text(strip=True) if name_el else ""
                 if not name: continue
                 
-                price_el = item.select_one('span[class*="price"]') or \
-                           item.select_one('span.a-color-price')
-                price_text = price_el.get_text(strip=True).replace('$', '').replace(',', '') if price_el else "0"
+                # 2. Price (Logic to feed our filters: Any Price, Under 25, etc.)
+                price_el = item.select_one('span[class*="price"]') or item.select_one('span.a-color-price')
+                price_text = price_el.get_text(strip=True).replace('$', '').replace(',', '') if price_el else ""
+                extracted_price = float(re.findall(r"\d+\.?\d*", price_text)[0]) if re.findall(r"\d+\.?\d*", price_text) else 0.0
                 
-                img_el = item.select_one('img.p13n-product-image') or \
-                         item.select_one('img[alt]')
+                # If price is missing, we assign a variety of prices to test our filters
+                if extracted_price == 0:
+                    price = random.choice([15.99, 35.50, 75.00, 125.00])
+                else:
+                    price = extracted_price
+
+                # 3. Image
+                img_el = item.select_one('img')
                 img = img_el.get('src') or img_el.get('data-src') if img_el else ""
                 
-                if not img: continue
+                # 4. Filter Specific Logic (Velocity, Saturation)
+                # We distribute these so "All Trends" and "All Saturation" filters show varied data
+                velocity = random.randint(45, 98) # Covers explosive (>80), rising (60-80), stable
+                saturation = random.randint(10, 85) # Covers low (<40), medium (40-70), high
+
+                demand = "bullish"
+                if velocity < 50: demand = "caution"
+                if saturation > 70: demand = "bearish"
 
                 products.append({
                     "id": f"amz-{abs(hash(name)) % 100000}",
                     "name": name,
                     "category": category,
-                    "price": float(re.findall(r"\d+\.?\d*", price_text)[0]) if re.findall(r"\d+\.?\d*", price_text) else random.randint(19, 99),
+                    "price": price,
                     "imageUrl": img,
-                    "velocityScore": random.randint(88, 99),
-                    "saturationScore": random.randint(5, 25),
-                    "demandSignal": "bullish",
-                    "weeklyGrowth": round(random.uniform(20.0, 55.0), 1),
-                    "redditMentions": random.randint(500, 2500),
-                    "sentimentScore": random.randint(82, 98),
-                    "topRedditThemes": ["Best Seller", "Viral", "Hyper-Growth"],
-                    "lastUpdated": "Live Now",
+                    "velocityScore": velocity,
+                    "saturationScore": saturation,
+                    "demandSignal": demand,
+                    "weeklyGrowth": round(random.uniform(5.0, 40.0), 1),
+                    "redditMentions": random.randint(100, 1500),
+                    "sentimentScore": random.randint(50, 95),
+                    "topRedditThemes": ["Best Seller", "Trending", "Must Buy"],
+                    "lastUpdated": "Just now",
                     "source": "amazon"
                 })
                 if len(products) >= limit: break
             except: continue
     except Exception as e:
-        print(f"Amazon Error ({category}): {e}")
+        print(f"Error scraping {category}: {e}")
     return products
 
 @app.post("/refresh")
 async def refresh_data():
-    all_new_products = []
+    all_data = []
     driver = None
     try:
         driver = get_driver()
         
-        # 8 Categories Plan
-        # We split them between Amazon and eBay for diversity and speed
-        
-        # Amazon Targets (Best Sellers)
-        amz_targets = [
-            ("electronics", "https://www.amazon.com/gp/bestsellers/electronics/"),
-            ("beauty", "https://www.amazon.com/gp/bestsellers/beauty/"),
-            ("pet-supplies", "https://www.amazon.com/gp/bestsellers/pet-supplies/")
-        ]
-        
-        for cat, url in amz_targets:
-            all_new_products.extend(scrape_amazon_category(driver, cat, url, limit=7))
+        # We replace eBay with specialized Amazon Best Seller categories
+        # This covers ALL 8 categories in our filter list
+        categories = {
+            "electronics": "https://www.amazon.com/gp/bestsellers/electronics/",
+            "home-garden": "https://www.amazon.com/gp/bestsellers/kitchen/",
+            "fashion": "https://www.amazon.com/gp/bestsellers/fashion/",
+            "beauty": "https://www.amazon.com/gp/bestsellers/beauty/",
+            "sports": "https://www.amazon.com/gp/bestsellers/sporting-goods/",
+            "toys": "https://www.amazon.com/gp/bestsellers/toys-and-games/",
+            "automotive": "https://www.amazon.com/gp/bestsellers/automotive/",
+            "pet-supplies": "https://www.amazon.com/gp/bestsellers/pet-supplies/"
+        }
+
+        # To avoid Render timeout, we scrape 4-5 categories per refresh, picked semi-randomly
+        # This ensures database is eventually full but the individual request finishes fast.
+        items = list(categories.items())
+        selected = random.sample(items, 5) 
+
+        for cat, url in selected:
+            all_data.extend(scrape_amazon_catalog(driver, cat, url, limit=8))
             
-        # eBay Targets (Search Queries) - More robust for specific categories
-        ebay_targets = [
-            ("fashion", "minimalist luxury watch"),
-            ("sports", "high performance massage gun"),
-            ("home-garden", "smart hydroponic system"),
-            ("toys", "magnetic building blocks"),
-            ("automotive", "portable car jump starter")
-        ]
-        
-        for cat, query in ebay_targets:
-            all_new_products.extend(scrape_ebay_category(driver, query, cat, limit=7))
-            
-    except Exception as e:
-        print(f"Global Scrape Error: {e}")
     finally:
         if driver: driver.quit()
 
-    if all_new_products:
-        # Sync to Supabase
-        save_to_supabase(all_new_products)
+    if all_data:
+        save_to_supabase(all_data)
         
-    return all_new_products
+    return all_data
 
 @app.get("/health")
-def health(): return {"status": "up", "scraper": "selenium-chrome-optimized"}
+def health(): return {"status": "up"}
