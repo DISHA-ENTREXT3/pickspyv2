@@ -64,7 +64,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             imageUrl: item.image_url || '/placeholder.svg',
             velocityScore: item.velocity_score || 0,
             saturationScore: item.saturation_score || 0,
-            demandSignal: (item.demand_signal || 'neutral') as any,
+            demandSignal: (item.demand_signal || 'neutral') as Product['demandSignal'],
             weeklyGrowth: Number(item.weekly_growth) || 0,
             redditMentions: item.reddit_mentions || 0,
             sentimentScore: item.sentiment_score || 0,
@@ -125,7 +125,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         imageUrl: item.imageUrl || item.image_url || '/placeholder.svg',
         velocityScore: Number(item.velocityScore) || Number(item.velocity_score) || 0,
         saturationScore: Number(item.saturationScore) || Number(item.saturation_score) || 0,
-        demandSignal: (item.demandSignal || item.demand_signal || 'neutral').toLowerCase() as any,
+        demandSignal: (item.demandSignal || item.demand_signal || 'neutral').toLowerCase() as Product['demandSignal'],
         weeklyGrowth: Number(item.weeklyGrowth) || Number(item.weekly_growth) || 0,
         redditMentions: Number(item.redditMentions) || Number(item.reddit_mentions) || 0,
         sentimentScore: Number(item.sentimentScore) || Number(item.sentiment_score) || 0,
@@ -133,7 +133,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                          (Array.isArray(item.top_reddit_themes) ? item.top_reddit_themes :
                          (typeof item.top_reddit_themes === 'string' ? item.top_reddit_themes.split(',') : [])),
         lastUpdated: item.lastUpdated || item.last_updated || 'Just now',
-        source: item.source as any,
+        source: item.source as Product['source'],
       }));
 
       // Sync with Supabase (Upsert)
