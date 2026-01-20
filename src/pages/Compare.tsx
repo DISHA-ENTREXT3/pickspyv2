@@ -109,7 +109,7 @@ const Compare = () => {
     { metric: 'Growth', fullMark: 100 },
     { metric: 'Low Saturation', fullMark: 100 },
   ].map(item => {
-    const data: any = { metric: item.metric };
+    const data: Record<string, string | number> = { metric: item.metric };
     selectedProducts.forEach(product => {
       switch (item.metric) {
         case 'Velocity':
@@ -135,7 +135,7 @@ const Compare = () => {
   // Prepare trend comparison data
   const trendComparisonData = selectedProducts.length > 0
     ? getTrendDataForProduct(selectedProducts[0].id).map((point, index) => {
-        const data: any = { date: point.date };
+        const data: Record<string, string | number> = { date: point.date };
         selectedProducts.forEach(product => {
           const productTrend = getTrendDataForProduct(product.id);
           data[`${product.name} Velocity`] = productTrend[index]?.velocity || 0;

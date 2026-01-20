@@ -15,7 +15,6 @@ import {
   BarChart3,
   Users,
   Shield,
-  Infinity,
 } from 'lucide-react';
 
 const plans = [

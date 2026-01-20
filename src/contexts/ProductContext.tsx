@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product } from '@/types/product';
+import { Product, FAQ } from '@/types/product';
+import { RedditThread } from '@/data/mockRedditThreads';
 import { mockProducts } from '@/data/mockProducts';
 import { supabase } from '@/lib/supabase';
 
@@ -41,8 +42,8 @@ interface RawProduct {
   rating?: number;
   review_count?: number;
   ad_signal?: string;
-  reddit_threads?: any[];
-  faqs?: any[];
+  reddit_threads?: RedditThread[];
+  faqs?: FAQ[];
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {

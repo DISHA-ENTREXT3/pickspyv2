@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
-import { getThreadsForProduct } from '@/data/mockRedditThreads';
+import { RedditThread, getThreadsForProduct } from '@/data/mockRedditThreads';
 import { getTrendDataForProduct, getCompetitorsForProduct } from '@/data/mockTrendData';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';

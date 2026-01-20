@@ -1,5 +1,10 @@
 import { RedditThread } from '@/data/mockRedditThreads';
 
+export interface FAQ {
+  question: string;
+  answer: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -19,7 +24,7 @@ export interface Product {
   reviewCount?: number;
   adSignal?: 'high' | 'medium' | 'low';
   redditThreads?: RedditThread[];
-  faqs?: { question: string; answer: string }[];
+  faqs?: FAQ[];
 }
 
 export interface ProductAnalysis {
