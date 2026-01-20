@@ -87,7 +87,20 @@ export const ProductCard = ({
         </button>
       )}
 
-      <CardHeader className="pb-3">
+      {/* Product Image Thumbnail */}
+      <div className="aspect-square w-full overflow-hidden bg-muted/30 relative">
+        <img 
+          src={product.imageUrl} 
+          alt={product.name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400&h=400&auto=format&fit=crop';
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      <CardHeader className="pb-3 pt-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0 pr-8">
             <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-primary transition-colors">
