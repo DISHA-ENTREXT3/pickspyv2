@@ -27,53 +27,54 @@ function seededRandom(seed: number): () => number {
 }
 
 /**
- * Generates product-specific Reddit threads with realistic content
+ * Generates product-specific Social Threads (Instagram/Viral/Community)
  */
 export function generateRedditThreads(productName: string, productId: string): RedditThread[] {
   const seed = hashString(productName + productId);
   const random = seededRandom(seed);
   
-  const subreddits = ['dropshipping', 'eCommerce', 'amazonFBA', 'Entrepreneur', 'Gadgets', 'SmartHome', 'BeautyGuru'];
-  const performanceKeywords = ['margin', 'conversion', 'supplier', 'ads spend', 'quality', 'shipping', 'scaling'];
+  // Updated source context to Instagram/Social
+  const sources = ['Instagram Reel', 'Viral Post', 'Tech Community', 'Gadget Review', 'Flipkart Review'];
+  const performanceKeywords = ['quality', 'delivery', 'trend', 'viral factor', 'price drop', 'unboxing'];
   
   const threadCount = 3 + Math.floor(random() * 3);
   const threads: RedditThread[] = [];
   
   for (let i = 0; i < threadCount; i++) {
-    const subreddit = subreddits[Math.floor(random() * subreddits.length)];
+    const source = sources[Math.floor(random() * sources.length)];
     const keyword = performanceKeywords[Math.floor(random() * performanceKeywords.length)];
-    const upvotes = Math.floor(random() * 1200) + 10;
-    const commentCount = Math.floor(random() * 80) + 5;
-    const daysAgo = Math.floor(random() * 10) + 1;
+    const upvotes = Math.floor(random() * 5000) + 100;
+    const commentCount = Math.floor(random() * 200) + 20;
+    const daysAgo = Math.floor(random() * 5) + 1;
     
     const sentiments: ('positive' | 'neutral' | 'negative')[] = ['positive', 'neutral', 'negative', 'positive'];
     const sentiment = sentiments[Math.floor(random() * sentiments.length)];
     
     threads.push({
-      id: `rt-${seed % 10000}-${i}`,
-      subreddit: `r/${subreddit}`,
-      title: `The brutal truth about ${productName.slice(0, 35)}... ${keyword} is the key factor.`,
-      author: `merchant_${Math.floor(random() * 900) + 100}`,
+      id: `social-${seed % 10000}-${i}`,
+      subreddit: `${source}`, // Reusing subreddit field for Source Name
+      title: `Viral discussion on ${productName.slice(0, 30)}: ${keyword} analysis`,
+      author: `user_${Math.floor(random() * 900) + 100}`,
       upvotes,
       commentCount,
       timeAgo: `${daysAgo}d ago`,
       sentiment,
-      preview: `Sharing my results for ${productName.slice(0, 25)}. The ${keyword} started high but now saturation on ${subreddit} is making it tough. Anyone found a better angle?`,
+      preview: `Saw this on ${source}. The ${keyword} is crazy. Everyone is talking about ${productName.slice(0, 15)}. Is it worth the hype?`,
       comments: [
         {
           id: `c-${seed % 1000}-${i}`,
-          author: 'growth_expert',
-          text: `Stop using generic ads for ${productName.slice(0, 15)}. Move to user-generated content on TikTok. That saved my ${keyword}.`,
-          upvotes: Math.floor(random() * 300) + 5,
-          timeAgo: '2d ago',
+          author: 'influncr_01',
+          text: `I posted a reel about this. Got 50k views. The ${keyword} is real.`,
+          upvotes: Math.floor(random() * 500) + 50,
+          timeAgo: '2h ago',
           sentiment: 'positive' as const,
         },
         {
           id: `c2-${seed % 1000}-${i}`,
-          author: 'data_ninja',
-          text: `Check the ${subreddit} wiki. We talked about ${productName.slice(0, 10)} last week. The main issue is the ${keyword} from suppliers.`,
-          upvotes: Math.floor(random() * 50) + 2,
-          timeAgo: '1d ago',
+          author: 'monitor_bot',
+          text: `Price dropped on Flipkart/Amazon today. Best time to buy ${productName.slice(0, 10)}.`,
+          upvotes: Math.floor(random() * 100) + 10,
+          timeAgo: '5h ago',
           sentiment: 'neutral' as const,
         },
       ],
@@ -123,8 +124,9 @@ export function generateCompetitors(productName: string, basePrice: number): Com
   const seed = hashString(productName);
   const random = seededRandom(seed);
   
-  const marketplaces: CompetitorData['marketplace'][] = ['Amazon', 'AliExpress', 'eBay', 'Shopify Store', 'Walmart'];
-  const priceModifiers = [0.75, 0.95, 1.15, 1.35];
+  // RESTRICTED TO AMAZON AND FLIPKART
+  const marketplaces: CompetitorData['marketplace'][] = ['Amazon', 'Flipkart'];
+  const priceModifiers = [0.90, 1.05, 1.15, 0.95];
   
   return priceModifiers.map((mod, i) => {
     const marketplace = marketplaces[Math.floor(random() * marketplaces.length)];
@@ -132,13 +134,13 @@ export function generateCompetitors(productName: string, basePrice: number): Com
     
     return {
       id: `comp-${i}-${seed % 1000}`,
-      name: `${productName.slice(0, 15)} Alternative #${i + 1}`,
+      name: `${productName.slice(0, 15)} Alt ${i + 1}`,
       price: Math.round(basePrice * mod * 100) / 100,
-      rating: Math.round((3.5 + random() * 1.4) * 10) / 10,
-      reviews: Math.floor(random() * 25000) + 200,
+      rating: Math.round((3.8 + random() * 1.1) * 10) / 10,
+      reviews: Math.floor(random() * 10000) + 100,
       marketplace,
-      shippingDays: [2, 5, 7, 12, 14][Math.floor(random() * 5)],
-      estimatedSales: `${Math.floor(random() * 20) + 1}K/mo`,
+      shippingDays: [2, 3, 5, 7][Math.floor(random() * 4)],
+      estimatedSales: `${Math.floor(random() * 10) + 1}K/mo`,
       trend: trends[Math.floor(random() * trends.length)],
     };
   });
