@@ -1,4 +1,4 @@
-import { TrendingUp, ArrowUpRight, Activity, Zap, Slack, MessageCircle, Linkedin, Instagram, Link as LinkIcon } from 'lucide-react';
+import { TrendingUp, ArrowUpRight, Activity, Zap, Slack, MessageCircle, Linkedin, Instagram, Link as LinkIcon, Mail } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -66,10 +66,10 @@ export const Hero = () => {
                 className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/70 h-10"
               />
               <Button 
-                className="h-10 bg-[#4A154B] hover:bg-[#4A154B]/90 text-white border border-white/10"
-                onClick={() => window.open('https://slack.com', '_blank')}
+                className="h-10 bg-[#FF6719] hover:bg-[#FF6719]/90 text-white border border-white/10"
+                onClick={() => window.open('https://substack.com/@entrextlabs?utm_campaign=profile&utm_medium=profile-page', '_blank')}
               >
-                <Slack className="h-4 w-4 mr-2" />
+                <Mail className="h-4 w-4 mr-2" />
                 Subscribe
               </Button>
             </div>
