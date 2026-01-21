@@ -6,6 +6,10 @@ import { AIAnalyzer } from '@/components/AIAnalyzer';
 import { Footer } from '@/components/Footer';
 import { Product } from '@/types/product';
 
+import { Features } from '@/components/Features';
+import { HowItWorks } from '@/components/HowItWorks';
+import { Testimonials } from '@/components/Testimonials';
+
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showAnalyzer, setShowAnalyzer] = useState(false);
@@ -37,6 +41,11 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Marketing Sections */}
+        <Features />
+        <HowItWorks />
+        <Testimonials />
       </main>
       <Footer />
     </div>

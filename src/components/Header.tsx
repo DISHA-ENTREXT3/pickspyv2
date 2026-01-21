@@ -49,14 +49,18 @@ export const Header = () => {
             >
               Pricing
             </Button>
-            <Button variant="glass" size="sm">
+            <Button 
+              variant="glass" 
+              size="sm"
+              onClick={() => navigate('/signup')}
+            >
               Sign In
             </Button>
             <Button 
               variant="hero" 
               size="sm" 
               className="hidden sm:flex items-center gap-2"
-              onClick={() => navigate('/pricing')}
+              onClick={() => navigate('/signup')}
             >
               <Zap className="h-4 w-4" />
               Upgrade

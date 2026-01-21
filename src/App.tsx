@@ -8,6 +8,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Pricing from "./pages/Pricing";
 import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
+import SignupPage from "./pages/SignupPage";
 
 import { ProductProvider } from "./contexts/ProductContext";
 
@@ -25,6 +26,8 @@ const App = () => (
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<SignupPage />} /> {/* Using Signup for Login temporarily as requested 'signup page' primarily */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
