@@ -1,5 +1,5 @@
 import { Logo } from './Logo';
-import { Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Twitter, Linkedin, Instagram, Link as LinkIcon, MessageCircle, Mail } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -11,17 +11,55 @@ export const Footer = () => {
             <p className="text-muted-foreground leading-relaxed">
               The premier marketplace connecting visionary founders with elite growth partners to build, launch, and scale the future.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-colors cursor-pointer group">
-                <Twitter className="h-5 w-5 text-white/70 group-hover:text-white" />
+            
+            <div className="flex items-center gap-4">
+              <a 
+                href="https://discord.com/invite/ZZx3cBrx2" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#5865F2]/20 hover:text-[#5865F2] transition-all cursor-pointer"
+                title="Join Discord"
+              >
+                <MessageCircle className="h-5 w-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-colors cursor-pointer group">
-                <Linkedin className="h-5 w-5 text-white/70 group-hover:text-white" />
+              <a 
+                href="https://www.linkedin.com/company/entrext/posts/?feedView=all" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0077b5]/20 hover:text-[#0077b5] transition-all cursor-pointer"
+                title="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 transition-colors cursor-pointer group">
-                <Instagram className="h-5 w-5 text-white/70 group-hover:text-white" />
+              <a 
+                href="https://www.instagram.com/entrext.labs" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#E4405F]/20 hover:text-[#E4405F] transition-all cursor-pointer"
+                title="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://linktr.ee/entrext.pro" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#43E01C]/20 hover:text-[#43E01C] transition-all cursor-pointer"
+                title="Linktree"
+              >
+                <LinkIcon className="h-5 w-5" />
               </a>
             </div>
+
+            <a 
+              href="https://substack.com/@entrextlabs?utm_campaign=profile&utm_medium=profile-page"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary-foreground border border-primary/20 transition-all duration-300 font-medium w-fit"
+            >
+              <Mail className="h-4 w-4" />
+              <span>Subscribe & Join Community</span>
+            </a>
           </div>
           
           <div>

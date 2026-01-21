@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { Product, ProductAnalysis } from '@/types/product';
+import { analyzeProductWithAI } from '@/lib/ai';
 
 interface AIAnalyzerProps {
   selectedProduct?: Product | null;
@@ -26,28 +27,16 @@ export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<ProductAnalysis | null>(null);
 
-  const mockAnalyze = () => {
+  const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    
-    // Simulate AI analysis
-    setTimeout(() => {
-      setAnalysis({
-        viabilityScore: 73,
-        recommendation: 'dropship',
-        topRisks: [
-          { risk: 'High competition from established sellers in Q4', severity: 'high' },
-          { risk: 'Seasonal demand peaks may require inventory planning', severity: 'medium' },
-          { risk: 'Shipping weight affects margins at $19.99 price point', severity: 'medium' },
-        ],
-        suggestions: [
-          { type: 'price', suggestion: 'Increase to $24.99 for sustainable 35%+ margin' },
-          { type: 'angle', suggestion: 'Position as "work-from-home essential" vs generic wellness' },
-          { type: 'audience', suggestion: 'Target 25-40 desk workers, not general fitness' },
-        ],
-        reasoning: 'Based on 127 similar products launched in the past 12 months, posture correctors with ergonomic positioning have 2.3x better retention. Reddit sentiment shows strong purchase intent from WFH segment. Main risk is Q4 saturation—recommend launching before September.',
-      });
+    try {
+      const result = await analyzeProductWithAI(productIdea, targetPrice, region);
+      setAnalysis(result);
+    } catch (error) {
+      console.error("Analysis failed", error);
+    } finally {
       setIsAnalyzing(false);
-    }, 2500);
+    }
   };
 
   const getRecommendationBadge = () => {
@@ -145,7 +134,7 @@ export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
           size="lg" 
           className="w-full"
           disabled={!productIdea || isAnalyzing}
-          onClick={mockAnalyze}
+          onClick={handleAnalyze}
         >
           {isAnalyzing ? (
             <>

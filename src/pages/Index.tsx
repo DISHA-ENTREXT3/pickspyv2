@@ -28,6 +28,11 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
+        
+        {/* Marketing Sections */}
+        <Features />
+        <HowItWorks />
+
         <ProductGrid onAnalyze={handleAnalyze} />
         
         {/* AI Analyzer Section */}
@@ -42,9 +47,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Marketing Sections */}
-        <Features />
-        <HowItWorks />
         <Testimonials />
       </main>
       <Footer />
