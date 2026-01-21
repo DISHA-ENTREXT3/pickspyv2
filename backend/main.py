@@ -11,14 +11,20 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from supabase import create_client, Client
+try:
+    from supabase import create_client, Client
+except ImportError:
+    print("Warning: supabase library not installed. Database features disabled.")
+    Client = object
+    def create_client(*args): return None
+
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Get credentials
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
 app = FastAPI()
 

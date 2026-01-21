@@ -1,7 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product, FAQ, CompetitorData } from '@/types/product';
-import { RedditThread } from '@/data/mockRedditThreads';
-import { mockProducts } from '@/data/mockProducts';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { Product, FAQ, CompetitorData, RedditThread } from '@/types/product';
 import { supabase } from '@/lib/supabase';
 
 interface ProductContextType {
@@ -49,68 +47,18 @@ interface RawProduct {
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [isLoading, setIsLoading] = useState(false);
+  // Start with empty state - will load from Supabase on mount
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Fetch initial data from Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
+  // Backend API URL - use environment variable or fall back to Render deployment
+  const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://pickspy-backend.onrender.com';
 
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          const mappedProducts: Product[] = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            price: Number(item.price),
-            imageUrl: item.image_url || '/placeholder.svg',
-            velocityScore: item.velocity_score || 0,
-            saturationScore: item.saturation_score || 0,
-            demandSignal: (item.demand_signal || 'neutral') as Product['demandSignal'],
-            weeklyGrowth: Number(item.weekly_growth) || 0,
-            redditMentions: item.reddit_mentions || 0,
-            sentimentScore: item.sentiment_score || 0,
-            topRedditThemes: item.top_reddit_themes || [],
-            lastUpdated: item.last_updated || 'Just now',
-            source: item.source,
-            rating: item.rating,
-            reviewCount: item.review_count,
-            adSignal: item.ad_signal,
-            redditThreads: item.reddit_threads || [],
-            faqs: item.faqs || [],
-          }));
-          setProducts(mappedProducts);
-        }
-      } catch (error) {
-        console.error('Error fetching from Supabase:', error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  const refreshProducts = async () => {
+  const refreshProducts = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Note: Scrapping is usually performed by a backend service.
-      // In a serverless live app, this would be a Supabase Edge Function or an external worker.
-      // Since we are shifting to a live app without local base, we will fetch from an edge service or
-      // if not available, we can trigger a cloud refresh.
-      
-      // For now, let's keep the logic where the frontend fetches updated data.
-      // If you have a deployed scraper API, use that URL here.
-      // To simulate "live" data without local backend, we fetch from our data source.
-      
-      // Placeholder for your deployed scraper API URL
-      const SCRAPER_API_URL = 'https://pickspy-backend.onrender.com/refresh'; 
-      
-      const response = await fetch(SCRAPER_API_URL, {
+      const response = await fetch(`${BACKEND_API_URL}/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -192,13 +140,63 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Refresh error:', error);
-      // Fallback for demo: if no cloud service is available, 
-      // users can still see current Supabase/Mock data.
       throw error;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [BACKEND_API_URL]);
+
+  // Fetch initial data from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const mappedProducts: Product[] = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            price: Number(item.price),
+            imageUrl: item.image_url || '/placeholder.svg',
+            velocityScore: item.velocity_score || 0,
+            saturationScore: item.saturation_score || 0,
+            demandSignal: (item.demand_signal || 'neutral') as Product['demandSignal'],
+            weeklyGrowth: Number(item.weekly_growth) || 0,
+            redditMentions: item.reddit_mentions || 0,
+            sentimentScore: item.sentiment_score || 0,
+            topRedditThemes: item.top_reddit_themes || [],
+            lastUpdated: item.last_updated || 'Just now',
+            source: item.source,
+            rating: item.rating,
+            reviewCount: item.review_count,
+            adSignal: item.ad_signal,
+            redditThreads: item.reddit_threads || [],
+            faqs: item.faqs || [],
+          }));
+          setProducts(mappedProducts);
+        } else {
+          console.log('No products in Supabase, triggering cloud refresh...');
+          // Trigger initial scrape/fetch
+          refreshProducts();
+        }
+      } catch (error) {
+        console.error('Error fetching from Supabase:', error);
+        // Also trigger refresh on error (e.g. no supabase connection)
+        refreshProducts();
+      } finally {
+        setIsLoading(false);
+        setHasLoaded(true);
+      }
+    };
+
+    fetchProducts();
+  }, [refreshProducts]);
 
   return (
     <ProductContext.Provider value={{ products, setProducts, isLoading, setIsLoading, refreshProducts }}>

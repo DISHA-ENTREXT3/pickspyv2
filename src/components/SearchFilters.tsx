@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { categories, priceBands, trendVelocities, saturationLevels } from '@/data/mockProducts';
+import { categories, priceBands, trendVelocities, saturationLevels } from '@/lib/constants';
 import { FilterState } from '@/types/product';
 
 interface SearchFiltersProps {

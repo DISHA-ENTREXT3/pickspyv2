@@ -1,4 +1,35 @@
-import { RedditThread } from '@/data/mockRedditThreads';
+// Reddit Types - used for live and dynamically generated data
+export interface RedditComment {
+  id: string;
+  author: string;
+  text: string;
+  upvotes: number;
+  timeAgo: string;
+  sentiment: 'positive' | 'negative' | 'neutral';
+  replies?: RedditComment[];
+}
+
+export interface RedditThread {
+  id: string;
+  subreddit: string;
+  title: string;
+  author: string;
+  upvotes: number;
+  commentCount: number;
+  timeAgo: string;
+  sentiment: 'positive' | 'negative' | 'neutral';
+  preview: string;
+  comments: RedditComment[];
+}
+
+// Trend Data Types
+export interface TrendDataPoint {
+  date: string;
+  velocity: number;
+  saturation: number;
+  mentions: number;
+  sentiment: number;
+}
 
 export interface FAQ {
   question: string;

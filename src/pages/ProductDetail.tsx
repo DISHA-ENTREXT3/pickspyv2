@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
-import { RedditThread, getThreadsForProduct } from '@/data/mockRedditThreads';
-import { getTrendDataForProduct, getCompetitorsForProduct } from '@/data/mockTrendData';
+import { generateRedditThreads, generateTrendData, generateCompetitors } from '@/lib/dataGenerators';
+import { RedditThread } from '@/types/product';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { TrendChart } from '@/components/product/TrendChart';
@@ -44,12 +44,12 @@ const ProductDetail = () => {
 
   const threads: RedditThread[] = (product.redditThreads && product.redditThreads.length > 0) 
     ? product.redditThreads 
-    : getThreadsForProduct(product.id);
+    : generateRedditThreads(product.name, product.id);
     
-  const trendData = product.weeklyGrowth ? getTrendDataForProduct(product.id, product.weeklyGrowth) : getTrendDataForProduct(product.id);
+  const trendData = generateTrendData(product.id, product.velocityScore, product.weeklyGrowth);
   const competitors = (product.competitors && product.competitors.length > 0)
     ? product.competitors
-    : (product.price ? getCompetitorsForProduct(product.id, product.price) : getCompetitorsForProduct(product.id));
+    : generateCompetitors(product.name, product.price);
 
   const getSignalBadge = () => {
     switch (product.demandSignal) {

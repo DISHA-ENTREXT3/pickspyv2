@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
-import { getTrendDataForProduct } from '@/data/mockTrendData';
+import { generateTrendData } from '@/lib/dataGenerators';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -134,10 +134,10 @@ const Compare = () => {
 
   // Prepare trend comparison data
   const trendComparisonData = selectedProducts.length > 0
-    ? getTrendDataForProduct(selectedProducts[0].id).map((point, index) => {
+    ? generateTrendData(selectedProducts[0].id, selectedProducts[0].velocityScore, selectedProducts[0].weeklyGrowth).map((point, index) => {
         const data: Record<string, string | number> = { date: point.date };
         selectedProducts.forEach(product => {
-          const productTrend = getTrendDataForProduct(product.id);
+          const productTrend = generateTrendData(product.id, product.velocityScore, product.weeklyGrowth);
           data[`${product.name} Velocity`] = productTrend[index]?.velocity || 0;
         });
         return data;
