@@ -39,7 +39,7 @@ export const Hero = () => {
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            Real demand signals. Unfiltered Reddit sentiment. 
+            A go-to tool for the Dropshipping community. Real demand signals. Unfiltered sentiments from across the web. 
             AI-powered conviction. Stop guessing—start winning.
           </p>
 

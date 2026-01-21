@@ -9,7 +9,7 @@ export const Footer = () => {
           <div className="flex flex-col gap-6">
             <Logo size="lg" />
             <p className="text-muted-foreground leading-relaxed">
-              The premier marketplace connecting visionary founders with elite growth partners to build, launch, and scale the future.
+              Empowering dropshippers with real-time market intelligence. Discover winning products, analyze trends, and scale your e-commerce business with AI-driven insights.
             </p>
             
             <div className="flex items-center gap-4">
