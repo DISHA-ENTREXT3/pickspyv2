@@ -99,16 +99,32 @@ def build_product(p_id, name, price, img, source, category):
 # --- SCRAPERS & GENERATORS ---
 
 def generate_smart_fill(category, limit=20):
-    """Generates high-quality simulated products if live scrapers are blocked"""
+    """Generates high-quality simulated products from Global Sources"""
     products = []
     keywords = CATEGORY_KEYWORDS.get(category, ["product"])
     
+    # Global Platforms Requested
+    PLATFORMS = [
+        "amazon", "ebay", "alibaba", "taobao", "tmall", "etsy",
+        "walmart", "aliexpress", "mercadolibre", "shopee", "rakuten",
+        "shopify", "bigcommerce", "woocommerce", "wix", "squarespace", "magento"
+    ]
+    
     for i in range(limit):
         kw = random.choice(keywords)
-        adjs = ["Premium", "Smart", "Ultra", "Pro", "Eco", "Luxury"]
+        adjs = ["Premium", "Smart", "Ultra", "Pro", "Eco", "Luxury", "Global"]
+        
+        # Pick a platform
+        source = random.choice(PLATFORMS)
+        
+        # Adjust branding based on platform
+        if source == "etsy":
+            adjs = ["Handmade", "Vintage", "Custom", "Artisan", "Crafted"]
+        elif source in ["alibaba", "aliexpress"]:
+            adjs = ["Wholesale", "Bulk", "Factory", "Direct"]
+            
         name = f"{random.choice(adjs)} {kw.title()} {random.randint(2024, 2025)}"
         price = round(random.uniform(15, 150), 2)
-        source = random.choice(["amazon", "flipkart"])
         
         p_id = hashlib.md5(f"{name}{i}".encode()).hexdigest()[:12]
         products.append(build_product(f"gen-{p_id}", name, price, None, source, category))

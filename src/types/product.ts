@@ -50,7 +50,7 @@ export interface Product {
   sentimentScore: number;
   topRedditThemes: string[];
   lastUpdated: string;
-  source?: 'amazon' | 'ebay';
+  source?: 'amazon' | 'ebay' | 'flipkart' | 'alibaba' | 'taobao' | 'tmall' | 'etsy' | 'walmart' | 'aliexpress' | 'mercadolibre' | 'shopee' | 'rakuten' | 'shopify' | 'bigcommerce' | 'woocommerce' | 'wix' | 'squarespace' | 'magento' | string;
   rating?: number;
   reviewCount?: number;
   adSignal?: 'high' | 'medium' | 'low';
