@@ -9,6 +9,9 @@ import Pricing from "./pages/Pricing";
 import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
 import SignupPage from "./pages/SignupPage";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
 
 import { ProductProvider } from "./contexts/ProductContext";
 
@@ -27,8 +30,10 @@ const App = () => (
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<SignupPage />} /> {/* Using Signup for Login temporarily as requested 'signup page' primarily */}
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/login" element={<SignupPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

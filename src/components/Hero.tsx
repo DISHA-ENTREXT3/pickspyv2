@@ -1,5 +1,6 @@
-import { TrendingUp, ArrowUpRight, Activity, Zap } from 'lucide-react';
+import { TrendingUp, ArrowUpRight, Activity, Zap, Slack, MessageCircle, Linkedin, Instagram, Link as LinkIcon } from 'lucide-react';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 
 export const Hero = () => {
@@ -44,7 +45,7 @@ export const Hero = () => {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <Button variant="hero" size="xl" className="w-full sm:w-auto">
               <TrendingUp className="h-5 w-5" />
               Explore Trending Products
@@ -55,6 +56,31 @@ export const Hero = () => {
               Try AI Analyzer
               <Badge variant="premium" className="ml-1">PRO</Badge>
             </Button>
+          </div>
+
+          {/* Compact Community Section */}
+          <div className="max-w-md mx-auto mb-16 animate-fade-in" style={{ animationDelay: '0.25s' }}>
+            <div className="flex gap-2 mb-6">
+              <Input 
+                placeholder="Enter email to join community" 
+                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/70 h-10"
+              />
+              <Button 
+                className="h-10 bg-[#4A154B] hover:bg-[#4A154B]/90 text-white border border-white/10"
+                onClick={() => window.open('https://slack.com', '_blank')}
+              >
+                <Slack className="h-4 w-4 mr-2" />
+                Subscribe
+              </Button>
+            </div>
+            
+            <div className="flex items-center justify-center gap-4">
+              <a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#5865F2] transition-colors"><MessageCircle className="h-5 w-5" /></a>
+              <a href="https://slack.com" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#4A154B] transition-colors"><Slack className="h-5 w-5" /></a>
+              <a href="https://www.linkedin.com/company/entrext/posts/?feedView=all" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#0077b5] transition-colors"><Linkedin className="h-5 w-5" /></a>
+              <a href="https://www.instagram.com/entrext.labs" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#E4405F] transition-colors"><Instagram className="h-5 w-5" /></a>
+              <a href="https://linktr.ee/entrext.pro" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#43E01C] transition-colors"><LinkIcon className="h-5 w-5" /></a>
+            </div>
           </div>
 
           {/* Stats row */}

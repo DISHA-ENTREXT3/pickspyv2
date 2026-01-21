@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Twitter, Linkedin, Instagram, Link as LinkIcon, MessageCircle, Mail } from 'lucide-react';
 
@@ -96,9 +97,9 @@ export const Footer = () => {
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>© 2026 PickSpy Inc. All rights reserved.</p>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/cookies" className="hover:text-white transition-colors">Cookie Policy</Link>
           </div>
         </div>
       </div>

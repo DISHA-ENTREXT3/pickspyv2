@@ -6,7 +6,6 @@ import { AIAnalyzer } from '@/components/AIAnalyzer';
 import { Footer } from '@/components/Footer';
 import { Product } from '@/types/product';
 
-import { CommunityJoin } from '@/components/CommunityJoin';
 import { Features } from '@/components/Features';
 import { HowItWorks } from '@/components/HowItWorks';
 import { Testimonials } from '@/components/Testimonials';
@@ -29,7 +28,6 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <CommunityJoin />
         
         {/* Marketing Sections */}
         <Features />

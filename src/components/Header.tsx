@@ -17,27 +17,15 @@ export const Header = () => {
               <Logo />
             </div>
             <nav className="hidden md:flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/')}
-                className={location.pathname === '/' ? 'bg-secondary' : ''}
-              >
-                Trending
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/compare')}
-                className={location.pathname === '/compare' ? 'bg-secondary' : ''}
-              >
-                <BarChart3 className="h-4 w-4 mr-1.5" />
-                Compare
-              </Button>
-              <Button variant="ghost" size="sm" className="flex items-center gap-1.5">
-                AI Analyzer
-                <Badge variant="premium" className="text-[10px] px-1.5 py-0">PRO</Badge>
-              </Button>
+              <Button onClick={() => navigate('/')} variant="ghost" size="sm">Trending</Button>
+              <Button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} variant="ghost" size="sm">Features</Button>
+              <Button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} variant="ghost" size="sm">How it Works</Button>
+              <a href="https://www.entrext.in" target="_blank" rel="noreferrer">
+                <Button variant="ghost" size="sm">About Us</Button>
+              </a>
+              <a href="mailto:business@entrext.in">
+                <Button variant="ghost" size="sm">Contact Us</Button>
+              </a>
             </nav>
           </div>
           <div className="flex items-center gap-3">

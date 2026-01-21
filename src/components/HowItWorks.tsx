@@ -18,7 +18,7 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-24 bg-black/20 relative">
+    <section id="how-it-works" className="py-24 bg-black/20 relative">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 mb-6">
