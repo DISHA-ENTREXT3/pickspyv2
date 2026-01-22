@@ -10,6 +10,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isLoading, signOut } = useAuth();
+  // Auth buttons: Sign In, Sign Up, Dashboard, Sign Out
 
   const handleSignOut = async () => {
     await signOut();
