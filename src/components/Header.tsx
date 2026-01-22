@@ -4,26 +4,15 @@ import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Zap, BarChart3 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = React.useState<any>(null);
-
-  React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, isLoading, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    await signOut();
     navigate('/');
   };
 
@@ -36,9 +25,40 @@ export const Header = () => {
               <Logo />
             </div>
             <nav className="hidden md:flex items-center gap-1">
-              <Button onClick={() => navigate('/')} variant="ghost" size="sm" className={location.pathname === '/' ? 'bg-secondary' : ''}>Trending</Button>
-              <Button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} variant="ghost" size="sm">Features</Button>
-              <Button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} variant="ghost" size="sm">How it Works</Button>
+              <Button 
+                onClick={() => navigate('/')} 
+                variant="ghost" 
+                size="sm" 
+                className={location.pathname === '/' ? 'bg-secondary' : ''}
+              >
+                Trending
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    navigate('/', { state: { scrollTo: 'features' } });
+                  }
+                }} 
+                variant="ghost" 
+                size="sm"
+              >
+                Features
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    navigate('/', { state: { scrollTo: 'how-it-works' } });
+                  }
+                }} 
+                variant="ghost" 
+                size="sm"
+              >
+                How it Works
+              </Button>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -64,43 +84,47 @@ export const Header = () => {
               Pricing
             </Button>
             
-            {user ? (
+            {!isLoading && (
               <>
-                 <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  Dashboard
-                </Button>
-                <Button 
-                  variant="glass" 
-                  size="sm"
-                  onClick={handleSignOut}
-                >
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <Button 
-                variant="glass" 
-                size="sm"
-                onClick={() => navigate('/signup')}
-              >
-                Sign In
-              </Button>
-            )}
+                {user ? (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      Dashboard
+                    </Button>
+                    <Button 
+                      variant="glass" 
+                      size="sm"
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="glass" 
+                      size="sm"
+                      onClick={() => navigate('/login')}
+                    >
+                      Sign In
+                    </Button>
 
-            {!user && (
-              <Button 
-                variant="hero" 
-                size="sm" 
-                className="hidden sm:flex items-center gap-2"
-                onClick={() => navigate('/signup')}
-              >
-                <Zap className="h-4 w-4" />
-                Upgrade
-              </Button>
+                    <Button 
+                      variant="hero" 
+                      size="sm" 
+                      className="hidden sm:flex items-center gap-2"
+                      onClick={() => navigate('/signup')}
+                    >
+                      Get Started
+                      <Zap className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                )}
+              </>
             )}
           </div>
         </div>

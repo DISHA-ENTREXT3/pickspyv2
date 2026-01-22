@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { ProductGrid } from '@/components/ProductGrid';
@@ -9,10 +9,22 @@ import { Product } from '@/types/product';
 import { Features } from '@/components/Features';
 import { HowItWorks } from '@/components/HowItWorks';
 import { Testimonials } from '@/components/Testimonials';
+import { useLocation } from 'react-router-dom';
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showAnalyzer, setShowAnalyzer] = useState(false);
+  const location = useLocation();
+
+  // Handle scroll to section when coming from other pages
+  useEffect(() => {
+    const state = location.state as { scrollTo?: string } | null;
+    if (state?.scrollTo) {
+      setTimeout(() => {
+        document.getElementById(state.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location]);
 
   const handleAnalyze = (product: Product) => {
     setSelectedProduct(product);

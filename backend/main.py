@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import random
@@ -7,19 +7,11 @@ import requests
 import hashlib
 import re
 from bs4 import BeautifulSoup
+from typing import List, Optional
+from pydantic import BaseModel
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("Warning: supabase library not installed.")
-    Client = object
-    def create_client(*args): return None
-
-# Get credentials
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
+from supabase_utils import get_db
+from scrapingdog_service import get_scrapingdog
 
 app = FastAPI()
 
@@ -132,11 +124,41 @@ def generate_smart_fill(category, limit=20):
     return products
 
 def scrape_amazon_listing(query, category, limit=40):
+    """Scrape Amazon listings using ScrapingDog API"""
     products = []
+    scrapingdog = get_scrapingdog()
+    
     try:
         url = f"https://www.amazon.com/s?k={query.replace(' ', '+')}"
-        response = requests.get(url, headers=get_header(), timeout=10)
         
+        # Try ScrapingDog first if configured
+        if scrapingdog.is_configured():
+            html = scrapingdog.scrape_with_javascript(url)
+            if html:
+                soup = BeautifulSoup(html, 'html.parser')
+                items = soup.select('div[data-component-type="s-search-result"]')
+                
+                for item in items:
+                    if len(products) >= limit: break
+                    
+                    name_el = item.select_one('h2 a span')
+                    if not name_el: continue
+                    name = name_el.get_text(strip=True)
+                    
+                    price_el = item.select_one('span.a-price-whole')
+                    price = float(price_el.get_text(strip=True).replace(',','').replace('.','')) if price_el else 0
+                    
+                    img_el = item.select_one('img.s-image')
+                    img_url = img_el.get('src') if img_el else ""
+
+                    if price == 0: continue
+                    
+                    p_id = hashlib.md5(name.encode()).hexdigest()[:12]
+                    products.append(build_product(p_id, name, price, img_url, "amazon", category))
+                return products
+        
+        # Fallback to direct scraping if ScrapingDog not available
+        response = requests.get(url, headers=get_header(), timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             items = soup.select('div[data-component-type="s-search-result"]')
@@ -158,16 +180,47 @@ def scrape_amazon_listing(query, category, limit=40):
                 
                 p_id = hashlib.md5(name.encode()).hexdigest()[:12]
                 products.append(build_product(p_id, name, price, img_url, "amazon", category))
-    except Exception: pass
-        
+                
+    except Exception as e:
+        print(f"Amazon scrape error: {e}")
+    
     return products
 
 def scrape_flipkart_listing(query, category, limit=40):
+    """Scrape Flipkart listings using ScrapingDog API"""
     products = []
+    scrapingdog = get_scrapingdog()
+    
     try:
         url = f"https://www.flipkart.com/search?q={query.replace(' ', '+')}"
-        response = requests.get(url, headers=get_header(), timeout=10)
         
+        # Try ScrapingDog first if configured
+        if scrapingdog.is_configured():
+            html = scrapingdog.scrape_with_javascript(url)
+            if html:
+                soup = BeautifulSoup(html, 'html.parser')
+                items = soup.select('div._1AtVbE')
+                
+                for item in items:
+                    if len(products) >= limit: break
+                    name_el = item.select_one('div._4rR01T') or item.select_one('a.s1Q9rs')
+                    if not name_el: continue
+                    name = name_el.get_text(strip=True)
+                    
+                    price_el = item.select_one('div._30jeq3')
+                    price_text = price_el.get_text(strip=True) if price_el else ""
+                    clean_price = re.sub(r'[^\d.]', '', price_text)
+                    price = float(clean_price) if clean_price else 0
+                    
+                    img_el = item.select_one('img._396cs4')
+                    img_url = img_el.get('src') if img_el else ""
+
+                    p_id = hashlib.md5(name.encode()).hexdigest()[:12]
+                    products.append(build_product(p_id, name, price, img_url, "flipkart", category))
+                return products
+        
+        # Fallback to direct scraping if ScrapingDog not available
+        response = requests.get(url, headers=get_header(), timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             items = soup.select('div._1AtVbE')
@@ -188,44 +241,23 @@ def scrape_flipkart_listing(query, category, limit=40):
 
                 p_id = hashlib.md5(name.encode()).hexdigest()[:12]
                 products.append(build_product(p_id, name, price, img_url, "flipkart", category))
-    except Exception: pass
+    except Exception as e:
+        print(f"Flipkart scrape error: {e}")
     
     return products
 
 def save_batch(products):
-    if not supabase or not products: return
+    """Save batch of products to Supabase"""
+    db = get_db()
+    if not db.is_connected() or not products:
+        return
+    
     try:
-        data = [
-            {
-                "id": p["id"],
-                "name": p["name"],
-                "category": p["category"],
-                "price": p["price"],
-                "image_url": p["imageUrl"],
-                "velocity_score": p["velocityScore"],
-                "saturation_score": p["saturationScore"],
-                "demand_signal": p["demandSignal"],
-                "weekly_growth": p["weeklyGrowth"],
-                "reddit_mentions": p["redditMentions"],
-                "sentiment_score": p["sentimentScore"],
-                "top_reddit_themes": p["topRedditThemes"],
-                "last_updated": p["lastUpdated"],
-                "source": p["source"],
-                "rating": p["rating"],
-                "review_count": p["reviewCount"],
-                "ad_signal": p["adSignal"],
-                "social_signals": p["social_signals"],
-                "faqs": p["faqs"],
-                "competitors": p["competitors"],
-                "reddit_threads": p["redditThreads"]
-            }
-            for p in products
-        ]
-        
-        for i in range(0, len(data), 50):
-            chunk = data[i:i+50]
-            supabase.table("products").upsert(chunk).execute()
-            
+        result = db.upsert_products(products)
+        if result["success"]:
+            print(f"✓ Saved {result['count']} products to Supabase")
+        else:
+            print(f"✗ Error saving products: {result['error']}")
     except Exception as e:
         print(f"DB Error: {e}")
 
@@ -287,4 +319,144 @@ async def trigger_deep_scan(background_tasks: BackgroundTasks):
 
 @app.get("/health")
 def health():
-    return {"status": "online", "mode": "deep-scraper-v2"}
+    scrapingdog = get_scrapingdog()
+    return {
+        "status": "online",
+        "mode": "deep-scraper-v2",
+        "database": "connected" if get_db().is_connected() else "disconnected",
+        "scrapingdog": "configured" if scrapingdog.is_configured() else "not configured"
+    }
+
+
+@app.get("/api/scrapingdog-quota")
+async def get_scrapingdog_quota():
+    """Get ScrapingDog API quota information"""
+    scrapingdog = get_scrapingdog()
+    
+    if not scrapingdog.is_configured():
+        return {
+            "success": False,
+            "error": "ScrapingDog API key not configured",
+            "message": "Add SCRAPINGDOG_API_KEY to .env file"
+        }
+    
+    quota = scrapingdog.check_api_quota()
+    return quota
+
+
+# --- USER ACTION ENDPOINTS ---
+
+class SaveProductRequest(BaseModel):
+    user_id: str
+    product_id: str
+
+
+class ProductComparisonRequest(BaseModel):
+    user_id: str
+    product_ids: List[str]
+    notes: Optional[str] = None
+
+
+class ActivityTrackingRequest(BaseModel):
+    user_id: str
+    activity_type: str  # 'view', 'analyze', 'compare', 'search'
+    product_id: Optional[str] = None
+    metadata: Optional[dict] = None
+
+
+@app.post("/user/save-product")
+async def save_product_endpoint(request: SaveProductRequest):
+    """Save a product to user's favorites"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    result = db.save_product(request.user_id, request.product_id)
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+    
+    return result
+
+
+@app.delete("/user/saved-product/{user_id}/{product_id}")
+async def remove_saved_product(user_id: str, product_id: str):
+    """Remove a saved product"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    success = db.remove_saved_product(user_id, product_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to remove product")
+    
+    return {"success": True, "message": "Product removed from favorites"}
+
+
+@app.get("/user/saved-products/{user_id}")
+async def get_saved_products(user_id: str):
+    """Get user's saved products"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    products = db.get_user_saved_products(user_id)
+    return {"user_id": user_id, "saved_products": products, "count": len(products)}
+
+
+@app.post("/user/create-comparison")
+async def create_comparison(request: ProductComparisonRequest):
+    """Create a product comparison"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    if not request.product_ids or len(request.product_ids) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 products required for comparison")
+    
+    result = db.create_comparison(request.user_id, request.product_ids, request.notes)
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+    
+    return result
+
+
+@app.get("/user/comparisons/{user_id}")
+async def get_comparisons(user_id: str):
+    """Get user's comparisons"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    comparisons = db.get_user_comparisons(user_id)
+    return {"user_id": user_id, "comparisons": comparisons, "count": len(comparisons)}
+
+
+@app.post("/user/track-activity")
+async def track_activity(request: ActivityTrackingRequest):
+    """Track user activity"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    success = db.track_user_activity(
+        request.user_id,
+        request.activity_type,
+        request.product_id,
+        request.metadata
+    )
+    
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to track activity")
+    
+    return {"success": True, "message": "Activity tracked"}
+
+
+@app.get("/analytics/products")
+async def get_analytics():
+    """Get product analytics"""
+    db = get_db()
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    analytics = db.get_product_analytics(days=7)
+    return analytics

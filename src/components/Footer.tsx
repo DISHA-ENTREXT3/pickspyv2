@@ -1,8 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Twitter, Linkedin, Instagram, Link as LinkIcon, MessageCircle, Mail } from 'lucide-react';
 
 export const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string, scrollId?: string) => {
+    if (scrollId && window.location.pathname === '/') {
+      document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <footer className="border-t border-white/10 bg-black/40 backdrop-blur-xl pt-20 pb-10 mt-auto">
       <div className="container mx-auto px-4">
@@ -66,20 +76,20 @@ export const Footer = () => {
           <div>
             <h4 className="font-bold text-white mb-6">Product</h4>
             <ul className="space-y-4 text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">API</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Integrations</a></li>
+              <li><button onClick={() => handleNavigation('/', 'features')} className="hover:text-primary transition-colors text-left">Features</button></li>
+              <li><button onClick={() => navigate('/pricing')} className="hover:text-primary transition-colors text-left">Pricing</button></li>
+              <li><button onClick={() => handleNavigation('/', 'how-it-works')} className="hover:text-primary transition-colors text-left">How It Works</button></li>
+              <li><button onClick={() => navigate('/compare')} className="hover:text-primary transition-colors text-left">Compare</button></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold text-white mb-6">Resources</h4>
             <ul className="space-y-4 text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Community</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Case Studies</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
+              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Documentation</a></li>
+              <li><a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Community</a></li>
+              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Case Studies</a></li>
+              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Help Center</a></li>
             </ul>
           </div>
 
@@ -87,8 +97,8 @@ export const Footer = () => {
             <h4 className="font-bold text-white mb-6">Company</h4>
             <ul className="space-y-4 text-muted-foreground">
               <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Legal</a></li>
+              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Careers</a></li>
+              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Legal</a></li>
               <li><a href="mailto:business@entrext.in" className="hover:text-primary transition-colors">Contact</a></li>
             </ul>
           </div>

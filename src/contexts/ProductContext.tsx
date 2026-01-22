@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { Product, FAQ, CompetitorData, RedditThread } from '@/types/product';
 import { supabase } from '@/lib/supabase';
+import { apiService } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductContextType {
   products: Product[];
@@ -8,6 +10,11 @@ interface ProductContextType {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   refreshProducts: () => Promise<void>;
+  saveProduct: (productId: string) => Promise<void>;
+  removeSavedProduct: (productId: string) => Promise<void>;
+  getSavedProducts: () => Promise<string[]>;
+  createComparison: (productIds: string[], notes?: string) => Promise<string | null>;
+  trackProductView: (productId: string) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -47,13 +54,69 @@ interface RawProduct {
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
+  const { user, profile } = useAuth();
+  
   // Start with empty state - will load from Supabase on mount
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Backend API URL - use environment variable or fall back to Render deployment
   const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://pickspy-backend.onrender.com';
+
+  const trackProductView = useCallback(async (productId: string) => {
+    if (!user?.id) return;
+    try {
+      await apiService.trackActivity(user.id, 'view', productId);
+    } catch (error) {
+      console.warn('Failed to track product view:', error);
+    }
+  }, [user?.id]);
+
+  const saveProduct = useCallback(async (productId: string) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    try {
+      await apiService.saveProduct(user.id, productId);
+      // Also track the activity
+      await trackProductView(productId);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      throw error;
+    }
+  }, [user?.id, trackProductView]);
+
+  const removeSavedProduct = useCallback(async (productId: string) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    try {
+      await apiService.removeSavedProduct(user.id, productId);
+    } catch (error) {
+      console.error('Error removing saved product:', error);
+      throw error;
+    }
+  }, [user?.id]);
+
+  const getSavedProducts = useCallback(async () => {
+    if (!user?.id) throw new Error('User not authenticated');
+    try {
+      const result = await apiService.getSavedProducts(user.id);
+      return result.saved_products;
+    } catch (error) {
+      console.error('Error getting saved products:', error);
+      return [];
+    }
+  }, [user?.id]);
+
+  const createComparison = useCallback(async (productIds: string[], notes?: string) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    try {
+      const result = await apiService.createComparison(user.id, productIds, notes);
+      // Track the activity
+      await apiService.trackActivity(user.id, 'compare', undefined, { product_ids: productIds });
+      return result.comparison_id || null;
+    } catch (error) {
+      console.error('Error creating comparison:', error);
+      throw error;
+    }
+  }, [user?.id]);
 
   const refreshProducts = useCallback(async () => {
     setIsLoading(true);
@@ -199,7 +262,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   }, [refreshProducts]);
 
   return (
-    <ProductContext.Provider value={{ products, setProducts, isLoading, setIsLoading, refreshProducts }}>
+    <ProductContext.Provider value={{ 
+      products, 
+      setProducts, 
+      isLoading, 
+      setIsLoading, 
+      refreshProducts,
+      saveProduct,
+      removeSavedProduct,
+      getSavedProducts,
+      createComparison,
+      trackProductView
+    }}>
       {children}
     </ProductContext.Provider>
   );
