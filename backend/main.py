@@ -8,6 +8,7 @@ import hashlib
 import re
 from bs4 import BeautifulSoup
 from typing import List, Optional
+from datetime import datetime
 from pydantic import BaseModel
 
 from supabase_utils import get_db

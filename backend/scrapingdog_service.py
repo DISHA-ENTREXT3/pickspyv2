@@ -5,8 +5,9 @@ Handles all requests to the ScrapingDog API.
 
 import os
 import requests
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from urllib.parse import urlencode
+from datetime import datetime
 import json
 
 
