@@ -23,6 +23,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- ROOT ENDPOINT ---
+
+@app.get("/")
+def root():
+    """Root endpoint - service status"""
+    return {
+        "service": "PickSpy Backend",
+        "status": "online",
+        "version": "1.0",
+        "endpoints": {
+            "health": "/health",
+            "refresh": "POST /refresh",
+            "quota": "/api/scrapingdog-quota"
+        }
+    }
+
 # --- CONFIG ---
 
 CATEGORIES = [
