@@ -1,5 +1,5 @@
 """
-Native web scrapers using Selenium, BeautifulSoup, and Scrapy
+Native web scrapers using Selenium and BeautifulSoup
 Replaces ScrapingDog API with direct web scraping
 """
 
