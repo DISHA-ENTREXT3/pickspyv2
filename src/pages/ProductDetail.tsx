@@ -119,14 +119,17 @@ const ProductDetail = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          className="mb-6 -ml-2"
-          onClick={() => navigate('/')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Products
-        </Button>
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
 
         {/* Product Header */}
         <div className="mb-8 animate-slide-up">
