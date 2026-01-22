@@ -486,3 +486,84 @@ async def get_analytics():
     
     analytics = db.get_product_analytics(days=7)
     return analytics
+
+
+@app.get("/api/product-analysis/{product_name}")
+async def get_product_analysis(product_name: str):
+    """
+    Get comprehensive live product analysis from all scrapers
+    Includes: market trends, social analysis, competitor insights, search data
+    """
+    try:
+        service = get_scrapingdog_service()
+        
+        print(f"\n📊 Fetching comprehensive analysis for: {product_name}")
+        
+        analysis = {
+            "product_name": product_name,
+            "timestamp": datetime.now().isoformat(),
+            "sources": {}
+        }
+        
+        # 1. Get market trends
+        print(f"  📈 Fetching market trends...")
+        market_trends = service.get_product_market_trends(product_name)
+        if market_trends:
+            analysis["sources"]["market_trends"] = market_trends
+        
+        # 2. Get product insights (features, competitors, category analysis)
+        print(f"  🔍 Fetching product insights...")
+        product_insights = service.get_product_insights(product_name)
+        if product_insights:
+            analysis["sources"]["product_insights"] = product_insights
+        
+        # 3. Get social analysis (Instagram, reviews, sentiment)
+        print(f"  📱 Fetching social media analysis...")
+        social_analysis = service.get_product_instagram_analysis(product_name)
+        if social_analysis:
+            analysis["sources"]["social_analysis"] = social_analysis
+        
+        # 4. Get search mentions and tracking
+        print(f"  🔎 Fetching web search data...")
+        search_analysis = service.search_google(product_name)
+        if search_analysis:
+            analysis["sources"]["search_results"] = {
+                "total_results": len(search_analysis),
+                "top_mentions": search_analysis[:5] if isinstance(search_analysis, list) else []
+            }
+        
+        # 5. Search ecommerce platforms (Walmart, eBay, Flipkart)
+        print(f"  🛒 Fetching ecommerce data...")
+        ecommerce_data = {}
+        
+        walmart_products = service.search_walmart(product_name)
+        if walmart_products:
+            ecommerce_data["walmart"] = walmart_products[:3] if isinstance(walmart_products, list) else []
+        
+        ebay_products = service.search_ebay(product_name)
+        if ebay_products:
+            ecommerce_data["ebay"] = ebay_products[:3] if isinstance(ebay_products, list) else []
+        
+        flipkart_products = service.search_flipkart(product_name)
+        if flipkart_products:
+            ecommerce_data["flipkart"] = flipkart_products[:3] if isinstance(flipkart_products, list) else []
+        
+        if ecommerce_data:
+            analysis["sources"]["ecommerce"] = ecommerce_data
+        
+        print(f"✅ Comprehensive analysis complete for {product_name}")
+        
+        return {
+            "success": True,
+            "data": analysis
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in product analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }

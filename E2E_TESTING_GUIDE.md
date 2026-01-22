@@ -293,8 +293,9 @@ npx playwright show-trace test-results/trace.zip
 ### Method 4: Console Logging
 ```typescript
 test('example', async ({ page }) => {
+  const baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:5173';
   console.log('Page title:', await page.title());
-  await page.goto('http://localhost:5173');
+  await page.goto(baseUrl);
 });
 ```
 

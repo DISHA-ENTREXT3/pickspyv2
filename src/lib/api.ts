@@ -200,6 +200,29 @@ class APIService {
   async getAnalytics(): Promise<AnalyticsResponse> {
     return this.apiCall('/analytics/products', 'GET');
   }
+
+  /**
+   * Get comprehensive product analysis from all scrapers
+   */
+  async getProductAnalysis(productName: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/product-analysis/${encodeURIComponent(productName)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Error fetching product analysis for ${productName}:`, error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

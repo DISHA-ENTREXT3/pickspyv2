@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -27,8 +28,8 @@ export default function SignupPage() {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      // Note: Redirect to dashboard after OAuth - need to configure in Supabase
-      const { error } = await (window as any).supabase?.auth?.signInWithOAuth({
+      // Use the imported supabase client for OAuth
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
@@ -37,6 +38,7 @@ export default function SignupPage() {
       });
       
       if (error) {
+        console.error('Google OAuth error:', error);
         toast.error(`Authentication error: ${error.message}`);
       }
     } catch (err) {

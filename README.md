@@ -178,15 +178,20 @@ Create a `.env.local` file with these variables:
 
 ```env
 # Frontend (Vite)
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
-VITE_BACKEND_API_URL=http://localhost:8000
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+VITE_BACKEND_API_URL=https://pickspy-backend.onrender.com
 
 # Backend (Python)
-SUPABASE_URL=your_supabase_url
+SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_key
 SCRAPINGDOG_API_KEY=your_api_key
 ```
+
+**For production (Vercel/Render/Supabase):**
+- Use production Supabase URL (not localhost)
+- Set VITE_BACKEND_API_URL to your Render backend URL
+- Store all keys in environment variables, never commit `.env` files
 
 See `.env.example` for the full list.
 
