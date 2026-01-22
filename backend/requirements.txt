@@ -11,3 +11,5 @@ selenium==4.15.2
 webdriver-manager==4.0.1
 google-api-python-client==2.108.0
 pytrends==4.9.2
+scrapy
+fake-useragent

@@ -155,20 +155,112 @@ def save_batch(products):
     except Exception as e:
         print(f"DB Error: {e}")
 
+# --- SCRAPERS WRAPPER ---
+scrapers = get_native_scrapers()
+
+def scrape_amazon_listing(query, category, limit=20):
+    try:
+        results = scrapers["amazon"].search(query, limit)
+        if not results: return []
+        
+        parsed = []
+        for p in results:
+            try:
+                # Clean price
+                price_str = str(p.get("price", "0")).replace("$", "").replace(",", "")
+                price = float(price_str) if price_str else 0
+                
+                # Create ID
+                p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
+                
+                parsed.append(build_product(
+                    p_id, p["name"], price, None, "amazon", category
+                ))
+            except: continue
+        return parsed
+    except: return []
+
+def scrape_flipkart_listing(query, category, limit=20):
+    try:
+        results = scrapers["flipkart"].search(query, limit)
+        if not results: return []
+        
+        parsed = []
+        for p in results:
+            try:
+                # Clean price (₹ symbol mostly)
+                price_str = str(p.get("price", "0")).replace("₹", "").replace(",", "")
+                price = float(price_str) * 0.012 # approx INR to USD
+                
+                # Create ID
+                p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
+                
+                parsed.append(build_product(
+                    p_id, p["name"], round(price, 2), None, "flipkart", category
+                ))
+            except: continue
+        return parsed
+    except: return []
+
+def scrape_ebay_listing(query, category, limit=20):
+    try:
+        results = scrapers["ebay"].search(query, limit)
+        if not results: return []
+        
+        parsed = []
+        for p in results:
+            try:
+                # Clean price
+                price_str = str(p.get("price", "0")).replace("$", "").replace(",", "")
+                price = float(price_str) if price_str else 0
+                
+                # Create ID
+                p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
+                
+                parsed.append(build_product(
+                    p_id, p["name"], price, p.get("url"), "ebay", category
+                ))
+            except: continue
+        return parsed
+    except: return []
+
+def scrape_google_shopping_listing(query, category, limit=20):
+    try:
+        results = scrapers["google_shopping"].search(query, limit)
+        if not results: return []
+        
+        parsed = []
+        for p in results:
+            try:
+                # Clean price
+                price_str = str(p.get("price", "0")).replace("$", "").replace(",", "")
+                price = float(price_str) if price_str else 0
+                
+                # Create ID
+                p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
+                
+                parsed.append(build_product(
+                    p_id, p["name"], price, p.get("imageUrl"), "google_shopping", category
+                ))
+            except: continue
+        return parsed
+    except: return []
+
 # --- AGGREGATOR TASK ---
 
 def run_deep_scan():
     print("Starting Deep Scan...")
     
-    # 1. Google Trends Keywords (Try fetch)
+    # 1. Google Trends Keywords (Native)
     trends = []
     try:
-        r = requests.get("https://trends.google.com/trends/trendingsearches/daily/rss?geo=US", timeout=3)
-        if r.status_code == 200:
-            import xml.etree.ElementTree as ET
-            root = ET.fromstring(r.content)
-            trends = [i.find('title').text for i in root.findall('.//item')][:5]
-    except: trends = []
+        # Fetch trending searches for US
+        trend_res = scrapers["google_trends"].get_trends("trending products", timeframe="now 1-d")
+        if trend_res and "related_queries" in trend_res:
+             trends = [q.get("query") for q in trend_res["related_queries"]][:5]
+    except Exception as e: 
+        print(f"Trends Error: {e}")
+        trends = []
 
     # 2. Iterate Categories with fallback
     for cat in CATEGORIES:
@@ -177,16 +269,23 @@ def run_deep_scan():
         found_products = []
         
         for q in queries:
-            amz = scrape_amazon_listing(q, cat, limit=20)
-            fk = scrape_flipkart_listing(q, cat, limit=20)
+            print(f"Scanning for {q}...")
+            # Parallel scraping simulation (sequential here for safety)
+            amz = scrape_amazon_listing(q, cat, limit=10)
+            ebay = scrape_ebay_listing(q, cat, limit=10)
+            gshop = scrape_google_shopping_listing(q, cat, limit=10)
+            fk = scrape_flipkart_listing(q, cat, limit=5)
+            
             found_products.extend(amz)
+            found_products.extend(ebay)
+            found_products.extend(gshop)
             found_products.extend(fk)
         
         # Step B: Smart Fill if blocked
-        if len(found_products) < 20: 
-            # If we didn't find at least 20 items per category (likely blocked), FILL IT.
-            needed = 40 - len(found_products) 
-            print(f"Scrapers blocked for {cat}, filling {needed} items...")
+        if len(found_products) < 10: 
+            # If we didn't find enough items per category (likely blocked), FILL IT.
+            needed = 20 - len(found_products) 
+            print(f"Scrapers low yield for {cat}, filling {needed} items...")
             found_products.extend(generate_smart_fill(cat, limit=needed))
             
         save_batch(found_products)
@@ -213,12 +312,11 @@ async def trigger_deep_scan(background_tasks: BackgroundTasks):
 
 @app.get("/health")
 def health():
-    scrapingdog = get_scrapingdog()
     return {
         "status": "online",
         "mode": "deep-scraper-v2",
         "database": "connected" if get_db().is_connected() else "disconnected",
-        "scrapingdog": "configured" if scrapingdog.is_configured() else "not configured"
+        "scraping_engine": "native-soup-selenium"
     }
 
 
