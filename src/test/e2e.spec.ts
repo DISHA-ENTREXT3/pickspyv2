@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:5173';
+const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://pickspy.vercel.app';
 
 test.describe('PickSpy E2E Tests - Full Application Flow', () => {
   

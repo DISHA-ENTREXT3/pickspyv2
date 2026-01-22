@@ -1,28 +1,20 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
-import { generateRedditThreads, generateTrendData, generateCompetitors } from '@/lib/dataGenerators';
 import { apiService } from '@/lib/api';
-import { RedditThread } from '@/types/product';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { TrendChart } from '@/components/product/TrendChart';
-import { RedditThreads } from '@/components/product/RedditThreads';
-import { CompetitorAnalysis } from '@/components/product/CompetitorAnalysis';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft, 
   TrendingUp, 
   TrendingDown, 
   Minus,
-  MessageCircle,
   Clock,
   Zap,
   Target,
   BarChart3,
-  Users,
   AlertCircle,
   Loader2,
 } from 'lucide-react';
@@ -65,7 +57,7 @@ const ProductDetail = () => {
     } catch (err) {
       console.error('❌ Error fetching live analysis:', err);
       setError(err instanceof Error ? err.message : 'Failed to load analysis');
-      toast.error('Could not load live analysis, showing default data');
+      toast.error('Could not load live analysis');
     } finally {
       setIsLoading(false);
     }
@@ -81,15 +73,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  const threads: RedditThread[] = (product.redditThreads && product.redditThreads.length > 0) 
-    ? product.redditThreads 
-    : generateRedditThreads(product.name, product.id);
-    
-  const trendData = generateTrendData(product.id, product.velocityScore, product.weeklyGrowth);
-  const competitors = (product.competitors && product.competitors.length > 0)
-    ? product.competitors
-    : generateCompetitors(product.name, product.price);
 
   const getSignalBadge = () => {
     switch (product.demandSignal) {
@@ -302,89 +285,6 @@ const ProductDetail = () => {
             </div>
           </Card>
         )}
-
-        {/* Reddit Themes */}
-        <Card variant="glass" className="mb-8 p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Top Reddit Themes</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {product.topRedditThemes.map((theme) => (
-              <Badge key={theme} variant="outline" className="text-sm">
-                {theme}
-              </Badge>
-            ))}
-          </div>
-
-          {product.socialSignals && product.socialSignals.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-border/50">
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="h-4 w-4 text-signal-bullish" />
-                <span className="text-sm font-medium">Platform Intelligence</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {product.socialSignals.map((signal) => (
-                  <Badge key={signal} variant="bullish" className="text-xs">
-                    ✨ {signal}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Tabbed Content */}
-        <Tabs defaultValue="trends" className="space-y-6">
-          <TabsList className="bg-secondary/50 p-1">
-            <TabsTrigger value="trends" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Trend Analysis
-            </TabsTrigger>
-            <TabsTrigger value="reddit" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Reddit Threads ({threads.length})
-            </TabsTrigger>
-            <TabsTrigger value="faq" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Clock className="h-4 w-4 mr-2" />
-              FAQ ({product.faqs?.length || 0})
-            </TabsTrigger>
-            <TabsTrigger value="competitors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Target className="h-4 w-4 mr-2" />
-              Competitors ({competitors.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="trends" className="space-y-6 animate-fade-in">
-            <TrendChart data={trendData} productName={product.name} />
-          </TabsContent>
-
-          <TabsContent value="reddit" className="animate-fade-in">
-            <RedditThreads threads={threads} />
-          </TabsContent>
-
-          <TabsContent value="faq" className="animate-fade-in space-y-4">
-            <h3 className="text-xl font-bold mb-4">Frequently Asked Questions</h3>
-            {product.faqs && product.faqs.length > 0 ? (
-              <div className="space-y-4">
-                {product.faqs.map((faq, idx) => (
-                  <Card key={idx} variant="glass">
-                    <CardContent className="pt-6">
-                      <h4 className="font-semibold text-lg mb-2">Q: {faq.question}</h4>
-                      <p className="text-muted-foreground">A: {faq.answer}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">No FAQs available for this product yet.</p>
-            )}
-          </TabsContent>
-
-          <TabsContent value="competitors" className="animate-fade-in">
-            <CompetitorAnalysis competitors={competitors} currentPrice={product.price} />
-          </TabsContent>
-        </Tabs>
       </main>
 
       <Footer />

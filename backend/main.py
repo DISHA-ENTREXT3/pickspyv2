@@ -36,7 +36,7 @@ def root():
         "endpoints": {
             "health": "/health",
             "refresh": "POST /refresh",
-            "quota": "/api/scrapingdog-quota"
+            "scraper-status": "/api/scraper-status"
         }
     }
 
@@ -138,139 +138,6 @@ def generate_smart_fill(category, limit=20):
         p_id = hashlib.md5(f"{name}{i}".encode()).hexdigest()[:12]
         products.append(build_product(f"gen-{p_id}", name, price, None, source, category))
         
-    return products
-
-def scrape_amazon_listing(query, category, limit=40):
-    """Scrape Amazon listings using ScrapingDog API"""
-    products = []
-    scrapingdog = get_scrapingdog()
-    
-    try:
-        url = f"https://www.amazon.com/s?k={query.replace(' ', '+')}"
-        
-        # Try ScrapingDog first if configured
-        if scrapingdog.is_configured():
-            print(f"📍 Scraping Amazon for: {query}")
-            html = scrapingdog.scrape_with_javascript(url)
-            if html:
-                print(f"✅ Got HTML from ScrapingDog ({len(html)} bytes)")
-                soup = BeautifulSoup(html, 'html.parser')
-                items = soup.select('div[data-component-type="s-search-result"]')
-                print(f"🔍 Found {len(items)} Amazon items")
-                
-                for item in items:
-                    if len(products) >= limit: break
-                    
-                    name_el = item.select_one('h2 a span')
-                    if not name_el: continue
-                    name = name_el.get_text(strip=True)
-                    
-                    price_el = item.select_one('span.a-price-whole')
-                    price = float(price_el.get_text(strip=True).replace(',','').replace('.','')) if price_el else 0
-                    
-                    img_el = item.select_one('img.s-image')
-                    img_url = img_el.get('src') if img_el else ""
-
-                    if price == 0: continue
-                    
-                    p_id = hashlib.md5(name.encode()).hexdigest()[:12]
-                    products.append(build_product(p_id, name, price, img_url, "amazon", category))
-                print(f"✅ Scraped {len(products)} from Amazon")
-                return products
-        
-        # Fallback to direct scraping if ScrapingDog not available
-        print(f"⚠️ Falling back to direct scraping for Amazon")
-        response = requests.get(url, headers=get_header(), timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            items = soup.select('div[data-component-type="s-search-result"]')
-            
-            for item in items:
-                if len(products) >= limit: break
-                
-                name_el = item.select_one('h2 a span')
-                if not name_el: continue
-                name = name_el.get_text(strip=True)
-                
-                price_el = item.select_one('span.a-price-whole')
-                price = float(price_el.get_text(strip=True).replace(',','').replace('.','')) if price_el else 0
-                
-                img_el = item.select_one('img.s-image')
-                img_url = img_el.get('src') if img_el else ""
-
-                if price == 0: continue
-                
-                p_id = hashlib.md5(name.encode()).hexdigest()[:12]
-                products.append(build_product(p_id, name, price, img_url, "amazon", category))
-                
-    except Exception as e:
-        print(f"❌ Amazon scrape error: {e}")
-    
-    print(f"📤 Returning {len(products)} Amazon products")
-    return products
-
-def scrape_flipkart_listing(query, category, limit=40):
-    """Scrape Flipkart listings using ScrapingDog API"""
-    products = []
-    scrapingdog = get_scrapingdog()
-    
-    try:
-        url = f"https://www.flipkart.com/search?q={query.replace(' ', '+')}"
-        
-        # Try ScrapingDog first if configured
-        if scrapingdog.is_configured():
-            print(f"📍 Scraping Flipkart for: {query}")
-            html = scrapingdog.scrape_with_javascript(url)
-            if html:
-                print(f"✅ Got HTML from ScrapingDog ({len(html)} bytes)")
-                soup = BeautifulSoup(html, 'html.parser')
-                items = soup.select('div._1AtVbE')
-                print(f"🔍 Found {len(items)} Flipkart items")
-                
-                for item in items:
-                    if len(products) >= limit: break
-                    name_el = item.select_one('div._4rR01T') or item.select_one('a.s1Q9rs')
-                    if not name_el: continue
-                    name = name_el.get_text(strip=True)
-                    
-                    price_el = item.select_one('div._30jeq3')
-                    price_text = price_el.get_text(strip=True) if price_el else ""
-                    clean_price = re.sub(r'[^\d.]', '', price_text)
-                    price = float(clean_price) if clean_price else 0
-                    
-                    img_el = item.select_one('img._396cs4')
-                    img_url = img_el.get('src') if img_el else ""
-
-                    p_id = hashlib.md5(name.encode()).hexdigest()[:12]
-                    products.append(build_product(p_id, name, price, img_url, "flipkart", category))
-                return products
-        
-        # Fallback to direct scraping if ScrapingDog not available
-        response = requests.get(url, headers=get_header(), timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            items = soup.select('div._1AtVbE')
-            
-            for item in items:
-                if len(products) >= limit: break
-                name_el = item.select_one('div._4rR01T') or item.select_one('a.s1Q9rs')
-                if not name_el: continue
-                name = name_el.get_text(strip=True)
-                
-                price_el = item.select_one('div._30jeq3')
-                price_text = price_el.get_text(strip=True) if price_el else ""
-                clean_price = re.sub(r'[^\d.]', '', price_text)
-                price = float(clean_price) if clean_price else 0
-                
-                img_el = item.select_one('img._396cs4')
-                img_url = img_el.get('src') if img_el else ""
-
-                p_id = hashlib.md5(name.encode()).hexdigest()[:12]
-                products.append(build_product(p_id, name, price, img_url, "flipkart", category))
-    except Exception as e:
-        print(f"❌ Flipkart scrape error: {e}")
-    
-    print(f"📤 Returning {len(products)} Flipkart products")
     return products
 
 def save_batch(products):
