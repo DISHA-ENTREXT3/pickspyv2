@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
-import { generateTrendData } from '@/lib/dataGenerators';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -134,11 +133,10 @@ const Compare = () => {
 
   // Prepare trend comparison data
   const trendComparisonData = selectedProducts.length > 0
-    ? generateTrendData(selectedProducts[0].id, selectedProducts[0].velocityScore, selectedProducts[0].weeklyGrowth).map((point, index) => {
-        const data: Record<string, string | number> = { date: point.date };
+    ? Array.from({ length: 7 }).map((_, index) => {
+        const data: Record<string, string | number> = { date: `Day ${index + 1}` };
         selectedProducts.forEach(product => {
-          const productTrend = generateTrendData(product.id, product.velocityScore, product.weeklyGrowth);
-          data[`${product.name} Velocity`] = productTrend[index]?.velocity || 0;
+          data[`${product.name} Velocity`] = Math.floor(product.velocityScore * (0.8 + Math.random() * 0.4));
         });
         return data;
       })
