@@ -70,8 +70,7 @@ class SupabaseDB:
                     "social_signals": p.get("social_signals"),
                     "faqs": p.get("faqs"),
                     "competitors": p.get("competitors"),
-                    "reddit_threads": p.get("redditThreads"),
-                    "updated_at": datetime.utcnow().isoformat()
+                    "reddit_threads": p.get("redditThreads")
                 })
             
             # Batch upsert in chunks of 50

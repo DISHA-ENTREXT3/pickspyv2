@@ -537,17 +537,32 @@ async def get_product_analysis(product_name: str):
         print(f"  🛒 Fetching ecommerce data...")
         ecommerce_data = {}
         
-        walmart_products = service.search_walmart(product_name)
-        if walmart_products:
-            ecommerce_data["walmart"] = walmart_products[:3] if isinstance(walmart_products, list) else []
+        try:
+            walmart_products = service.search_walmart(product_name)
+            if walmart_products and isinstance(walmart_products, dict):
+                products_list = walmart_products.get('products', [])
+                if products_list:
+                    ecommerce_data["walmart"] = products_list[:3]
+        except Exception as e:
+            print(f"⚠️  Walmart fetch failed: {e}")
         
-        ebay_products = service.search_ebay(product_name)
-        if ebay_products:
-            ecommerce_data["ebay"] = ebay_products[:3] if isinstance(ebay_products, list) else []
+        try:
+            ebay_products = service.search_ebay(product_name)
+            if ebay_products and isinstance(ebay_products, dict):
+                products_list = ebay_products.get('products', [])
+                if products_list:
+                    ecommerce_data["ebay"] = products_list[:3]
+        except Exception as e:
+            print(f"⚠️  eBay fetch failed: {e}")
         
-        flipkart_products = service.search_flipkart(product_name)
-        if flipkart_products:
-            ecommerce_data["flipkart"] = flipkart_products[:3] if isinstance(flipkart_products, list) else []
+        try:
+            flipkart_products = service.search_flipkart(product_name)
+            if flipkart_products and isinstance(flipkart_products, dict):
+                products_list = flipkart_products.get('products', [])
+                if products_list:
+                    ecommerce_data["flipkart"] = products_list[:3]
+        except Exception as e:
+            print(f"⚠️  Flipkart fetch failed: {e}")
         
         if ecommerce_data:
             analysis["sources"]["ecommerce"] = ecommerce_data
