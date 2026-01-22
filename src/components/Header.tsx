@@ -65,13 +65,22 @@ export const Header = () => {
             </Button>
             
             {user ? (
-              <Button 
-                variant="glass" 
-                size="sm"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </Button>
+              <>
+                 <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Dashboard
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </Button>
+              </>
             ) : (
               <Button 
                 variant="glass" 

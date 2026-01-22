@@ -9,6 +9,7 @@ import Pricing from "./pages/Pricing";
 import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
 import SignupPage from "./pages/SignupPage";
+import Dashboard from "./pages/Dashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<SignupPage />} />

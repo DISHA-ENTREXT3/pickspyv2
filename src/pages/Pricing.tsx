@@ -1,87 +1,23 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PLANS } from '@/lib/plans';
+import { toast } from 'sonner';
 import { 
   Check, 
-  Zap, 
-  Crown, 
-  Building2,
-  TrendingUp,
-  MessageCircle,
-  Target,
   Sparkles,
   BarChart3,
   Users,
   Shield,
+  MessageCircle,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
-
-const plans = [
-  {
-    name: 'Free',
-    description: 'Discover trending products',
-    price: '$0',
-    period: '/forever',
-    icon: TrendingUp,
-    popular: false,
-    features: [
-      { text: 'Browse trending products', included: true },
-      { text: 'Basic filters & search', included: true },
-      { text: 'View velocity scores', included: true },
-      { text: '5 product views/day', included: true },
-      { text: 'Reddit sentiment preview', included: true },
-      { text: 'AI Product Analyzer', included: false },
-      { text: 'Historical trend charts', included: false },
-      { text: 'Competitor analysis', included: false },
-      { text: 'Product comparison', included: false },
-    ],
-    cta: 'Get Started',
-    variant: 'glass' as const,
-  },
-  {
-    name: 'Pro',
-    description: 'For serious dropshippers',
-    price: '$29',
-    period: '/month',
-    icon: Zap,
-    popular: true,
-    features: [
-      { text: 'Everything in Free', included: true },
-      { text: 'Unlimited product views', included: true },
-      { text: '50 AI analyses/month', included: true },
-      { text: 'Full Reddit thread access', included: true },
-      { text: 'Historical trend charts', included: true },
-      { text: 'Competitor analysis', included: true },
-      { text: 'Product comparison (up to 4)', included: true },
-      { text: 'Export reports as PDF', included: true },
-      { text: 'Email alerts for trends', included: false },
-    ],
-    cta: 'Start Pro Trial',
-    variant: 'hero' as const,
-  },
-  {
-    name: 'Business',
-    description: 'For teams & agencies',
-    price: '$99',
-    period: '/month',
-    icon: Crown,
-    popular: false,
-    features: [
-      { text: 'Everything in Pro', included: true },
-      { text: 'Unlimited AI analyses', included: true },
-      { text: 'Compare up to 10 products', included: true },
-      { text: 'API access', included: true },
-      { text: 'White-label reports', included: true },
-      { text: 'Real-time email alerts', included: true },
-      { text: 'Priority support', included: true },
-      { text: 'Team collaboration (5 seats)', included: true },
-      { text: 'Custom integrations', included: true },
-    ],
-    cta: 'Contact Sales',
-    variant: 'glass' as const,
-  },
-];
 
 const comparisonFeatures = [
   {
@@ -127,6 +63,51 @@ const comparisonFeatures = [
 ];
 
 const Pricing = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [currentTier, setCurrentTier] = useState<string>('Free');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        // Fetch current tier
+        supabase.from('profiles').select('subscription_tier').eq('id', user.id).single()
+          .then(({ data }) => {
+             if (data) setCurrentTier(data.subscription_tier);
+          });
+      }
+    });
+  }, []);
+
+  const handlePlanSelect = async (planName: string) => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+
+    if (planName === currentTier) {
+      return;
+    }
+
+    // Mock Upgrade Logic - In reality this would go to Stripe
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_tier: planName })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      setCurrentTier(planName);
+      toast.success(`Plan updated to ${planName}`);
+      navigate('/dashboard');
+    } catch (e) {
+      toast.error('Failed to update plan. Please try again.');
+      console.error(e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -149,21 +130,21 @@ const Pricing = () => {
         {/* Pricing Cards */}
         <section className="container mx-auto px-4 mb-24">
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {plans.map((plan) => (
+            {PLANS.map((plan) => (
               <Card 
                 key={plan.name}
-                variant={plan.popular ? 'signal' : 'glass'}
-                className={`relative overflow-hidden ${plan.popular ? 'border-primary md:scale-105 md:-my-4 shadow-glow' : ''}`}
+                variant={plan.name === 'Pro' ? 'signal' : 'glass'}
+                className={`relative overflow-hidden ${plan.name === 'Pro' ? 'border-primary md:scale-105 md:-my-4 shadow-glow' : ''}`}
               >
-                {plan.popular && (
+                {plan.name === 'Pro' && (
                   <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
                     MOST POPULAR
                   </div>
                 )}
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className={`p-2 rounded-lg ${plan.popular ? 'bg-primary/20' : 'bg-secondary'}`}>
-                      <plan.icon className={`h-5 w-5 ${plan.popular ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div className={`p-2 rounded-lg ${plan.name === 'Pro' ? 'bg-primary/20' : 'bg-secondary'}`}>
+                      <plan.icon className={`h-5 w-5 ${plan.name === 'Pro' ? 'text-primary' : 'text-muted-foreground'}`} />
                     </div>
                     <div>
                       <CardTitle className="text-xl">{plan.name}</CardTitle>
@@ -177,11 +158,13 @@ const Pricing = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button 
-                    variant={plan.variant} 
+                    variant={plan.name === 'Pro' ? 'hero' : 'glass'} 
                     className="w-full"
                     size="lg"
+                    onClick={() => handlePlanSelect(plan.name)}
+                    disabled={user && currentTier === plan.name}
                   >
-                    {plan.cta}
+                     {user ? (currentTier === plan.name ? 'Current Plan' : `Switch to ${plan.name}`) : 'Get Started'}
                   </Button>
                   <div className="space-y-3 pt-4 border-t border-border/50">
                     {plan.features.map((feature) => (
@@ -283,7 +266,7 @@ const Pricing = () => {
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
                 Try any paid plan risk-free. If you're not finding winning products within 14 days, we'll refund you—no questions asked.
               </p>
-              <Button variant="hero" size="lg">
+              <Button variant="hero" size="lg" onClick={() => navigate('/signup')}>
                 Start Your Free Trial
                 <Zap className="h-4 w-4 ml-2" />
               </Button>

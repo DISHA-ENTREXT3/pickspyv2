@@ -1,44 +1,46 @@
--- Table to store products
-create table if not exists products (
-  id text primary key,
-  name text not null,
-  category text not null,
-  price decimal not null,
-  image_url text,
-  velocity_score integer,
-  saturation_score integer,
-  demand_signal text,
-  weekly_growth decimal,
-  reddit_mentions integer,
-  sentiment_score integer,
-  top_reddit_themes text[],
-  last_updated text,
-  source text default 'amazon',
-  rating numeric default 0,
-  review_count integer default 0,
-  ad_signal text default 'low',
-  reddit_threads jsonb default '[]',
-  faqs jsonb default '[]',
-  competitors jsonb default '[]',
-  created_at timestamp with time zone default now()
+-- Existing products table (kept for context, but you likely only need to run the new parts)
+-- create table if not exists products ...
+
+-- Profiles table to store user subscription data
+create table if not exists public.profiles (
+    id uuid references auth.users on delete cascade primary key, email text, full_name text, subscription_tier text default 'Free', -- 'Free', 'Pro', 'Business'
+    created_at timestamp
+    with
+        time zone default now()
 );
 
 -- Enable RLS
-alter table products enable row level security;
+alter table public.profiles enable row level security;
 
--- Policy to allow anonymous read access
-create policy "Allow public read access" on products for
-select using (true);
+-- Policies
+create policy "Users can view their own profile" on public.profiles for
+select using (auth.uid () = id);
 
--- Policy to allow anonymous insert (for demonstration/refresh)
-create policy "Allow public insert" on products for
+create policy "Users can update their own profile" on public.profiles for
+update using (auth.uid () = id);
+
+-- Function to handle new user signup
+create or replace function public.handle_new_user() 
+returns trigger as 
+$$
+begin
+	insert into
+	    public.profiles (id, email, full_name)
+	values (
+	        new.id, new.email, new.raw_user_meta_data ->> 'full_name'
+	    );
+	return new;
+end;
+$$
+language
+plpgsql 
+
+security definer;
+
+-- Trigger to call the function on new user creation
+drop trigger if exists on_auth_user_created on auth.users;
+
+create trigger on_auth_user_created after
 insert
-with
-    check (true);
-
--- Policy to allow anonymous update
-create policy "Allow public update" on products for
-update using (true);
-
--- Policy to allow anonymous delete
-create policy "Allow public delete" on products for delete using (true);
+    on auth.users for each row
+execute procedure public.handle_new_user ();
