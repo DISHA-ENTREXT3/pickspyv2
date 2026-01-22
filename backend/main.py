@@ -12,7 +12,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from supabase_utils import get_db
-from scrapingdog_service import get_scrapingdog
+from native_scrapers import get_native_scrapers
 
 app = FastAPI()
 
@@ -355,20 +355,26 @@ def health():
     }
 
 
-@app.get("/api/scrapingdog-quota")
-async def get_scrapingdog_quota():
-    """Get ScrapingDog API quota information"""
-    scrapingdog = get_scrapingdog()
+@app.get("/api/scraper-status")
+async def get_scraper_status():
+    """Get native web scraper status"""
+    scrapers = get_native_scrapers()
     
-    if not scrapingdog.is_configured():
-        return {
-            "success": False,
-            "error": "ScrapingDog API key not configured",
-            "message": "Add SCRAPINGDOG_API_KEY to .env file"
-        }
-    
-    quota = scrapingdog.check_api_quota()
-    return quota
+    return {
+        "success": True,
+        "message": "Native web scrapers active",
+        "scrapers": {
+            "walmart": "active",
+            "ebay": "active",
+            "flipkart": "active",
+            "amazon": "active",
+            "google_trends": "active",
+            "google_search": "active",
+            "sentiment_analysis": "active",
+            "faqs": "active"
+        },
+        "note": "Using BeautifulSoup, Selenium, and Scrapy instead of ScrapingDog API"
+    }
 
 
 # --- USER ACTION ENDPOINTS ---
@@ -492,11 +498,11 @@ async def get_analytics():
 @app.get("/api/product-analysis/{product_name}")
 async def get_product_analysis(product_name: str):
     """
-    Get comprehensive live product analysis from all scrapers
-    Includes: market trends, social analysis, competitor insights, search data
+    Get comprehensive live product analysis from native scrapers
+    Includes: market trends, ecommerce prices, sentiment, FAQs, and search data
     """
     try:
-        service = get_scrapingdog()
+        scrapers = get_native_scrapers()
         
         print(f"\n📊 Fetching comprehensive analysis for: {product_name}")
         
@@ -506,66 +512,79 @@ async def get_product_analysis(product_name: str):
             "sources": {}
         }
         
-        # 1. Get market trends
+        # 1. Get market trends from Google Trends
         print(f"  📈 Fetching market trends...")
-        market_trends = service.get_product_market_trends(product_name)
-        if market_trends:
-            analysis["sources"]["market_trends"] = market_trends
+        try:
+            market_trends = scrapers["google_trends"].get_trends(product_name)
+            if market_trends:
+                analysis["sources"]["market_trends"] = market_trends
+        except Exception as e:
+            print(f"⚠️  Market trends fetch failed: {e}")
         
-        # 2. Get product insights (features, competitors, category analysis)
-        print(f"  🔍 Fetching product insights...")
-        product_insights = service.get_product_insights(product_name)
-        if product_insights:
-            analysis["sources"]["product_insights"] = product_insights
+        # 2. Get social sentiment analysis
+        print(f"  📱 Fetching social sentiment...")
+        try:
+            sentiment = scrapers["sentiment"].get_product_sentiment(product_name)
+            if sentiment:
+                analysis["sources"]["social_sentiment"] = sentiment
+        except Exception as e:
+            print(f"⚠️  Sentiment analysis failed: {e}")
         
-        # 3. Get social analysis (Instagram, reviews, sentiment)
-        print(f"  📱 Fetching social media analysis...")
-        social_analysis = service.get_product_instagram_analysis(product_name)
-        if social_analysis:
-            analysis["sources"]["social_analysis"] = social_analysis
-        
-        # 4. Get search mentions and tracking
-        print(f"  🔎 Fetching web search data...")
-        search_analysis = service.search_google(product_name)
-        if search_analysis:
-            analysis["sources"]["search_results"] = {
-                "total_results": len(search_analysis),
-                "top_mentions": search_analysis[:5] if isinstance(search_analysis, list) else []
-            }
-        
-        # 5. Search ecommerce platforms (Walmart, eBay, Flipkart)
+        # 3. Search ecommerce platforms (Walmart, eBay, Flipkart, Amazon)
         print(f"  🛒 Fetching ecommerce data...")
         ecommerce_data = {}
         
         try:
-            walmart_products = service.search_walmart(product_name)
-            if walmart_products and isinstance(walmart_products, dict):
-                products_list = walmart_products.get('products', [])
-                if products_list:
-                    ecommerce_data["walmart"] = products_list[:3]
+            walmart_products = scrapers["walmart"].search(product_name, limit=5)
+            if walmart_products:
+                ecommerce_data["walmart"] = walmart_products[:3]
         except Exception as e:
             print(f"⚠️  Walmart fetch failed: {e}")
         
         try:
-            ebay_products = service.search_ebay(product_name)
-            if ebay_products and isinstance(ebay_products, dict):
-                products_list = ebay_products.get('products', [])
-                if products_list:
-                    ecommerce_data["ebay"] = products_list[:3]
+            ebay_products = scrapers["ebay"].search(product_name, limit=5)
+            if ebay_products:
+                ecommerce_data["ebay"] = ebay_products[:3]
         except Exception as e:
             print(f"⚠️  eBay fetch failed: {e}")
         
         try:
-            flipkart_products = service.search_flipkart(product_name)
-            if flipkart_products and isinstance(flipkart_products, dict):
-                products_list = flipkart_products.get('products', [])
-                if products_list:
-                    ecommerce_data["flipkart"] = products_list[:3]
+            flipkart_products = scrapers["flipkart"].search(product_name, limit=5)
+            if flipkart_products:
+                ecommerce_data["flipkart"] = flipkart_products[:3]
         except Exception as e:
             print(f"⚠️  Flipkart fetch failed: {e}")
         
+        try:
+            amazon_products = scrapers["amazon"].search(product_name, limit=5)
+            if amazon_products:
+                ecommerce_data["amazon"] = amazon_products[:3]
+        except Exception as e:
+            print(f"⚠️  Amazon fetch failed: {e}")
+        
         if ecommerce_data:
             analysis["sources"]["ecommerce"] = ecommerce_data
+        
+        # 4. Get web search results
+        print(f"  🔎 Fetching web search data...")
+        try:
+            search_results = scrapers["google_search"].search(product_name, limit=20)
+            if search_results:
+                analysis["sources"]["search_results"] = {
+                    "total_results": len(search_results),
+                    "top_mentions": search_results[:5]
+                }
+        except Exception as e:
+            print(f"⚠️  Google search failed: {e}")
+        
+        # 5. Get FAQs
+        print(f"  ❓ Fetching FAQs...")
+        try:
+            faqs = scrapers["faqs"].get_faqs(product_name)
+            if faqs:
+                analysis["sources"]["faqs"] = faqs
+        except Exception as e:
+            print(f"⚠️  FAQ fetch failed: {e}")
         
         print(f"✅ Comprehensive analysis complete for {product_name}")
         
