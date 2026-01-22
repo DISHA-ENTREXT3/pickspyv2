@@ -66,7 +66,8 @@ export const Hero = () => {
                 className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/70 h-10"
               />
               <Button 
-                className="h-10 bg-[#FF6719] hover:bg-[#FF6719]/90 text-white border border-white/10"
+                variant="hero"
+                className="h-10 text-white border border-white/10"
                 onClick={() => window.open('https://substack.com/@entrextlabs?utm_campaign=profile&utm_medium=profile-page', '_blank')}
               >
                 <Mail className="h-4 w-4 mr-2" />
@@ -76,7 +77,9 @@ export const Hero = () => {
             
             <div className="flex items-center justify-center gap-4">
               <a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#5865F2] transition-colors"><MessageCircle className="h-5 w-5" /></a>
-              <a href="https://slack.com" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#4A154B] transition-colors"><Slack className="h-5 w-5" /></a>
+              <a href="https://substack.com/@entrextlabs" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#FF6719] transition-colors">
+                <svg role="img" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+              </a>
               <a href="https://www.linkedin.com/company/entrext/posts/?feedView=all" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#0077b5] transition-colors"><Linkedin className="h-5 w-5" /></a>
               <a href="https://www.instagram.com/entrext.labs" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#E4405F] transition-colors"><Instagram className="h-5 w-5" /></a>
               <a href="https://linktr.ee/entrext.pro" target="_blank" rel="noreferrer" className="text-white/40 hover:text-[#43E01C] transition-colors"><LinkIcon className="h-5 w-5" /></a>

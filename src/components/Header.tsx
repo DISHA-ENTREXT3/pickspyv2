@@ -1,12 +1,31 @@
+import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Zap, BarChart3 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    navigate('/');
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -44,22 +63,36 @@ export const Header = () => {
             >
               Pricing
             </Button>
-            <Button 
-              variant="glass" 
-              size="sm"
-              onClick={() => navigate('/signup')}
-            >
-              Sign In
-            </Button>
-            <Button 
-              variant="hero" 
-              size="sm" 
-              className="hidden sm:flex items-center gap-2"
-              onClick={() => navigate('/signup')}
-            >
-              <Zap className="h-4 w-4" />
-              Upgrade
-            </Button>
+            
+            {user ? (
+              <Button 
+                variant="glass" 
+                size="sm"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <Button 
+                variant="glass" 
+                size="sm"
+                onClick={() => navigate('/signup')}
+              >
+                Sign In
+              </Button>
+            )}
+
+            {!user && (
+              <Button 
+                variant="hero" 
+                size="sm" 
+                className="hidden sm:flex items-center gap-2"
+                onClick={() => navigate('/signup')}
+              >
+                <Zap className="h-4 w-4" />
+                Upgrade
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 export default function SignupPage() {
@@ -9,6 +10,15 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
       {/* Ambient Background */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <Button 
+        variant="ghost" 
+        className="absolute top-4 left-4 z-50 text-muted-foreground hover:text-primary"
+        onClick={() => window.history.back()}
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
       
       <div className="w-full max-w-md relative z-10 p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-2xl">
         <div className="flex justify-center mb-8">
