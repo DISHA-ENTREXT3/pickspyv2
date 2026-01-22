@@ -133,10 +133,13 @@ def scrape_amazon_listing(query, category, limit=40):
         
         # Try ScrapingDog first if configured
         if scrapingdog.is_configured():
+            print(f"📍 Scraping Amazon for: {query}")
             html = scrapingdog.scrape_with_javascript(url)
             if html:
+                print(f"✅ Got HTML from ScrapingDog ({len(html)} bytes)")
                 soup = BeautifulSoup(html, 'html.parser')
                 items = soup.select('div[data-component-type="s-search-result"]')
+                print(f"🔍 Found {len(items)} Amazon items")
                 
                 for item in items:
                     if len(products) >= limit: break
@@ -155,9 +158,11 @@ def scrape_amazon_listing(query, category, limit=40):
                     
                     p_id = hashlib.md5(name.encode()).hexdigest()[:12]
                     products.append(build_product(p_id, name, price, img_url, "amazon", category))
+                print(f"✅ Scraped {len(products)} from Amazon")
                 return products
         
         # Fallback to direct scraping if ScrapingDog not available
+        print(f"⚠️ Falling back to direct scraping for Amazon")
         response = requests.get(url, headers=get_header(), timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -182,8 +187,9 @@ def scrape_amazon_listing(query, category, limit=40):
                 products.append(build_product(p_id, name, price, img_url, "amazon", category))
                 
     except Exception as e:
-        print(f"Amazon scrape error: {e}")
+        print(f"❌ Amazon scrape error: {e}")
     
+    print(f"📤 Returning {len(products)} Amazon products")
     return products
 
 def scrape_flipkart_listing(query, category, limit=40):
@@ -196,10 +202,13 @@ def scrape_flipkart_listing(query, category, limit=40):
         
         # Try ScrapingDog first if configured
         if scrapingdog.is_configured():
+            print(f"📍 Scraping Flipkart for: {query}")
             html = scrapingdog.scrape_with_javascript(url)
             if html:
+                print(f"✅ Got HTML from ScrapingDog ({len(html)} bytes)")
                 soup = BeautifulSoup(html, 'html.parser')
                 items = soup.select('div._1AtVbE')
+                print(f"🔍 Found {len(items)} Flipkart items")
                 
                 for item in items:
                     if len(products) >= limit: break
@@ -242,8 +251,9 @@ def scrape_flipkart_listing(query, category, limit=40):
                 p_id = hashlib.md5(name.encode()).hexdigest()[:12]
                 products.append(build_product(p_id, name, price, img_url, "flipkart", category))
     except Exception as e:
-        print(f"Flipkart scrape error: {e}")
+        print(f"❌ Flipkart scrape error: {e}")
     
+    print(f"📤 Returning {len(products)} Flipkart products")
     return products
 
 def save_batch(products):
