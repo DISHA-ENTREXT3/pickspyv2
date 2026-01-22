@@ -496,7 +496,7 @@ async def get_product_analysis(product_name: str):
     Includes: market trends, social analysis, competitor insights, search data
     """
     try:
-        service = get_scrapingdog_service()
+        service = get_scrapingdog()
         
         print(f"\n📊 Fetching comprehensive analysis for: {product_name}")
         
