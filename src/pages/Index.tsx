@@ -42,8 +42,8 @@ const Index = () => {
         <Hero />
         
         {/* Marketing Sections */}
-        <Features />
         <HowItWorks />
+        <Features />
 
         <ProductGrid onAnalyze={handleAnalyze} />
         
