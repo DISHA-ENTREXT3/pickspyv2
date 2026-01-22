@@ -243,20 +243,3 @@ export default function Dashboard() {
     </div>
   );
 }
-                            <div className="text-2xl font-bold">0 <span className="text-sm text-muted-foreground font-normal">/ {currentPlan.name === 'Free' ? '0' : (currentPlan.name === 'Pro' ? '50' : 'Unlimited')}</span></div>
-                        </div>
-                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                            <div className="text-muted-foreground text-xs uppercase mb-1">Tracked Products</div>
-                            <div className="text-2xl font-bold">3 <span className="text-sm text-muted-foreground font-normal">/ Unlimited</span></div>
-                        </div>
-                    </div>
-                </CardContent>
-             </Card>
-
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
-}
