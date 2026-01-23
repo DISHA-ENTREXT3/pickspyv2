@@ -220,7 +220,15 @@ class GoogleTrendsScraper:
         try:
             print(f"🔄 Fetching Google Trends for: {keyword}")
             
-            pytrends = TrendReq(hl='en-US', tz=360)
+            # Add retries and backoff to handle rate limits
+            pytrends = TrendReq(
+                hl='en-US', 
+                tz=360, 
+                timeout=(10,25),
+                retries=2, 
+                backoff_factor=0.5,
+                requests_args={'verify': False} # Sometimes helps with SSL issues
+            )
             pytrends.build_payload([keyword], cat=0, timeframe=timeframe)
             
             # Get trend data
@@ -463,21 +471,28 @@ class BaseSeleniumScraper:
             return
 
         try:
+            from webdriver_manager.core.os_manager import ChromeType
+            
             options = webdriver.ChromeOptions()
-            options.add_argument('--headless')
+            options.add_argument('--headless=new') # Newer headless mode
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--disable-blink-features=AutomationControlled')
             options.add_argument(f'user-agent={UserAgent().random}')
             options.add_argument('--window-size=1920,1080')
             options.add_argument('--lang=en-US,en;q=0.9')
+            options.add_argument('--log-level=3')
             
             # Additional evasion
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option('useAutomationExtension', False)
             options.add_argument("--disable-infobars")
             
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            # Auto-install driver
+            print("🔧 Installing/Updating Chrome Driver...")
+            driver_path = ChromeDriverManager().install()
+            
+            self.driver = webdriver.Chrome(service=Service(driver_path), options=options)
             
             # Anti-detection script
             self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": UserAgent().random})
@@ -485,6 +500,8 @@ class BaseSeleniumScraper:
             
         except Exception as e:
             print(f"❌ Selenium Driver Error: {e}")
+            if "executable needs to be in PATH" in str(e):
+                print("💡 Please install Google Chrome and ensure chromedriver is in your PATH")
 
     def _get_page_content(self, url, wait_selector=None):
         if not self.driver:

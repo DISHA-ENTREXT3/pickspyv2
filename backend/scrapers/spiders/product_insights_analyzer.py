@@ -152,6 +152,9 @@ class GoogleProductInsightsAnalyzer:
 
             features = self.extract_product_features(main_product)
             
+            # 4. Instagram Trends
+            insta_data = self.analyze_instagram_trends(product_query)
+
             # Combine
             comprehensive_analysis = {
                 "product_query": product_query,
@@ -161,6 +164,7 @@ class GoogleProductInsightsAnalyzer:
                 "product_features": features,
                 "competitors": competitors,
                 "market_trends": trends_data,
+                "instagram_trends": insta_data,
                 "analysis_timestamp": datetime.now().isoformat()
             }
             
@@ -172,6 +176,51 @@ class GoogleProductInsightsAnalyzer:
             import traceback
             traceback.print_exc()
             return None
+
+    def analyze_instagram_trends(self, query: str) -> Dict[str, Any]:
+        """
+        Analyze Instagram trends for the product using instagrapi
+        """
+        try:
+            print(f"📸 Fetching Instagram insights for: {query}")
+            # Import here to avoid top-level dependency failure if not installed yet
+            from instagrapi import Client
+            cl = Client()
+            
+            # Note: Guest access is limited. 
+            # ideally: cl.login(USERNAME, PASSWORD)
+            
+            # Sanitize query for hashtag
+            hashtag = query.lower().replace(" ", "")
+            
+            # Get top medias for hashtag
+            # limit to 5 to be fast and avoid blocks
+            medias = cl.hashtag_medias_top(hashtag, amount=5)
+            
+            posts_data = []
+            for media in medias:
+                posts_data.append({
+                    "id": media.id,
+                    "caption": media.caption_text[:100] + "..." if media.caption_text else "",
+                    "likes": media.like_count,
+                    "comments": media.comment_count,
+                    "url": f"https://www.instagram.com/p/{media.code}/",
+                    "type": "video" if media.media_type == 2 else "image"
+                })
+                
+            return {
+                "source": "instagram",
+                "hashtag": hashtag,
+                "top_posts": posts_data,
+                "status": "success"
+            }
+            
+        except ImportError:
+            print("⚠️ Instagrapi not installed.")
+            return {"error": "Instagrapi library missing", "status": "failed"}
+        except Exception as e:
+            print(f"⚠️ Instagram analysis failed: {e}")
+            return {"error": str(e), "status": "failed"}
     
     def analyze_product_category(
         self,

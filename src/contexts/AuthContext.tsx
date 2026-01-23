@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
-import { User } from '@supabase/supabase-js';
+import { User, AuthError, PostgrestError } from '@supabase/supabase-js';
 
 export interface UserProfile {
   id: string;
@@ -18,11 +18,11 @@ interface AuthContextType {
   profile: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
-  createProfile: (profileData: Partial<UserProfile>) => Promise<{ error: any }>;
-  updateProfile: (profileData: Partial<UserProfile>) => Promise<{ error: any }>;
+  createProfile: (profileData: Partial<UserProfile>) => Promise<{ error: PostgrestError | null }>;
+  updateProfile: (profileData: Partial<UserProfile>) => Promise<{ error: PostgrestError | null }>;
   refreshUserSession: () => Promise<void>;
 }
 
@@ -32,6 +32,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUserProfile = useCallback(async (userId: string, currentUser?: User) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 means no rows returned, which is fine for new users
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      } else {
+        // Create default profile for new user using passed user or state user
+        // We prefer passed user (currentUser) as state might not be updated yet
+        const targetUser = currentUser || user;
+        
+        const defaultProfile: Partial<UserProfile> = {
+          id: userId,
+          email: targetUser?.email || '',
+          full_name: targetUser?.user_metadata?.full_name || 'User',
+          subscription_tier: 'Free',
+        };
+        setProfile(defaultProfile as UserProfile);
+      }
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
+    }
+  }, [user]);
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -77,41 +111,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription?.unsubscribe();
-  }, []);
+    return () => subscription?.unsubscribe();
+  }, [fetchUserProfile]);
 
-  const fetchUserProfile = async (userId: string, currentUser?: User) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 means no rows returned, which is fine for new users
-        console.error('Error fetching profile:', error);
-        return;
-      }
-
-      if (data) {
-        setProfile(data);
-      } else {
-        // Create default profile for new user using passed user or state user
-        // We prefer passed user (currentUser) as state might not be updated yet
-        const targetUser = currentUser || user;
-        
-        const defaultProfile: Partial<UserProfile> = {
-          id: userId,
-          email: targetUser?.email || '',
-          full_name: targetUser?.user_metadata?.full_name || 'User',
-          subscription_tier: 'Free',
-        };
-        setProfile(defaultProfile as UserProfile);
-      }
-    } catch (error) {
-      console.error('Error in fetchUserProfile:', error);
-    }
-  };
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
@@ -173,11 +176,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null);
-      setProfile(null);
+      if (error) {
+        console.error('Supabase sign out error:', error);
+      }
     } catch (error) {
       console.error('Sign out error:', error);
+    } finally {
+      // Force clear state regardless of server response
+      setUser(null);
+      setProfile(null);
     }
   };
 
