@@ -22,12 +22,24 @@ export const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <div onClick={() => navigate('/')} className="cursor-pointer">
+            <div onClick={() => {
+              if (location.pathname === '/') {
+                document.getElementById('trending-products')?.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                navigate('/', { state: { scrollTo: 'trending-products' } });
+              }
+            }} className="cursor-pointer">
               <Logo />
             </div>
             <nav className="hidden md:flex items-center gap-1">
               <Button 
-                onClick={() => navigate('/')} 
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('trending-products')?.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    navigate('/', { state: { scrollTo: 'trending-products' } });
+                  }
+                }} 
                 variant="ghost" 
                 size="sm" 
                 className={location.pathname === '/' ? 'bg-secondary' : ''}
@@ -85,46 +97,48 @@ export const Header = () => {
               Pricing
             </Button>
             
-            {!isLoading && (
+            {/* Authentication Buttons */}
+            {isLoading ? (
+               <div className="flex gap-2">
+                 <div className="h-9 w-20 bg-secondary/50 rounded-lg animate-pulse" />
+                 <div className="hidden sm:block h-9 w-24 bg-primary/20 rounded-lg animate-pulse" />
+               </div>
+            ) : user ? (
               <>
-                {user ? (
-                  <>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => navigate('/dashboard')}
-                    >
-                      Dashboard
-                    </Button>
-                    <Button 
-                      variant="glass" 
-                      size="sm"
-                      onClick={handleSignOut}
-                    >
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button 
-                      variant="glass" 
-                      size="sm"
-                      onClick={() => navigate('/login')}
-                    >
-                      Sign In
-                    </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Dashboard
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="glass" 
+                  size="sm"
+                  onClick={() => navigate('/login')}
+                >
+                  Sign In
+                </Button>
 
-                    <Button 
-                      variant="hero" 
-                      size="sm" 
-                      className="hidden sm:flex items-center gap-2"
-                      onClick={() => navigate('/signup')}
-                    >
-                      Get Started
-                      <Zap className="h-3.5 w-3.5" />
-                    </Button>
-                  </>
-                )}
+                <Button 
+                  variant="hero" 
+                  size="sm" 
+                  className="hidden sm:flex items-center gap-2"
+                  onClick={() => navigate('/signup')}
+                >
+                  Get Started
+                  <Zap className="h-3.5 w-3.5" />
+                </Button>
               </>
             )}
           </div>

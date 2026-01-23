@@ -127,7 +127,7 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
 
   return (
     <>
-      <section className="py-12 pb-24">
+      <section id="trending-products" className="py-12 pb-24">
         <div className="container mx-auto px-4">
           {/* Section header */}
           <div className="flex items-center justify-between gap-3 mb-6">

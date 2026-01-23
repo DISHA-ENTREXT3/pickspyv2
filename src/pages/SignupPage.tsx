@@ -5,7 +5,7 @@ import { Logo } from '@/components/Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 export default function SignupPage() {
@@ -20,10 +20,13 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
 
   // Redirect if already logged in
-  if (user) {
-    navigate('/dashboard');
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  if (user) return null;
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);

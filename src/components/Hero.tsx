@@ -46,7 +46,12 @@ export const Hero = () => {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Button variant="hero" size="xl" className="w-full sm:w-auto">
+            <Button 
+              variant="hero" 
+              size="xl" 
+              className="w-full sm:w-auto"
+              onClick={() => document.getElementById('trending-products')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <TrendingUp className="h-5 w-5" />
               Explore Trending Products
               <ArrowUpRight className="h-5 w-5" />

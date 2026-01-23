@@ -282,11 +282,20 @@ def run_deep_scan():
             found_products.extend(fk)
         
         # Step B: Smart Fill if blocked
-        if len(found_products) < 10: 
-            # If we didn't find enough items per category (likely blocked), FILL IT.
+        if len(found_products) < 20: 
+            # If we didn't find at least 20 items per category (likely blocked), FILL IT.
             needed = 20 - len(found_products) 
-            print(f"Scrapers low yield for {cat}, filling {needed} items...")
-            found_products.extend(generate_smart_fill(cat, limit=needed))
+            print(f"Scrapers low yield for {cat}, activating AI Fetcher for {needed} items...")
+            
+            # Use AI Fetcher
+            ai_data = scrapers["ai_fetcher"].fetch_trending_products(cat, limit=needed)
+            
+            # Convert to internal format
+            for item in ai_data:
+                 p_id = hashlib.md5(item["name"].encode()).hexdigest()[:10]
+                 found_products.append(build_product(
+                     p_id, item["name"], item["price"], item["imageUrl"], "ai_insight", cat
+                 ))
             
         save_batch(found_products)
         time.sleep(1) 

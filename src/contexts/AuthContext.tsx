@@ -34,6 +34,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Initialize auth state on mount
   useEffect(() => {
     const initializeAuth = async () => {
+      // Safety timeout: forced loading finish after 4 seconds
+      const timeoutId = setTimeout(() => {
+        console.warn("Auth initialization timed out - forcing app load");
+        setIsLoading(false);
+      }, 4000);
+
       try {
         // Check if user is already logged in
         const {
@@ -47,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     };
