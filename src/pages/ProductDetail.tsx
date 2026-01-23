@@ -17,6 +17,7 @@ import {
   BarChart3,
   AlertCircle,
   Loader2,
+  MessageCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -43,9 +44,9 @@ const ProductDetail = () => {
     try {
       setIsLoading(true);
       setError(null);
-      console.log(`🔄 Fetching live analysis for: ${productName}`);
       
       const result = await apiService.getProductAnalysis(productName);
+       
       
       if (result.success && result.data) {
         console.log('✅ Live analysis fetched successfully:', result.data);
@@ -228,7 +229,7 @@ const ProductDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Market Trends */}
               {liveAnalysis.sources.market_trends && (
-                <Card variant="outline" className="p-3">
+                <Card variant="default" className="p-3">
                   <div className="text-xs font-medium text-primary mb-2">📈 Market Trends</div>
                   <div className="space-y-1 text-xs">
                     <div>Direction: <span className="font-semibold">{liveAnalysis.sources.market_trends.trend_direction || 'Analyzing...'}</span></div>
@@ -239,7 +240,7 @@ const ProductDetail = () => {
 
               {/* Social Analysis */}
               {liveAnalysis.sources.social_analysis && (
-                <Card variant="outline" className="p-3">
+                <Card variant="default" className="p-3">
                   <div className="text-xs font-medium text-primary mb-2">📱 Social Sentiment</div>
                   <div className="space-y-1 text-xs">
                     <div>Positive: <span className="font-semibold text-signal-bullish">{liveAnalysis.sources.social_analysis.sentiment_percentage?.positive || 0}%</span></div>
@@ -250,7 +251,7 @@ const ProductDetail = () => {
 
               {/* Ecommerce Data */}
               {liveAnalysis.sources.ecommerce && (
-                <Card variant="outline" className="p-3">
+                <Card variant="default" className="p-3">
                   <div className="text-xs font-medium text-primary mb-2">🛒 Ecommerce</div>
                   <div className="space-y-1 text-xs">
                     <div>Walmart: <span className="font-semibold">{liveAnalysis.sources.ecommerce.walmart?.length || 0} listings</span></div>
@@ -262,7 +263,7 @@ const ProductDetail = () => {
 
               {/* Search Results */}
               {liveAnalysis.sources.search_results && (
-                <Card variant="outline" className="p-3">
+                <Card variant="default" className="p-3">
                   <div className="text-xs font-medium text-primary mb-2">🔎 Web Search</div>
                   <div className="space-y-1 text-xs">
                     <div>Results: <span className="font-semibold">{liveAnalysis.sources.search_results.total_results || 0}</span></div>
@@ -273,7 +274,7 @@ const ProductDetail = () => {
 
               {/* Product Insights */}
               {liveAnalysis.sources.product_insights && (
-                <Card variant="outline" className="p-3 md:col-span-2">
+                <Card variant="default" className="p-3 md:col-span-2">
                   <div className="text-xs font-medium text-primary mb-2">💡 Product Insights</div>
                   <div className="space-y-1 text-xs">
                     <div>Market Position: <span className="font-semibold capitalize">{liveAnalysis.sources.product_insights.market_position || 'Analyzing...'}</span></div>

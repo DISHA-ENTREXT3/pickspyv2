@@ -24,9 +24,11 @@ export const Header = () => {
           <div className="flex items-center gap-6">
             <div onClick={() => {
               if (location.pathname === '/') {
-                document.getElementById('trending-products')?.scrollIntoView({ behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               } else {
-                navigate('/', { state: { scrollTo: 'trending-products' } });
+                navigate('/');
+                // Optional: window.scrollTo(0,0) might be needed in a useEffect on the Home page, 
+                // but usually navigate('/') handles top. If not, use state. 
               }
             }} className="cursor-pointer">
               <Logo />
@@ -98,12 +100,7 @@ export const Header = () => {
             </Button>
             
             {/* Authentication Buttons */}
-            {isLoading ? (
-               <div className="flex gap-2">
-                 <div className="h-9 w-20 bg-secondary/50 rounded-lg animate-pulse" />
-                 <div className="hidden sm:block h-9 w-24 bg-primary/20 rounded-lg animate-pulse" />
-               </div>
-            ) : user ? (
+            {user ? (
               <>
                 <Button 
                   variant="ghost" 

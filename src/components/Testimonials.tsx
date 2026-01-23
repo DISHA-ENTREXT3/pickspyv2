@@ -12,7 +12,7 @@ const testimonials = [
     name: "Sarah K.",
     role: "Amazon FBA Seller",
     content: "The competitor analysis is scary good. I can see exactly where my rivals are getting their traffic and undercut them perfectly.",
-    rating: 5,
+    rating: 4,
     image: "https://ui-avatars.com/api/?name=Sarah+K&background=random"
   },
   {

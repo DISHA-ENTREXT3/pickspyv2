@@ -81,7 +81,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: 4.5,
         reviewCount: 2800,
         adSignal: 'high',
-        source: 'amazon'
+        source: 'amazon',
+        lastUpdated: 'Just now'
       },
       {
         id: '2',
@@ -99,7 +100,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: 4.7,
         reviewCount: 3200,
         adSignal: 'high',
-        source: 'amazon'
+        source: 'amazon',
+        lastUpdated: 'Just now'
       },
       {
         id: '3',
@@ -117,7 +119,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: 4.3,
         reviewCount: 1900,
         adSignal: 'medium',
-        source: 'amazon'
+        source: 'amazon',
+        lastUpdated: 'Just now'
       },
       {
         id: '4',
@@ -135,7 +138,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: 4.6,
         reviewCount: 2200,
         adSignal: 'high',
-        source: 'amazon'
+        source: 'amazon',
+        lastUpdated: 'Just now'
       },
       {
         id: '5',
@@ -153,7 +157,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         rating: 4.4,
         reviewCount: 1850,
         adSignal: 'medium',
-        source: 'amazon'
+        source: 'amazon',
+        lastUpdated: 'Just now'
       }
     ];
   };
@@ -228,7 +233,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
-      console.log('Scraper raw data received:', data);
+      // console.log('Scraper raw data received:', data);
       
       const rawProducts: RawProduct[] = Array.isArray(data) ? data : (data.products || []);
       
@@ -344,8 +349,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
           }));
           setProducts(mappedProducts);
         } else {
-          console.log('No products in Supabase, triggering cloud refresh...');
-          // Trigger initial scrape/fetch
+          // No products in Supabase, triggering cloud refresh
           refreshProducts();
         }
       } catch (error) {
