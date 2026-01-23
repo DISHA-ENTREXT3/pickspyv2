@@ -18,10 +18,12 @@ export default function Dashboard() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    console.log('[Dashboard] Auth State:', { isLoading, isAuthenticated, user: !!user });
     if (!isLoading && !isAuthenticated) {
+      console.warn('[Dashboard] Redirecting to /login - not authenticated');
       navigate('/login');
     }
-  }, [isLoading, isAuthenticated, navigate]);
+  }, [isLoading, isAuthenticated, user, navigate]);
 
   // Set greeting based on time of day
   useEffect(() => {

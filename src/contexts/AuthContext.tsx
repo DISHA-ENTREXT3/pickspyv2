@@ -50,30 +50,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data) {
         setProfile(data);
       } else {
-        // Create default profile for new user using passed user or state user
-        // We prefer passed user (currentUser) as state might not be updated yet
-        const targetUser = currentUser || user;
-        
-        const defaultProfile: Partial<UserProfile> = {
+        // Fallback or No rows (PGRST116)
+        const defaultProfile: UserProfile = {
           id: userId,
-          email: targetUser?.email || '',
-          full_name: targetUser?.user_metadata?.full_name || 'User',
+          email: currentUser?.email || '',
+          full_name: currentUser?.user_metadata?.full_name || 'User',
           subscription_tier: 'Free',
         };
-        setProfile(defaultProfile as UserProfile);
+        setProfile(defaultProfile);
       }
     } catch (error) {
-      console.error('Error in fetchUserProfile:', error);
+      console.warn('Using fallback profile due to error:', error);
+      const fallbackProfile: UserProfile = {
+        id: userId,
+        email: currentUser?.email || '',
+        full_name: currentUser?.user_metadata?.full_name || 'User',
+        subscription_tier: 'Free',
+      };
+      setProfile(fallbackProfile);
     }
-  }, [user]);
+  }, []);
 
   // Initialize auth state on mount
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       let timedOut = false;
       
       // Safety timeout: forced loading finish after 4 seconds
       const timeoutId = setTimeout(() => {
+        if (!mounted) return;
         timedOut = true;
         console.warn("Auth initialization timed out - forcing app load");
         setIsLoading(false);
@@ -85,16 +92,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           data: { session },
         } = await supabase.auth.getSession();
 
-        if (session?.user) {
+        if (mounted && session?.user) {
           setUser(session.user);
           await fetchUserProfile(session.user.id, session.user);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        if (mounted) console.error('Error initializing auth:', error);
       } finally {
-        clearTimeout(timeoutId);
-        if (!timedOut) {
-          setIsLoading(false);
+        if (mounted) {
+          clearTimeout(timeoutId);
+          if (!timedOut) {
+            setIsLoading(false);
+          }
         }
       }
     };
@@ -105,6 +114,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
       if (session?.user) {
         setUser(session.user);
         await fetchUserProfile(session.user.id, session.user);
@@ -115,7 +126,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     });
 
-    return () => subscription?.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
   }, [fetchUserProfile]);
 
 

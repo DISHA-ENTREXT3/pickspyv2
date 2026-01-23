@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Zap, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -13,8 +14,14 @@ export const Header = () => {
   // Auth buttons: Sign In, Sign Up, Dashboard, Sign Out
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to sign out');
+      console.error('Sign out error:', error);
+    }
   };
 
   return (
