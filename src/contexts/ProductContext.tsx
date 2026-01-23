@@ -168,7 +168,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     try {
       await apiService.trackActivity(user.id, 'view', productId);
     } catch (error) {
-      console.warn('Failed to track product view:', error);
+      console.debug('Failed to track product view activity');
     }
   }, [user?.id]);
 
@@ -200,7 +200,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       const result = await apiService.getSavedProducts(user.id);
       return result.saved_products;
     } catch (error) {
-      console.error('Error getting saved products:', error);
+      console.warn('Could not retrieve saved products');
       return [];
     }
   }, [user?.id]);
@@ -238,7 +238,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       const rawProducts: RawProduct[] = Array.isArray(data) ? data : (data.products || []);
       
       if (rawProducts.length === 0) {
-        console.warn('Scraper returned no products. Using demo data for preview.');
+        console.info('ℹ️ Live data currently unavailable. Displaying demo products for demonstration.');
         // Use demo data if scraper fails
         const demoProducts = getDemoProducts();
         setProducts(demoProducts);

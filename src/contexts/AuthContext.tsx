@@ -70,8 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Initialize auth state on mount
   useEffect(() => {
     const initializeAuth = async () => {
+      let timedOut = false;
+      
       // Safety timeout: forced loading finish after 4 seconds
       const timeoutId = setTimeout(() => {
+        timedOut = true;
         console.warn("Auth initialization timed out - forcing app load");
         setIsLoading(false);
       }, 4000);
@@ -90,7 +93,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error initializing auth:', error);
       } finally {
         clearTimeout(timeoutId);
-        setIsLoading(false);
+        if (!timedOut) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -110,7 +115,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     });
 
-    return () => subscription?.unsubscribe();
     return () => subscription?.unsubscribe();
   }, [fetchUserProfile]);
 
@@ -207,7 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateProfile = async (profileData: Partial<UserProfile>) => {
     try {
       if (!user?.id) {
-        return { error: 'No user logged in' };
+        return { error: { message: 'No user logged in', code: 'NO_USER' } as PostgrestError };
       }
 
       const { error } = await supabase

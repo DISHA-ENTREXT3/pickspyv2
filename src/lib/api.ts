@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
 if (!BACKEND_API_URL) {
-  console.warn("⚠️ VITE_BACKEND_API_URL is not defined. API calls may fail.");
+  console.info("ℹ️ Backend API URL not configured. Some features may use fallback data.");
 }
 
 /**

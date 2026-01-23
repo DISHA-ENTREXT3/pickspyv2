@@ -105,7 +105,7 @@ const Pricing = () => {
       navigate('/dashboard');
     } catch (e) {
       toast.error('Failed to update plan. Please try again.');
-      console.error(e);
+      console.warn('Subscription upgrade failed:', e);
     }
   };
 

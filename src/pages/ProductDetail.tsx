@@ -84,7 +84,7 @@ const ProductDetail = () => {
         throw new Error(result.error || 'Failed to fetch analysis');
       }
     } catch (err) {
-      console.error('❌ Error fetching live analysis:', err);
+      console.warn('Live analysis fetch failed (likely dev environment/scrapers offline):', err);
       setError(err instanceof Error ? err.message : 'Failed to load analysis');
       toast.error('Could not load live analysis');
     } finally {

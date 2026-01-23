@@ -16,7 +16,7 @@ export const analyzeProductWithAI = async (
   region: string
 ): Promise<AIAnalysisResult> => {
   if (!HUGGINGFACE_API_KEY) {
-    console.warn("Missing VITE_HUGGINGFACE_API_KEY. Using mock data.");
+    console.info("ℹ️ HuggingFace API key not configured. Using demonstration data.");
     return getMockAnalysis();
   }
 
