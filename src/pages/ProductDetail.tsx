@@ -22,6 +22,34 @@ import {
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+interface LiveAnalysisData {
+  sources?: {
+    market_trends?: Record<string, unknown> & {
+      trend_direction?: string;
+      trend_velocity_percent?: number;
+    };
+    social_analysis?: Record<string, unknown> & {
+       sentiment_percentage?: { positive: number; negative: number };
+    };
+    ecommerce?: Record<string, unknown> & {
+      walmart?: unknown[];
+      ebay?: unknown[];
+      flipkart?: unknown[];
+    };
+    search_results?: Record<string, unknown> & {
+       total_results?: number;
+    };
+    product_insights?: Record<string, unknown> & {
+       market_position?: string;
+       quality_score?: number;
+       category?: string;
+    };
+  };
+  success?: boolean;
+  data?: unknown;
+  error?: string;
+}
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -29,7 +57,7 @@ const ProductDetail = () => {
   
   const product = products.find(p => p.id === id);
   
-  const [liveAnalysis, setLiveAnalysis] = useState<any>(null);
+  const [liveAnalysis, setLiveAnalysis] = useState<LiveAnalysisData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,12 +73,12 @@ const ProductDetail = () => {
       setIsLoading(true);
       setError(null);
       
-      const result = await apiService.getProductAnalysis(productName);
+      const result = await apiService.getProductAnalysis(productName) as unknown as LiveAnalysisData;
        
       
       if (result.success && result.data) {
         console.log('✅ Live analysis fetched successfully:', result.data);
-        setLiveAnalysis(result.data);
+        setLiveAnalysis(result as LiveAnalysisData);
         toast.success('Product analysis loaded');
       } else {
         throw new Error(result.error || 'Failed to fetch analysis');

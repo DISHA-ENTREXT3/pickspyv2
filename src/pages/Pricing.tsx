@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/Header';
@@ -64,7 +65,7 @@ const comparisonFeatures = [
 
 const Pricing = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [currentTier, setCurrentTier] = useState<string>('Free');
 
   useEffect(() => {

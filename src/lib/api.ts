@@ -28,9 +28,16 @@ export interface ComparisonResponse {
   comparison_id?: string;
 }
 
+export interface ComparisonData {
+  id: string;
+  created_at: string;
+  products: string[];
+  notes?: string;
+}
+
 export interface UserComparisonsResponse {
   user_id: string;
-  comparisons: any[];
+  comparisons: ComparisonData[];
   count: number;
 }
 
@@ -59,7 +66,7 @@ class APIService {
   private async apiCall<T>(
     endpoint: string,
     method: 'GET' | 'POST' | 'DELETE' = 'GET',
-    body?: any,
+    body?: unknown,
     useAuth = false
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -99,21 +106,21 @@ class APIService {
   /**
    * Refresh products from scrapers
    */
-  async refreshProducts(): Promise<any> {
+  async refreshProducts(): Promise<unknown> {
     return this.apiCall('/refresh', 'POST');
   }
 
   /**
    * Trigger deep scan in background
    */
-  async triggerDeepScan(): Promise<any> {
+  async triggerDeepScan(): Promise<unknown> {
     return this.apiCall('/deep-scan', 'POST');
   }
 
   /**
    * Get health status
    */
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<unknown> {
     return this.apiCall('/health', 'GET');
   }
 
@@ -188,7 +195,7 @@ class APIService {
     userId: string,
     activityType: 'view' | 'analyze' | 'compare' | 'search',
     productId?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<ActivityTrackingResponse> {
     return this.apiCall(
       '/user/track-activity',
@@ -208,7 +215,7 @@ class APIService {
   /**
    * Get comprehensive product analysis from all scrapers
    */
-  async getProductAnalysis(productName: string): Promise<any> {
+  async getProductAnalysis(productName: string): Promise<Record<string, unknown>> {
     try {
       const response = await fetch(`${this.baseUrl}/api/product-analysis/${encodeURIComponent(productName)}`, {
         method: 'GET',
