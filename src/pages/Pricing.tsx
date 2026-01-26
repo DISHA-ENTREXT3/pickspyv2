@@ -18,6 +18,7 @@ import {
   MessageCircle,
   TrendingUp,
   Zap,
+  ArrowLeft,
 } from 'lucide-react';
 
 const comparisonFeatures = [
@@ -124,7 +125,12 @@ const Pricing = () => {
       
       <main className="pt-24 pb-16">
         {/* Hero */}
-        <section className="container mx-auto px-4 text-center mb-16">
+        <section className="container mx-auto px-4 text-center mb-16 relative">
+          <div className="absolute left-4 top-0 hidden md:block">
+             <Button variant="ghost" className="gap-2" onClick={() => navigate(-1)}>
+               <ArrowLeft className="h-4 w-4" /> Back
+             </Button>
+          </div>
           <Badge variant="premium" className="mb-4">
             <Sparkles className="h-3 w-3 mr-1" />
             Launch Pricing

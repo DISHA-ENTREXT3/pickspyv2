@@ -15,8 +15,25 @@ export interface BlogPost {
   featured?: boolean;
 }
 
-const PEXELS_DOMAIN = "https://images.pexels.com/photos";
-const pexels = (id: string) => `${PEXELS_DOMAIN}/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+const BLOG_IMAGES = [
+  'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1553877606-3c66955d9d75?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 
+  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+];
+
+const pexels = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash << 5) - hash + id.charCodeAt(i);
+  return BLOG_IMAGES[Math.abs(hash) % BLOG_IMAGES.length];
+};
 
 export const blogs: BlogPost[] = [
   {

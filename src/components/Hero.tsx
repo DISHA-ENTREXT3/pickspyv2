@@ -31,10 +31,10 @@ export const Hero = () => {
 
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
-            AI Product Research.
+            Spy the Trends,
             <br />
             <span className="bg-gradient-to-r from-primary via-signal-bullish to-primary bg-clip-text text-transparent">
-              Pick the Winners.
+              Pick the Winner.
             </span>
           </h1>
 

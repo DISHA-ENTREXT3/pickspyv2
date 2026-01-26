@@ -29,7 +29,7 @@ export const InstagramReels = ({ productName }: InstagramReelsProps) => {
   const reels: ReelData[] = [
     {
       id: 'r1',
-      thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=400',
+      thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=800',
       likes: '124K',
       comments: '1.2K',
       caption: `Unboxing the new ${productName}! 🚀 This is a total game changer for my daily routine. #tech #viral #musthave`,
@@ -40,7 +40,7 @@ export const InstagramReels = ({ productName }: InstagramReelsProps) => {
     },
     {
       id: 'r2',
-      thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&q=80&w=400',
+      thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&q=80&w=800',
       likes: '85K',
       comments: '940',
       caption: `3 reasons why you need the ${productName} in 2024. Point #2 will surprise you! 👀 #gadgets #review`,
@@ -66,7 +66,7 @@ export const InstagramReels = ({ productName }: InstagramReelsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {reels.map((reel) => (
           <Card key={reel.id} variant="glass" className="overflow-hidden group">
-            <div className="relative aspect-[9/16] max-h-[400px] overflow-hidden">
+            <div className="relative aspect-[9/16] overflow-hidden">
               <img 
                 src={reel.thumbnail} 
                 alt="Reel thumbnail" 

@@ -86,6 +86,12 @@ export default function SignupPage() {
           return;
         }
 
+        if (password.length > 10) {
+          toast.error('Password must be 10 characters or less');
+          setIsLoading(false);
+          return;
+        }
+
         const { error } = await signUp(email, password, fullName);
         if (error) {
           toast.error(`Sign up failed: ${error.message}`);
@@ -195,6 +201,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                maxLength={10}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/20" 
               />
             </div>
