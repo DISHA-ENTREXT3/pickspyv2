@@ -9,6 +9,7 @@ import { Product } from '@/types/product';
 import { Features } from '@/components/Features';
 import { HowItWorks } from '@/components/HowItWorks';
 import { Testimonials } from '@/components/Testimonials';
+import { LandingFAQ } from '@/components/LandingFAQ';
 import { useLocation } from 'react-router-dom';
 
 const Index = () => {
@@ -16,8 +17,17 @@ const Index = () => {
   const [showAnalyzer, setShowAnalyzer] = useState(false);
   const location = useLocation();
 
-  // Handle scroll to section when coming from other pages
+  // SEO and Meta Management + Scroll Logic
   useEffect(() => {
+    document.title = "PickSpy | AI Product Research Tool for Finding Winning Products 🚀";
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Stop guessing. PickSpy uses AI to scan Amazon, Reddit, and Social Trends to identify high-profit, low-competition products for your e-commerce store. Start winning today!');
+    }
+
+    // Scroll Logic
     const state = location.state as { scrollTo?: string } | null;
     if (state?.scrollTo) {
       setTimeout(() => {
@@ -60,6 +70,9 @@ const Index = () => {
         </section>
 
         <Testimonials />
+        
+        {/* Platform FAQ (SEO/AEO Optimized) */}
+        <LandingFAQ />
       </main>
       <Footer />
     </div>

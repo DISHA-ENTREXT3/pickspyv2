@@ -21,6 +21,7 @@
     "e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@entrext/support-client": "^0.2.0",
     "@hookform/resolvers": "^3.10.0",
     "@huggingface/inference": "^4.13.10",
     "@radix-ui/react-accordion": "^1.2.11",

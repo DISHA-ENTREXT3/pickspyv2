@@ -68,6 +68,15 @@ const Pricing = () => {
   const [user, setUser] = useState<User | null>(null);
   const [currentTier, setCurrentTier] = useState<string>('Free');
 
+  // SEO and Meta Management
+  useEffect(() => {
+    document.title = "PickSpy Pricing | Affordable AI Product Research Plans";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Choose the right PickSpy plan for your dropshipping business. From free product browsing to pro-level AI analysis and competitor tracking.');
+    }
+  }, []);
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);

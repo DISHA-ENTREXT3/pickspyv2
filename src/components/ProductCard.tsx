@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Minus, MessageCircle, Clock, ArrowUpRight, Eye, Check, ShoppingCart, Info, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
@@ -23,6 +24,16 @@ export const ProductCard = ({
   compareDisabled = false,
 }: ProductCardProps) => {
   const navigate = useNavigate();
+  const [imageError, setImageError] = React.useState(false);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
   const getAdBadge = () => {
     switch (product.adSignal) {
       case 'high':
@@ -99,15 +110,26 @@ export const ProductCard = ({
       )}
 
       {/* Product Image Thumbnail */}
-      <div className="aspect-square w-full overflow-hidden bg-muted/30 relative">
-        <img 
-          src={product.imageUrl} 
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400&h=400&auto=format&fit=crop';
-          }}
-        />
+      <div className="aspect-square w-full overflow-hidden bg-muted/30 relative flex items-center justify-center">
+        {!imageError && product.imageUrl && product.imageUrl !== '/placeholder.svg' ? (
+          <img 
+            src={product.imageUrl} 
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-secondary/50 to-background">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 shadow-glow">
+              <span className="text-2xl font-bold text-primary tracking-tighter">
+                {getInitials(product.name)}
+              </span>
+            </div>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold opacity-50">
+              PickSpy Intel
+            </span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
           {product.socialSignals?.slice(0, 2).map((signal) => (

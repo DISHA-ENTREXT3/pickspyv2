@@ -31,17 +31,18 @@ export const Hero = () => {
 
           {/* Main headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
-            Spy the Trends.
+            AI Product Research.
             <br />
             <span className="bg-gradient-to-r from-primary via-signal-bullish to-primary bg-clip-text text-transparent">
-              Pick the Winner.
+              Pick the Winners.
             </span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            A go-to tool for the Dropshipping community. Real demand signals. Unfiltered sentiments from across the web. 
-            AI-powered conviction. Stop guessing—start winning.
+            The ultimate Market Intelligence platform for the Dropshipping community. 
+            Analyze real-time demand signals and social sentiment across the web with 
+            AI-powered conviction. Start winning the e-commerce game.
           </p>
 
           {/* CTA buttons */}

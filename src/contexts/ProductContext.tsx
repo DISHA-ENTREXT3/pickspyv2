@@ -64,13 +64,58 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://pickspy-backend.onrender.com';
 
   const getDemoProducts = (): Product[] => {
+    const pexels = (id: string) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+    
+    // Helper to generate trend data
+    const generateTrendData = (baseVelocity: number, baseSaturation: number) => {
+      return Array.from({ length: 7 }).map((_, i) => ({
+        date: `2024-0${i + 1}-01`,
+        velocity: Math.min(100, Math.max(0, baseVelocity + (Math.random() * 20 - 10))),
+        saturation: Math.min(100, Math.max(0, baseSaturation + (Math.random() * 10 - 5))),
+        mentions: Math.floor(Math.random() * 500 + 200),
+        sentiment: Math.floor(Math.random() * 40 + 40)
+      }));
+    };
+
+    // Helper for demo FAQs
+    const generateFAQs = (name: string): FAQ[] => [
+      { question: `Is the ${name} waterproof?`, answer: "It has an IPX7 rating, making it splash-proof and suitable for light rain, but not full submersion." },
+      { question: `What is the shipping time for ${name}?`, answer: "Standard shipping takes 5-7 business days within the US. Express options are available at checkout." },
+      { question: `Does ${name} come with a warranty?`, answer: "Yes, it includes a 12-month manufacturer warranty covering all technical defects." }
+    ];
+
+    // Helper for demo Reddit threads
+    const generateRedditThreads = (name: string): RedditThread[] => [
+      {
+        id: 't1',
+        subreddit: 'r/gadgets',
+        title: `Anyone tried the new ${name} yet?`,
+        author: 'tech_enthusiast',
+        upvotes: 450,
+        commentCount: 85,
+        timeAgo: '2 days ago',
+        sentiment: 'positive',
+        preview: `I've been looking at the ${name} for a while. The specs look great for the price, but I want to know about real-world performance...`,
+        comments: [
+          { id: 'c1', author: 'user123', text: 'Battery life is incredible, easily lasts all day.', upvotes: 45, timeAgo: '1 day ago', sentiment: 'positive' },
+          { id: 'c2', author: 'tester_pro', text: 'Build quality is solid, but the app could use some work.', upvotes: 22, timeAgo: '20 hours ago', sentiment: 'neutral' }
+        ]
+      }
+    ];
+
+    // Helper for competitors
+    const generateCompetitors = (name: string, price: number): CompetitorData[] => [
+      { id: 'comp1', name: `Generic ${name}`, price: price * 0.8, rating: 4.1, reviews: 1200, marketplace: 'AliExpress', shippingDays: 15, estimatedSales: '5k+', trend: 'stable' },
+      { id: 'comp2', name: `Premium ${name} Clone`, price: price * 1.1, rating: 4.6, reviews: 850, marketplace: 'Amazon', shippingDays: 2, estimatedSales: '2k+', trend: 'up' }
+    ];
+
     return [
       {
         id: '1',
         name: 'Wireless Earbuds Pro',
         category: 'electronics',
         price: 129.99,
-        imageUrl: '/placeholder.svg',
+        imageUrl: pexels('3780681'),
         velocityScore: 85,
         saturationScore: 45,
         demandSignal: 'bullish',
@@ -82,14 +127,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         reviewCount: 2800,
         adSignal: 'high',
         source: 'amazon',
-        lastUpdated: 'Just now'
+        lastUpdated: 'Just now',
+        trendData: generateTrendData(85, 45),
+        faqs: generateFAQs('Wireless Earbuds Pro'),
+        redditThreads: generateRedditThreads('Wireless Earbuds Pro'),
+        competitors: generateCompetitors('Wireless Earbuds Pro', 129.99)
       },
       {
         id: '2',
         name: 'Smart Watch Ultra',
         category: 'electronics',
         price: 299.99,
-        imageUrl: '/placeholder.svg',
+        imageUrl: pexels('437037'),
         velocityScore: 92,
         saturationScore: 38,
         demandSignal: 'bullish',
@@ -101,14 +150,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         reviewCount: 3200,
         adSignal: 'high',
         source: 'amazon',
-        lastUpdated: 'Just now'
+        lastUpdated: 'Just now',
+        trendData: generateTrendData(92, 38),
+        faqs: generateFAQs('Smart Watch Ultra'),
+        redditThreads: generateRedditThreads('Smart Watch Ultra'),
+        competitors: generateCompetitors('Smart Watch Ultra', 299.99)
       },
       {
         id: '3',
         name: 'Portable Projector 4K',
         category: 'electronics',
         price: 599.99,
-        imageUrl: '/placeholder.svg',
+        imageUrl: pexels('7245535'),
         velocityScore: 76,
         saturationScore: 52,
         demandSignal: 'caution',
@@ -120,14 +173,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         reviewCount: 1900,
         adSignal: 'medium',
         source: 'amazon',
-        lastUpdated: 'Just now'
+        lastUpdated: 'Just now',
+        trendData: generateTrendData(76, 52),
+        faqs: generateFAQs('Portable Projector 4K'),
+        redditThreads: generateRedditThreads('Portable Projector 4K'),
+        competitors: generateCompetitors('Portable Projector 4K', 599.99)
       },
       {
         id: '4',
         name: 'USB-C Hub Multi-Port',
         category: 'accessories',
         price: 49.99,
-        imageUrl: '/placeholder.svg',
+        imageUrl: pexels('4065876'),
         velocityScore: 88,
         saturationScore: 35,
         demandSignal: 'bullish',
@@ -139,14 +196,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         reviewCount: 2200,
         adSignal: 'high',
         source: 'amazon',
-        lastUpdated: 'Just now'
+        lastUpdated: 'Just now',
+        trendData: generateTrendData(88, 35),
+        faqs: generateFAQs('USB-C Hub Multi-Port'),
+        redditThreads: generateRedditThreads('USB-C Hub Multi-Port'),
+        competitors: generateCompetitors('USB-C Hub Multi-Port', 49.99)
       },
       {
         id: '5',
         name: 'Gaming Mouse Pro',
         category: 'gaming',
         price: 79.99,
-        imageUrl: '/placeholder.svg',
+        imageUrl: pexels('2106216'),
         velocityScore: 82,
         saturationScore: 48,
         demandSignal: 'bullish',
@@ -158,7 +219,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         reviewCount: 1850,
         adSignal: 'medium',
         source: 'amazon',
-        lastUpdated: 'Just now'
+        lastUpdated: 'Just now',
+        trendData: generateTrendData(82, 48),
+        faqs: generateFAQs('Gaming Mouse Pro'),
+        redditThreads: generateRedditThreads('Gaming Mouse Pro'),
+        competitors: generateCompetitors('Gaming Mouse Pro', 79.99)
       }
     ];
   };
@@ -383,6 +448,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {

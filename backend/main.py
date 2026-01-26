@@ -500,7 +500,7 @@ async def get_product_analysis(product_name: str):
         try:
             sentiment = scrapers["sentiment"].get_product_sentiment(product_name)
             if sentiment:
-                analysis["sources"]["social_sentiment"] = sentiment
+                analysis["sources"]["social_analysis"] = sentiment
         except Exception as e:
             print(f"⚠️  Sentiment analysis failed: {e}")
         

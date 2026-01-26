@@ -1,0 +1,429 @@
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  author: string;
+  date: string;
+  category: string;
+  readTime: string;
+  image: string;
+  contentImages?: string[];
+  primaryKeyword: string;
+  intent: string;
+  outline: string[];
+  featured?: boolean;
+}
+
+const PEXELS_DOMAIN = "https://images.pexels.com/photos";
+const pexels = (id: string) => `${PEXELS_DOMAIN}/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+
+export const blogs: BlogPost[] = [
+  {
+    id: "1",
+    title: "How to Find Winning Dropshipping Products Before Everyone Else",
+    slug: "how-to-find-winning-dropshipping-products",
+    excerpt: "Speed is the ultimate edge in dropshipping. Learn how Pickspy detects trends early using product launch and removal data.",
+    author: "Pickspy Intelligence Team",
+    date: "Jan 26, 2026",
+    category: "Product Research",
+    readTime: "8 min read",
+    image: pexels("5076511"),
+    contentImages: [pexels("3183150"), pexels("1181675")],
+    primaryKeyword: "winning dropshipping products",
+    intent: "High-buying intent",
+    outline: [
+      "Why 'winning' products peak fast",
+      "The early-signal problem",
+      "Why ad libraries are always late",
+      "Using product launch & removal data",
+      "How Pickspy detects trends early"
+    ],
+    featured: true
+  },
+  {
+    id: "2",
+    title: "Why Most Dropshippers Lose Money Testing Saturated Products",
+    slug: "why-dropshippers-lose-money-saturated-products",
+    excerpt: "Testing products that are already peaking is a recipe for high ad spend and low margins. Discover the real signals of saturation.",
+    author: "Marketing Strategy",
+    date: "Jan 24, 2026",
+    category: "Market Analysis",
+    readTime: "6 min read",
+    image: pexels("590022"),
+    contentImages: [pexels("4483610")],
+    primaryKeyword: "saturated dropshipping products",
+    intent: "Pain-aware",
+    outline: [
+      "How saturation actually happens",
+      "Facebook ad illusion",
+      "The cost of being late",
+      "Real signals of saturation",
+      "How to avoid it with data"
+    ]
+  },
+  {
+    id: "3",
+    title: "Ad Libraries Are Lying to You: Here’s What Real Product Intelligence Looks Like",
+    slug: "ad-libraries-vs-product-intelligence",
+    excerpt: "Ads don't always equal demand. Learn why survivorship bias in ad libraries leads to poor product selection.",
+    author: "Intelligence Team",
+    date: "Jan 22, 2026",
+    category: "Tools & Tech",
+    readTime: "7 min read",
+    image: pexels("6476587"),
+    contentImages: [pexels("1181244")],
+    primaryKeyword: "ad library alternatives",
+    intent: "Comparison",
+    outline: [
+      "Why ads ≠ demand",
+      "Survivorship bias in ad libraries",
+      "Product-level vs ad-level tracking",
+      "Launch/removal intelligence",
+      "Pickspy positioning"
+    ]
+  },
+  {
+    id: "4",
+    title: "The Fastest Way to Validate a Dropshipping Product in 2026",
+    slug: "fastest-way-to-validate-dropshipping-product",
+    excerpt: "Stop wasting weeks on validation. Use launch velocity and removal patterns to validate in days, not weeks.",
+    author: "Operations Lead",
+    date: "Jan 20, 2026",
+    category: "Validation",
+    readTime: "5 min read",
+    image: pexels("3183150"),
+    contentImages: [pexels("3183170")],
+    primaryKeyword: "dropshipping product validation",
+    intent: "Tactical",
+    outline: [
+      "Validation mistakes",
+      "Signals that matter",
+      "Launch velocity",
+      "Removal patterns",
+      "Smart testing frameworks"
+    ]
+  },
+  {
+    id: "5",
+    title: "How Top Dropshippers Spot Trends Before TikTok Explodes",
+    slug: "spot-trends-before-tiktok",
+    excerpt: "By the time a product goes viral on TikTok, the window is closing. Learn to spot the early indicators.",
+    author: "Trend Analyst",
+    date: "Jan 18, 2026",
+    category: "Trend Discovery",
+    readTime: "9 min read",
+    image: pexels("230544"),
+    contentImages: [pexels("147413")],
+    primaryKeyword: "dropshipping trends",
+    intent: "Trend discovery",
+    outline: [
+      "TikTok lag explained",
+      "Trend lifecycle breakdown",
+      "Early vs late indicators",
+      "Product discovery vs content virality",
+      "Using Pickspy for early trend intel"
+    ]
+  },
+  {
+    id: "6",
+    title: "Why Guesswork Is the #1 Reason Dropshipping Stores Fail",
+    slug: "why-dropshipping-guesswork-fails",
+    excerpt: "Emotional product selection is the enemy of profit. Replace instinct with high-fidelity intelligence.",
+    author: "Founder's Corner",
+    date: "Jan 16, 2026",
+    category: "Business Basics",
+    readTime: "7 min read",
+    image: pexels("3183197"),
+    contentImages: [pexels("3184328")],
+    primaryKeyword: "dropshipping mistakes",
+    intent: "Educational / cautionary",
+    outline: [
+      "Emotional product selection",
+      "“Gut feeling” myths",
+      "Data-driven founders win",
+      "Replacing instinct with intelligence"
+    ]
+  },
+  {
+    id: "7",
+    title: "How to Reduce Ad Spend Waste in Dropshipping by 30–50%",
+    slug: "reduce-dropshipping-ad-waste",
+    excerpt: "Stop burning budget on dead products. Learn the early kill signals that save thousands in ad spend.",
+    author: "Ad Specialist",
+    date: "Jan 14, 2026",
+    category: "Advertising",
+    readTime: "8 min read",
+    image: pexels("3861969"),
+    contentImages: [pexels("6476254")],
+    primaryKeyword: "reduce ad spend dropshipping",
+    intent: "Cost-saving",
+    outline: [
+      "Where ad waste actually happens",
+      "Testing dead products",
+      "Early kill signals",
+      "Data-backed go/no-go decisions"
+    ]
+  },
+  {
+    id: "8",
+    title: "Product Launch Tracking: The Missing Piece in Dropshipping Research",
+    slug: "product-launch-tracking-importance",
+    excerpt: "Most researchers only look at sales. The real edge is in tracking the frequency and velocity of new launches.",
+    author: "Data Scientist",
+    date: "Jan 12, 2026",
+    category: "Product Research",
+    readTime: "6 min read",
+    image: pexels("1181671"),
+    contentImages: [pexels("590020")],
+    primaryKeyword: "product launch tracking",
+    intent: "High-value niche keyword",
+    outline: [
+      "What launch data reveals",
+      "Why no one tracks removals",
+      "Early traction signals",
+      "Competitive intelligence explained"
+    ]
+  },
+  {
+    id: "9",
+    title: "How to Know If a Dropshipping Product Is Already Dead",
+    slug: "detecting-dead-dropshipping-products",
+    excerpt: "Signs of decay aren't always obvious. Learn how to spot removal velocity and ad decay patterns.",
+    author: "Tactical Support",
+    date: "Jan 10, 2026",
+    category: "Market Analysis",
+    readTime: "6 min read",
+    image: pexels("4483610"),
+    contentImages: [pexels("590022")],
+    primaryKeyword: "dead dropshipping products",
+    intent: "Tactical / curiosity",
+    outline: [
+      "Signs a product is dying",
+      "Removal velocity",
+      "Ad decay patterns",
+      "When to walk away fast"
+    ]
+  },
+  {
+    id: "10",
+    title: "The Smart Way to Build a Winning Product Testing System",
+    slug: "dropshipping-testing-system-guide",
+    excerpt: "Random testing is for amateurs. Build a repeatable system that converts raw data into profitable decisions.",
+    author: "Systems Architect",
+    date: "Jan 08, 2026",
+    category: "Systems",
+    readTime: "10 min read",
+    image: pexels("3182812"),
+    contentImages: [pexels("1181671")],
+    primaryKeyword: "dropshipping testing strategy",
+    intent: "System builders",
+    outline: [
+      "Why random testing fails",
+      "Building a repeatable system",
+      "Input → signal → decision",
+      "Tools that matter vs noise"
+    ]
+  },
+  {
+    id: "11",
+    title: "Why Most “Winning Product” Lists Are Outdated",
+    slug: "why-winning-product-lists-are-late",
+    excerpt: "If it's on a public list, it's likely already saturated. Learn why real-time tracking beats static lists every time.",
+    author: "Pickspy Intel",
+    date: "Jan 06, 2026",
+    category: "Market Saturation",
+    readTime: "7 min read",
+    image: pexels("1181316"),
+    contentImages: [pexels("590022")],
+    primaryKeyword: "winning product lists",
+    intent: "Comparison",
+    outline: [
+      "Why lists are always late",
+      "The speed problem",
+      "Static vs live data",
+      "How real-time tracking wins"
+    ]
+  },
+  {
+    id: "12",
+    title: "How Small Dropshipping Teams Compete With Large Brands",
+    slug: "small-teams-competitive-advantage",
+    excerpt: "You don't need a huge budget if you have better intelligence. Speed is the small team's ultimate weapon.",
+    author: "Growth Lead",
+    date: "Jan 04, 2026",
+    category: "Business Strategy",
+    readTime: "8 min read",
+    image: pexels("3184328"),
+    contentImages: [pexels("3183150")],
+    primaryKeyword: "dropshipping competitive advantage",
+    intent: "Strategic",
+    outline: [
+      "Speed over scale",
+      "Intelligence > budget",
+      "Data leverage",
+      "Tools like Pickspy"
+    ]
+  },
+  {
+    id: "13",
+    title: "From Trend to Saturation: The Lifecycle of a Dropshipping Product",
+    slug: "dropshipping-product-lifecycle-explained",
+    excerpt: "Understand the four phases of a product's life and learn exactly when to scale and when to exit.",
+    author: "Market Strategist",
+    date: "Jan 02, 2026",
+    category: "Market Analysis",
+    readTime: "9 min read",
+    image: pexels("590020"),
+    contentImages: [pexels("590022")],
+    primaryKeyword: "dropshipping product lifecycle",
+    intent: "Educational",
+    outline: [
+      "Discovery phase",
+      "Early adoption",
+      "Mass adoption",
+      "Saturation",
+      "Decline (and how to exit early)"
+    ]
+  },
+  {
+    id: "14",
+    title: "Why Dropshippers Should Track Product Removals (Not Just Launches)",
+    slug: "why-track-product-removals",
+    excerpt: "Removals reveal as much as launches. Learn why competitive exits are a massive signal for your next move.",
+    author: "Data Team",
+    date: "Dec 30, 2025",
+    category: "Product Research",
+    readTime: "6 min read",
+    image: pexels("4065876"),
+    contentImages: [pexels("1181671")],
+    primaryKeyword: "product removal tracking",
+    intent: "Unique / low competition",
+    outline: [
+      "Why removals matter",
+      "What removals signal",
+      "Competitive exits",
+      "How this prevents losses"
+    ]
+  },
+  {
+    id: "15",
+    title: "How to Stop Chasing “Viral” Products and Start Printing Profit",
+    slug: "stop-chasing-virality-start-printing-profit",
+    excerpt: "Viral doesn't always mean profitable. Learn to look for steady intelligence signals over social media hype.",
+    author: "Strategic Finance",
+    date: "Dec 28, 2025",
+    category: "Profitability",
+    readTime: "8 min read",
+    image: pexels("147413"),
+    contentImages: [pexels("230544")],
+    primaryKeyword: "viral dropshipping products",
+    intent: "Anti-hype",
+    outline: [
+      "Viral ≠ profitable",
+      "Late traffic trap",
+      "Early data beats hype",
+      "Intelligence-led product selection"
+    ]
+  },
+  {
+    id: "16",
+    title: "The New Dropshipping Stack: Tools That Actually Make Money",
+    slug: "best-dropshipping-tools-2026",
+    excerpt: "Cut the fluff. Discover the essential tools for product intelligence, operations, and scaling in 2026.",
+    author: "Tool Reviewer",
+    date: "Dec 26, 2025",
+    category: "Tools & Tech",
+    readTime: "7 min read",
+    image: pexels("1036623"),
+    contentImages: [pexels("1181244")],
+    primaryKeyword: "dropshipping tools",
+    intent: "Tool comparison",
+    outline: [
+      "Research vs intelligence",
+      "Tools that waste time",
+      "Tools that save money",
+      "Where Pickspy fits"
+    ]
+  },
+  {
+    id: "17",
+    title: "Why Early Product Discovery Is the Only Real Edge in Dropshipping",
+    slug: "early-product-discovery-edge",
+    excerpt: "In a world of copycats, discovery speed is the only sustainable competitive advantage.",
+    author: "Thought Leader",
+    date: "Dec 24, 2025",
+    category: "Thought Leadership",
+    readTime: "9 min read",
+    image: pexels("3183170"),
+    contentImages: [pexels("3183150")],
+    primaryKeyword: "product discovery dropshipping",
+    intent: "Thought leadership",
+    outline: [
+      "No moats in dropshipping",
+      "Speed as the edge",
+      "Data as leverage",
+      "Execution framework"
+    ]
+  },
+  {
+    id: "18",
+    title: "How to Avoid Testing Products That Are Already Overused",
+    slug: "avoid-testing-overused-products",
+    excerpt: "Saturation isn't just a myth. Use data-backed detection to avoid the 'copycat trap' and high ad costs.",
+    author: "Marketing Strategist",
+    date: "Dec 22, 2025",
+    category: "Market Saturation",
+    readTime: "7 min read",
+    image: pexels("590022"),
+    contentImages: [pexels("4483610")],
+    primaryKeyword: "avoid saturated products",
+    intent: "Tactical",
+    outline: [
+      "Saturation myths",
+      "Data-backed detection",
+      "Early warning signs",
+      "Testing smarter, not harder"
+    ]
+  },
+  {
+    id: "19",
+    title: "Inside a Real Dropshipping Intelligence Platform",
+    slug: "inside-pickspy-intelligence-platform",
+    excerpt: "What does 'intelligence' actually look like? Take a tour of Pickspy's data engine and launch/removal tracking.",
+    author: "Product Team",
+    date: "Dec 20, 2025",
+    category: "Behind the Scenes",
+    readTime: "6 min read",
+    image: pexels("6476254"),
+    contentImages: [pexels("1181671")],
+    primaryKeyword: "dropshipping intelligence platform",
+    intent: "Product-aware",
+    outline: [
+      "What “intelligence” actually means",
+      "Raw data vs insights",
+      "Launch/removal tracking",
+      "How Pickspy works (soft demo)"
+    ]
+  },
+  {
+    id: "20",
+    title: "Dropshipping in 2026: Why Data-First Founders Will Win",
+    slug: "future-of-dropshipping-2026",
+    excerpt: "The market is maturing. Learn why rising ad costs require a shift from intuition to intelligence.",
+    author: "Visionary Team",
+    date: "Dec 18, 2025",
+    category: "Industry Trends",
+    readTime: "8 min read",
+    image: pexels("259027"),
+    contentImages: [pexels("3183150")],
+    primaryKeyword: "future of dropshipping",
+    intent: "Forward-looking",
+    outline: [
+      "Market maturity",
+      "Rising ad costs",
+      "Intelligence over intuition",
+      "Tools that survive long-term"
+    ]
+  }
+];

@@ -1,14 +1,11 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Allow: /product/
+Allow: /blog/
+Disallow: /dashboard
+Disallow: /compare
+Disallow: /login
+Disallow: /signup
+Disallow: /api/
+
+Sitemap: https://pickspy.pro/sitemap.xml

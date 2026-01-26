@@ -97,10 +97,10 @@ export const Footer = () => {
           <div>
             <h4 className="font-bold text-white mb-6">Resources</h4>
             <ul className="space-y-4 text-muted-foreground">
+              <li><Link to="/blog" className="hover:text-primary transition-colors">Blog & Intelligence</Link></li>
               <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Documentation</a></li>
               <li><a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Community</a></li>
               <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Case Studies</a></li>
-              <li><a href="https://www.entrext.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Help Center</a></li>
             </ul>
           </div>
 

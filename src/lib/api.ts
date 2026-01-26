@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://pickspy-backend.onrender.com';
 
 if (!BACKEND_API_URL) {
   console.info("ℹ️ Backend API URL not configured. Some features may use fallback data.");

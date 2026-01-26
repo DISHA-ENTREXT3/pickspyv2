@@ -58,6 +58,7 @@ export interface Product {
   faqs?: FAQ[];
   competitors?: CompetitorData[];
   socialSignals?: string[];
+  trendData?: TrendDataPoint[];
 }
 
 export interface CompetitorData {
