@@ -45,28 +45,28 @@ export const LandingFAQ = () => {
   ];
 
   return (
-    <section id="faq" className="py-24 bg-secondary/10">
-      <div className="container mx-auto px-4">
+    <section id="faq" className="py-24 bg-background relative overflow-hidden border-t border-border/50">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 flex items-center justify-center gap-3">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 flex items-center justify-center gap-3 text-foreground">
               <HelpCircle className="h-8 w-8 text-primary" />
               Frequently Asked Questions
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground font-medium">
               Everything you need to know about PickSpy and AI-powered product research.
             </p>
           </div>
 
-          <Card variant="glass" className="border-border/50">
+          <Card variant="glass" className="border-border/50 bg-card/50 shadow-xl shadow-primary/5">
             <CardContent className="p-0">
               <Accordion type="single" collapsible className="w-full">
                 {faqs.map((faq, index) => (
                   <AccordionItem key={index} value={`item-${index}`} className="border-border/50 px-6 md:px-10">
-                    <AccordionTrigger className="hover:no-underline hover:text-primary transition-colors py-6 text-left text-lg font-medium">
+                    <AccordionTrigger className="hover:no-underline hover:text-primary transition-colors py-6 text-left text-lg font-bold text-foreground">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground leading-relaxed pb-6 text-base">
+                    <AccordionContent className="text-muted-foreground leading-relaxed pb-6 text-base font-medium">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -75,12 +75,12 @@ export const LandingFAQ = () => {
             </CardContent>
           </Card>
 
-          <div className="mt-12 text-center p-6 rounded-2xl bg-primary/5 border border-primary/20">
-            <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="mt-12 text-center p-8 rounded-3xl bg-secondary/20 border border-primary/20 backdrop-blur-xl">
+            <div className="flex items-center justify-center gap-2 mb-3">
               <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-              <span className="font-semibold text-primary">Need more help?</span>
+              <span className="font-bold text-primary uppercase tracking-widest text-xs">Intelligence Support</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-bold mb-4">
               Join our community of 2,800+ entrepreneurs on Discord or subscribe to our newsletter for daily trend drops.
             </p>
           </div>

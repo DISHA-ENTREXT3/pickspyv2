@@ -35,16 +35,16 @@ const features = [
 
 export const Features = () => {
   return (
-    <section id="features" className="py-24 relative overflow-hidden">
+    <section id="features" className="py-24 relative overflow-hidden bg-background">
       {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 mb-6">
+        <div className="text-center max-w-3xl mx-auto mb-16 px-2">
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
             Everything you need to scale
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground font-medium">
             Powerful tools designed to help you find, validate, and launch winning products faster than ever before.
           </p>
         </div>
@@ -53,15 +53,15 @@ export const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="group p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-primary/50 transition-all duration-300"
+              className="group p-8 rounded-2xl bg-card/60 border border-border/50 backdrop-blur-md hover:bg-card/90 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 shadow-sm"
             >
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <feature.icon className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <h3 className="text-xl font-bold text-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed font-medium">
                 {feature.description}
               </p>
             </div>

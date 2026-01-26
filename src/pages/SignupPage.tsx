@@ -31,7 +31,6 @@ export default function SignupPage() {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      // Use the imported supabase client for OAuth
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -58,7 +57,6 @@ export default function SignupPage() {
 
     try {
       if (isLoginPage) {
-        // Login
         if (!email || !password) {
           toast.error('Please fill in all fields');
           setIsLoading(false);
@@ -73,7 +71,6 @@ export default function SignupPage() {
           navigate('/dashboard');
         }
       } else {
-        // Sign up
         if (!fullName || !email || !password) {
           toast.error('Please fill in all fields');
           setIsLoading(false);
@@ -97,7 +94,6 @@ export default function SignupPage() {
           toast.error(`Sign up failed: ${error.message}`);
         } else {
           toast.success('Account created! Please check your email to verify your account.');
-          // Redirect to login after signup
           setTimeout(() => navigate('/login'), 2000);
         }
       }
@@ -112,18 +108,18 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
       {/* Ambient Background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
       <Button 
         variant="ghost" 
-        className="absolute top-4 left-4 z-50 text-muted-foreground hover:text-primary"
+        className="absolute top-4 left-4 z-50 text-muted-foreground hover:text-primary transition-colors"
         onClick={() => navigate('/')}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back
       </Button>
       
-      <div className="w-full max-w-md relative z-10 p-8 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl shadow-2xl">
+      <div className="w-full max-w-md relative z-10 p-8 rounded-3xl bg-card/60 border border-border/50 backdrop-blur-2xl shadow-2xl">
         <div className="flex justify-center mb-8">
           <Link to="/">
             <Logo size="lg" />
@@ -131,7 +127,7 @@ export default function SignupPage() {
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             {isLoginPage ? 'Welcome Back' : 'Start for free today'}
           </h1>
           <p className="text-muted-foreground">
@@ -146,12 +142,12 @@ export default function SignupPage() {
             onClick={handleGoogleAuth}
             disabled={isLoading}
             variant="outline" 
-            className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white h-11 relative"
+            className="w-full bg-secondary/30 border-border/50 text-foreground hover:bg-secondary/50 h-11 relative"
           >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+              <svg className="mr-2 h-4 w-4 text-primary" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
                 <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
               </svg>
             )}
@@ -160,41 +156,41 @@ export default function SignupPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/10" />
+              <span className="w-full border-t border-border/50" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground bg-black/40 backdrop-blur-xl">Or continue with email</span>
+            <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest">
+              <span className="bg-card px-3 py-1 rounded-full border border-border/50 text-muted-foreground backdrop-blur-xl">Or continue with email</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLoginPage && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80">Full Name</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Full Name</label>
                 <Input 
                   placeholder="John Doe" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   disabled={isLoading}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/20" 
+                  className="bg-secondary/20 border-border/50 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50" 
                 />
               </div>
             )}
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80">Email Address</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email Address</label>
               <Input 
                 type="email" 
                 placeholder="john@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/20" 
+                className="bg-secondary/20 border-border/50 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50" 
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80">Password</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Password</label>
               <Input 
                 type="password" 
                 placeholder="••••••••" 
@@ -202,14 +198,14 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 maxLength={10}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/20" 
+                className="bg-secondary/20 border-border/50 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50" 
               />
             </div>
 
             <Button 
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 text-white h-11 text-base font-semibold shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 text-base font-semibold shadow-lg shadow-primary/20"
             >
               {isLoading ? (
                 <>
@@ -225,19 +221,19 @@ export default function SignupPage() {
           </form>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-white/10 text-center">
+        <div className="mt-6 pt-6 border-t border-border/50 text-center">
           <p className="text-sm text-muted-foreground">
             {isLoginPage ? (
               <>
                 Don't have an account?{' '}
-                <Link to="/signup" className="text-primary hover:underline font-medium">
+                <Link to="/signup" className="text-primary hover:underline font-bold transition-all">
                   Sign Up
                 </Link>
               </>
             ) : (
               <>
                 Already have an account?{' '}
-                <Link to="/login" className="text-primary hover:underline font-medium">
+                <Link to="/login" className="text-primary hover:underline font-bold transition-all">
                   Sign In
                 </Link>
               </>
@@ -245,10 +241,10 @@ export default function SignupPage() {
           </p>
         </div>
         
-        <div className="mt-8 text-center text-xs text-muted-foreground">
+        <div className="mt-8 text-center text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
           By {isLoginPage ? 'signing in' : 'signing up'}, you agree to our{' '}
-          <Link to="/privacy" className="underline hover:text-white">Privacy Policy</Link> and{' '}
-          <Link to="/terms" className="underline hover:text-white">Terms of Service</Link>.
+          <Link to="/privacy" className="underline hover:text-primary transition-colors">Privacy Policy</Link> and{' '}
+          <Link to="/terms" className="underline hover:text-primary transition-colors">Terms of Service</Link>.
         </div>
       </div>
     </div>
