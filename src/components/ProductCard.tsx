@@ -110,17 +110,18 @@ export const ProductCard = ({
       )}
 
       {/* Product Image Thumbnail */}
-      <div className="aspect-square w-full overflow-hidden bg-muted/30 relative flex items-center justify-center">
+      <div className="aspect-square w-full overflow-hidden bg-secondary/20 relative flex items-center justify-center">
         {!imageError && product.imageUrl && product.imageUrl !== '/placeholder.svg' ? (
           <img 
             src={product.imageUrl} 
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-secondary/50 to-background">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 shadow-glow">
+          <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-secondary/50 to-background/50">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 shadow-sm">
               <span className="text-2xl font-bold text-primary tracking-tighter">
                 {getInitials(product.name)}
               </span>
@@ -130,66 +131,67 @@ export const ProductCard = ({
             </span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
           {product.socialSignals?.slice(0, 2).map((signal) => (
-            <Badge key={signal} variant="glass" className="text-[9px] py-0 px-1.5 border-primary/20 bg-background/40 backdrop-blur-sm">
+            <Badge key={signal} variant="glass" className="text-[9px] py-0 px-1.5 border-primary/20 bg-background/60 backdrop-blur-md">
               ✨ {signal}
             </Badge>
           ))}
         </div>
-        <div className="absolute bottom-2 left-2 z-10 transition-transform group-hover:translate-x-1">
+        <div className="absolute bottom-2 left-2 z-10">
           {getAdBadge()}
         </div>
       </div>
 
       <CardHeader className="pb-3 pt-4">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0 pr-8">
-            <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-primary transition-colors">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-base leading-tight truncate group-hover:text-primary transition-colors pr-2">
               {product.name}
             </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-2xl font-bold">${product.price}</span>
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 fill-primary text-primary" />
-                <span className="text-xs font-medium">{product.rating}</span>
-                <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-xl font-bold text-foreground">${product.price}</span>
+              <div className="flex items-center gap-1 bg-secondary/50 px-1.5 py-0.5 rounded-md border border-border/50">
+                <Star className="h-2.5 w-2.5 fill-primary text-primary" />
+                <span className="text-[10px] font-bold">{product.rating}</span>
+                <span className="text-[9px] text-muted-foreground">({product.reviewCount})</span>
               </div>
-              <span className="text-xs text-muted-foreground capitalize ml-auto">{product.category.replace('-', ' ')}</span>
             </div>
           </div>
-          {getSignalBadge()}
+          <div className="shrink-0">
+            {getSignalBadge()}
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Velocity & Saturation bars */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-muted-foreground">Velocity</span>
-              <span className={`text-sm font-semibold ${getVelocityColor()}`}>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Velocity</span>
+              <span className={`text-xs font-bold ${getVelocityColor()}`}>
                 {product.velocityScore}
               </span>
             </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-primary to-signal-bullish rounded-full transition-all duration-500"
+                className="h-full bg-primary transition-all duration-700"
                 style={{ width: `${product.velocityScore}%` }}
               />
             </div>
           </div>
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-muted-foreground">Saturation</span>
-              <span className={`text-sm font-semibold ${getSaturationColor()}`}>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground">Saturation</span>
+              <span className={`text-xs font-bold ${getSaturationColor()}`}>
                 {product.saturationScore}%
               </span>
             </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all duration-500 ${
+                className={`h-full transition-all duration-700 ${
                   product.saturationScore <= 40 
                     ? 'bg-signal-bullish' 
                     : product.saturationScore <= 70 
@@ -203,11 +205,11 @@ export const ProductCard = ({
         </div>
 
         {/* Growth indicator */}
-        <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-secondary/50">
-          <span className="text-sm text-muted-foreground">Weekly Growth</span>
+        <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-secondary/30 border border-border/40">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-tighter">Weekly Growth</span>
           <div className="flex items-center gap-1.5">
             {getGrowthIcon()}
-            <span className={`font-semibold ${
+            <span className={`text-sm font-bold ${
               product.weeklyGrowth > 0 ? 'text-signal-bullish' : 
               product.weeklyGrowth < 0 ? 'text-signal-bearish' : ''
             }`}>
@@ -219,22 +221,22 @@ export const ProductCard = ({
         {/* Reddit sentiment */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <MessageCircle className="h-4 w-4" />
-              <span className="text-xs">{product.redditMentions} mentions</span>
+            <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span className="text-[11px]">{product.redditMentions} mentions</span>
             </div>
-            <span className={`text-xs font-medium ${
+            <span className={`text-[11px] font-bold ${
               product.sentimentScore > 50 ? 'text-signal-bullish' :
               product.sentimentScore < 0 ? 'text-signal-bearish' : 'text-signal-caution'
             }`}>
-              {product.sentimentScore > 0 ? '+' : ''}{product.sentimentScore} sentiment
+              +{product.sentimentScore} sentiment
             </span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {product.topRedditThemes.slice(0, 3).map((theme) => (
+          <div className="flex flex-wrap gap-1">
+            {product.topRedditThemes.slice(0, 2).map((theme) => (
               <span 
                 key={theme}
-                className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground"
+                className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary text-secondary-foreground border border-border/30"
               >
                 {theme}
               </span>
@@ -243,32 +245,31 @@ export const ProductCard = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5" />
-            {product.lastUpdated}
-            {product.source && (
-              <Badge variant="outline" className="ml-2 h-5 px-1.5 bg-secondary/30 text-[10px] uppercase border-border/50">
-                {product.source}
-              </Badge>
-            )}
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
+            <Clock className="h-3 w-3" />
+            LIVE
+            <Badge variant="outline" className="h-4 px-1.5 bg-secondary/50 text-[8px] uppercase border-border/50 font-bold">
+              {product.source || 'Intel'}
+            </Badge>
           </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
             <Button 
               variant="ghost" 
               size="sm"
+              className="h-7 text-[10px] font-bold"
               onClick={() => navigate(`/product/${product.id}`)}
             >
-              <Eye className="h-3.5 w-3.5 mr-1" />
               Details
             </Button>
             <Button 
               variant="ghost" 
               size="sm"
+              className="h-7 text-[10px] font-bold text-primary"
               onClick={() => onAnalyze?.(product)}
             >
               Analyze
-              <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+              <ArrowUpRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
         </div>

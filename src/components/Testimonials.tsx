@@ -26,9 +26,9 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden bg-background">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-5xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 mb-16">
+        <h2 className="text-3xl md:text-5xl font-bold text-center text-foreground mb-16 px-2">
           Loved by 12,000+ Founders
         </h2>
 
@@ -36,21 +36,21 @@ export const Testimonials = () => {
           {testimonials.map((t, i) => (
             <div 
               key={i}
-              className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 backdrop-blur-sm"
+              className="p-8 rounded-2xl bg-card border border-border/50 shadow-lg shadow-primary/5 transition-all hover:scale-[1.02] duration-300"
             >
               <div className="flex items-center gap-1 mb-6 text-yellow-500">
                 {[...Array(t.rating)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-current" />
                 ))}
               </div>
-              <p className="text-lg text-white/90 mb-8 leading-relaxed italic">
+              <p className="text-lg text-foreground/90 mb-8 leading-relaxed italic font-medium">
                 "{t.content}"
               </p>
               <div className="flex items-center gap-4">
-                <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full border border-white/20" />
+                <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full border border-border/50" />
                 <div>
-                  <div className="font-semibold text-white">{t.name}</div>
-                  <div className="text-sm text-muted-foreground">{t.role}</div>
+                  <div className="font-bold text-foreground">{t.name}</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t.role}</div>
                 </div>
               </div>
             </div>

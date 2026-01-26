@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { RefreshCw, TrendingUp } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { SearchFilters } from './SearchFilters';
@@ -11,6 +11,9 @@ import { FilterState, Product } from '@/types/product';
 interface ProductGridProps {
   onAnalyze?: (product: Product) => void;
 }
+
+// Memoize the ProductCard to prevent unnecessary re-renders in a large grid
+const MemoizedProductCard = memo(ProductCard);
 
 export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
   const { toast } = useToast();
@@ -60,70 +63,73 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    // Search query
-    if (filters.searchQuery && !product.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
-      return false;
-    }
-
-    // Category
-    if (filters.category !== 'all' && product.category !== filters.category) {
-      return false;
-    }
-
-    // Price band
-    if (filters.priceBand !== 'all') {
-      switch (filters.priceBand) {
-        case 'under-25':
-          if (product.price >= 25) return false;
-          break;
-        case '25-50':
-          if (product.price < 25 || product.price > 50) return false;
-          break;
-        case '50-100':
-          if (product.price < 50 || product.price > 100) return false;
-          break;
-        case 'over-100':
-          if (product.price <= 100) return false;
-          break;
+  // Memoize filtered products to prevent heavy calculation on every render
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      // Search query
+      if (filters.searchQuery && !product.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
+        return false;
       }
-    }
 
-    // Trend velocity
-    if (filters.trendVelocity !== 'all') {
-      switch (filters.trendVelocity) {
-        case 'explosive':
-          if (product.velocityScore < 80) return false;
-          break;
-        case 'rising':
-          if (product.velocityScore < 60 || product.velocityScore >= 80) return false;
-          break;
-        case 'stable':
-          if (product.velocityScore < 40 || product.velocityScore >= 60) return false;
-          break;
-        case 'declining':
-          if (product.velocityScore >= 40) return false;
-          break;
+      // Category
+      if (filters.category !== 'all' && product.category !== filters.category) {
+        return false;
       }
-    }
 
-    // Saturation
-    if (filters.saturation !== 'all') {
-      switch (filters.saturation) {
-        case 'low':
-          if (product.saturationScore > 40) return false;
-          break;
-        case 'medium':
-          if (product.saturationScore <= 40 || product.saturationScore > 70) return false;
-          break;
-        case 'high':
-          if (product.saturationScore <= 70) return false;
-          break;
+      // Price band
+      if (filters.priceBand !== 'all') {
+        switch (filters.priceBand) {
+          case 'under-25':
+            if (product.price >= 25) return false;
+            break;
+          case '25-50':
+            if (product.price < 25 || product.price > 50) return false;
+            break;
+          case '50-100':
+            if (product.price < 50 || product.price > 100) return false;
+            break;
+          case 'over-100':
+            if (product.price <= 100) return false;
+            break;
+        }
       }
-    }
 
-    return true;
-  });
+      // Trend velocity
+      if (filters.trendVelocity !== 'all') {
+        switch (filters.trendVelocity) {
+          case 'explosive':
+            if (product.velocityScore < 80) return false;
+            break;
+          case 'rising':
+            if (product.velocityScore < 60 || product.velocityScore >= 80) return false;
+            break;
+          case 'stable':
+            if (product.velocityScore < 40 || product.velocityScore >= 60) return false;
+            break;
+          case 'declining':
+            if (product.velocityScore >= 40) return false;
+            break;
+        }
+      }
+
+      // Saturation
+      if (filters.saturation !== 'all') {
+        switch (filters.saturation) {
+          case 'low':
+            if (product.saturationScore > 40) return false;
+            break;
+          case 'medium':
+            if (product.saturationScore <= 40 || product.saturationScore > 70) return false;
+            break;
+          case 'high':
+            if (product.saturationScore <= 70) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [products, filters]);
 
   return (
     <>
@@ -137,7 +143,7 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">Trending Products</h2>
-                <p className="text-sm text-muted-foreground">Real-time demand signals from across the web</p>
+                <p className="text-sm text-muted-foreground font-medium">Real-time demand signals from across the web</p>
               </div>
             </div>
             <Button 
@@ -159,10 +165,10 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
 
           {/* Results count */}
           <div className="text-sm text-muted-foreground mb-6">
-            Showing <span className="text-foreground font-medium">{filteredProducts.length}</span> products
+            Showing <span className="text-foreground font-bold">{filteredProducts.length}</span> products
             {compareProducts.length > 0 && (
-              <span className="ml-2">
-                • <span className="text-primary font-medium">{compareProducts.length}</span> selected for comparison
+              <span className="ml-2 font-medium">
+                • <span className="text-primary font-bold">{compareProducts.length}</span> selected for comparison
               </span>
             )}
           </div>
@@ -171,7 +177,7 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard 
+                <MemoizedProductCard 
                   key={product.id} 
                   product={product} 
                   onAnalyze={onAnalyze}
@@ -183,7 +189,7 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="text-muted-foreground">
+              <div className="text-muted-foreground font-medium">
                 No products match your filters.
               </div>
             </div>

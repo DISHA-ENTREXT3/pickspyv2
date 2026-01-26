@@ -16,18 +16,15 @@ from native_scrapers import get_native_scrapers
 
 app = FastAPI()
 
+# --- CORS CONFIG ---
+# Simplified for production reliability between Vercel and Render
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://localhost:5173",
-        "https://pickspyv2.vercel.app",
-        "https://pickspy.pro",
-        "*" # Fallback
-    ],
-    allow_credentials=False, # Use False if allow_origins includes "*"
+    allow_origins=["*"],
+    allow_credentials=False, # Must be False if using "*"
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # --- ROOT ENDPOINT ---
