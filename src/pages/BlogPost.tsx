@@ -14,13 +14,29 @@ import {
   CheckCircle2, 
   ArrowRight,
   Target,
-  BarChart2
+  BarChart2,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Instagram,
+  MessageSquare,
+  Mail,
+  Copy,
+  Check
 } from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const blog = blogs.find(b => b.slug === slug);
+  const [copied, setCopied] = React.useState(false);
 
   // SEO and Meta Management
   React.useEffect(() => {
@@ -33,6 +49,47 @@ const BlogPost = () => {
     }
   }, [blog]);
 
+  const handleCopyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success('Link copied to clipboard!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareLinks = [
+    { 
+      name: 'Twitter', 
+      icon: <Twitter className="h-4 w-4 mr-2" />, 
+      href: `https://x.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog?.title || '')}` 
+    },
+    { 
+      name: 'Facebook', 
+      icon: <Facebook className="h-4 w-4 mr-2" />, 
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}` 
+    },
+    { 
+      name: 'LinkedIn', 
+      icon: <Linkedin className="h-4 w-4 mr-2" />, 
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}` 
+    },
+    { 
+      name: 'Substack', 
+      icon: <Mail className="h-4 w-4 mr-2" />, 
+      href: `mailto:?subject=${encodeURIComponent(blog?.title || '')}&body=${encodeURIComponent(window.location.href)}` 
+    },
+    { 
+      name: 'Discord', 
+      icon: <MessageSquare className="h-4 w-4 mr-2" />, 
+      onClick: handleCopyLink 
+    },
+    { 
+      name: 'Instagram', 
+      icon: <Instagram className="h-4 w-4 mr-2" />, 
+      onClick: handleCopyLink 
+    },
+  ];
+
   if (!blog) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -41,6 +98,10 @@ const BlogPost = () => {
       </div>
     );
   }
+
+  const navigateToTrending = () => {
+    navigate('/', { state: { scrollTo: 'trending-products' } });
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -58,11 +119,34 @@ const BlogPost = () => {
               Back to Intelligence Center
             </Link>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                <Share2 className="h-4 w-4" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-xl border-white/10">
+                  <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer">
+                    {copied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Copy className="h-4 w-4 mr-2" />}
+                    {copied ? 'Copied!' : 'Copy Link'}
+                  </DropdownMenuItem>
+                  {shareLinks.map((link) => (
+                    <DropdownMenuItem 
+                      key={link.name} 
+                      onClick={() => link.onClick ? link.onClick() : window.open(link.href, '_blank')}
+                      className="cursor-pointer"
+                    >
+                      {link.icon}
+                      {link.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
+
+          {/* Post Header ... */}
+          {/* (Skipping identical lines to save cost, using multi_replace is safer for large blocks) */}
 
           {/* Post Header */}
           <header className="mb-12">
@@ -168,10 +252,10 @@ const BlogPost = () => {
                   <Button 
                     variant="hero" 
                     size="lg" 
-                    onClick={() => navigate('/signup')}
+                    onClick={navigateToTrending}
                     className="group"
                   >
-                    Start Free Intelligence Trial
+                    Analyze Winning Products
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </section>
@@ -207,7 +291,7 @@ const BlogPost = () => {
                   </ul>
                   <Button 
                     className="w-full bg-primary text-black font-bold hover:bg-primary/90"
-                    onClick={() => navigate('/signup')}
+                    onClick={navigateToTrending}
                   >
                     Analyze Now
                   </Button>

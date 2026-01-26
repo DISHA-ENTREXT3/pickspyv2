@@ -111,7 +111,7 @@ export const Header = () => {
                   onClick={link.onClick} 
                   variant="ghost" 
                   size="sm" 
-                  className={location.pathname === (link.path || '/') || (link.id && location.state?.scrollTo === link.id) ? 'bg-secondary' : ''}
+                  className="hover:bg-secondary/50"
                 >
                   {link.icon && <link.icon className="h-4 w-4 mr-1.5" />}
                   {link.name}
@@ -129,7 +129,7 @@ export const Header = () => {
               variant="ghost" 
               size="sm"
               onClick={() => navigate('/pricing')}
-              className={`hidden sm:flex ${location.pathname === '/pricing' ? 'bg-secondary' : ''}`}
+              className="hidden sm:flex hover:bg-secondary/50"
             >
               Pricing
             </Button>

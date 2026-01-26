@@ -15,6 +15,7 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { SupportWidget } from "./components/support/SupportWidget";
 
 import { ProductProvider } from "./contexts/ProductContext";
@@ -30,6 +31,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/product/:id" element={<ProductDetail />} />
