@@ -107,6 +107,7 @@ class BaseSeleniumScraper:
             # Randomized delay before navigation
             time.sleep(random.uniform(1.5, 3.5))
             
+            self.driver.set_page_load_timeout(30)
             self.driver.get(url)
             
             # Random mouse movement simulation (if not headless, or via JS)
@@ -114,18 +115,57 @@ class BaseSeleniumScraper:
             time.sleep(random.uniform(0.5, 1.5))
             
             if wait_selector:
-                WebDriverWait(self.driver, 15).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))
-                )
+                try:
+                    WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))
+                    )
+                except:
+                    print(f"⚠️ Timeout waiting for selector {wait_selector}, proceeding with available source")
             
             return self.driver.page_source
         except Exception as e:
             print(f"❌ Error getting page {url}: {e}")
             return None
 
+    def extract_generic_product_data(self, soup):
+        """Fallback: Extract product data from OG tags and Schema.org"""
+        data = {}
+        
+        # Open Graph
+        og_title = soup.find("meta", property="og:title")
+        og_image = soup.find("meta", property="og:image")
+        og_price = soup.find("meta", property="product:price:amount")
+        og_currency = soup.find("meta", property="product:price:currency")
+        
+        if og_title: data["name"] = og_title["content"]
+        if og_image: data["imageUrl"] = og_image["content"]
+        if og_price: data["price"] = og_price["content"]
+        
+        # Schema.org JSON-LD
+        if not data.get("price"):
+            json_ld = soup.find_all("script", type="application/ld+json")
+            for script in json_ld:
+                try:
+                    js = json.loads(script.string)
+                    if isinstance(js, list): js = js[0]
+                    if js.get("@type") == "Product":
+                        if not data.get("name"): data["name"] = js.get("name")
+                        if not data.get("imageUrl"): data["imageUrl"] = js.get("image")
+                        offers = js.get("offers")
+                        if isinstance(offers, dict):
+                            data["price"] = offers.get("price")
+                        elif isinstance(offers, list) and offers:
+                            data["price"] = offers[0].get("price")
+                        break
+                except: continue
+                
+        return data
+
     def close(self):
         if self.driver:
-            self.driver.quit()
+            try:
+                self.driver.quit()
+            except: pass
             self.driver = None
 
 
