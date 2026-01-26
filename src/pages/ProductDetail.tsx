@@ -63,6 +63,11 @@ interface LiveAnalysisData {
   error?: string;
 }
 
+interface EcommerceItem {
+  name?: string;
+  price?: string | number;
+}
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -332,11 +337,11 @@ const ProductDetail = () => {
                   Pricing comparison engines are scanning AliExpress, Amazon, and eBay...
                 </Card>
                 {/* Live Shop Matches from Engine */}
-                {liveAnalysis?.sources?.ecommerce && (
+                 {liveAnalysis?.sources?.ecommerce && (
                   <div className="grid gap-4">
                      <h3 className="font-bold flex items-center gap-2">🛒 Live Listings Found</h3>
                      {Object.entries(liveAnalysis.sources.ecommerce).map(([site, items]) => (
-                       Array.isArray(items) && items.map((item: { name?: string; price?: string | number }, i: number) => (
+                       Array.isArray(items) && (items as EcommerceItem[]).map((item, i) => (
                          <div key={`${site}-${i}`} className="p-3 rounded-lg border border-border flex items-center justify-between">
                             <div className="flex flex-col">
                               <span className="text-sm font-medium">{item.name}</span>
