@@ -41,18 +41,18 @@ export const analyzeProductWithAI = async (
   `;
 
   try {
-    const result = await hf.textGeneration({
+    const result = await hf.chatCompletion({
       model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 1000,
-        return_full_text: false,
-        temperature: 0.7,
-      },
+      messages: [
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 1000,
+      temperature: 0.7,
     });
 
+    const generatedText = result.choices[0].message.content || "";
     // Attempt to parse JSON from the response
-    const jsonStr = result.generated_text.match(/\{[\s\S]*\}/)?.[0];
+    const jsonStr = generatedText.match(/\{[\s\S]*\}/)?.[0];
     if (jsonStr) {
       return JSON.parse(jsonStr);
     } else {

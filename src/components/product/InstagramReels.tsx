@@ -52,55 +52,57 @@ export const InstagramReels = ({ productName }: InstagramReelsProps) => {
   ];
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-xl font-bold flex items-center gap-2">
           <Instagram className="h-6 w-6 text-pink-500" />
-          Instagram Viral Reels
+          Viral Product Feed
         </h3>
-        <Badge variant="outline" className="text-xs border-pink-500/30 text-pink-500">
-          Live Tracking
+        <Badge variant="outline" className="text-[10px] border-pink-500/30 text-pink-500 font-bold uppercase tracking-tighter">
+          Real-time Intel
         </Badge>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {reels.map((reel) => (
-          <Card key={reel.id} variant="glass" className="overflow-hidden group flex flex-col h-full border-white/5">
+          <Card key={reel.id} variant="glass" className="overflow-hidden group flex flex-col h-full border-white/5 transition-all hover:scale-[1.02]">
             <div className="relative aspect-[9/16] overflow-hidden bg-black">
               <img 
                 src={reel.thumbnail} 
                 alt="Reel thumbnail" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                className="w-full h-full object-cover transition-all duration-700 opacity-90 group-hover:opacity-100 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-                  <Play className="h-6 w-6 text-white fill-white" />
+              <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                  <Play className="h-4 w-4 text-white fill-white shadow-lg" />
                 </div>
               </div>
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white drop-shadow-md">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Heart className="h-4 w-4 fill-pink-500 text-pink-500" />
-                    <span className="text-xs font-bold">{reel.likes}</span>
+              <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] text-white font-bold border border-white/10">
+                REEL
+              </div>
+              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-white drop-shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-1.5 py-0.5 rounded-full border border-white/5">
+                    <Heart className="h-3 w-3 fill-pink-500 text-pink-500" />
+                    <span className="text-[10px] font-bold">{reel.likes}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="h-4 w-4 fill-white text-white" />
-                    <span className="text-xs font-bold">{reel.comments}</span>
+                  <div className="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-1.5 py-0.5 rounded-full border border-white/5">
+                    <MessageCircle className="h-3 w-3 fill-white text-white" />
+                    <span className="text-[10px] font-bold">{reel.comments}</span>
                   </div>
                 </div>
               </div>
             </div>
-            <CardContent className="p-3 flex-1 flex flex-col justify-between bg-card/40">
-              <p className="text-xs line-clamp-2 mb-3 font-medium text-muted-foreground italic">"{reel.caption}"</p>
-              
-              <div className="space-y-2 border-t border-white/5 pt-2">
-                {reel.topComments.slice(0, 1).map((comment) => (
-                  <div key={comment.id} className="text-[11px] leading-relaxed">
-                    <span className="font-bold text-pink-500/90 mr-1">@{comment.username}</span>
-                    <span className="text-muted-foreground">{comment.text}</span>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="p-3 bg-secondary/10 flex-1">
+              <p className="text-[11px] leading-relaxed line-clamp-2 font-medium text-muted-foreground italic mb-2">
+                "{reel.caption}"
+              </p>
+              {reel.topComments.slice(0, 1).map((comment) => (
+                <div key={comment.id} className="text-[10px] border-t border-white/5 pt-2 flex items-start gap-1">
+                  <span className="font-bold text-pink-500/80 shrink-0">@{comment.username}</span>
+                  <span className="text-muted-foreground/80 truncate">{comment.text}</span>
+                </div>
+              ))}
             </CardContent>
           </Card>
         ))}

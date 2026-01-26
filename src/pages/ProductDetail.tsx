@@ -160,7 +160,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Back Button */}
         <div className="mb-8">
           <Button 
