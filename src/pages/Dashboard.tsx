@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, CreditCard, Shield, Zap, Check, AlertCircle, LogOut } from 'lucide-react';
+import { User, CreditCard, Shield, Zap, Check, AlertCircle, LogOut, ChevronLeft } from 'lucide-react';
 import { PLANS } from '@/lib/plans';
 import { toast } from 'sonner';
 
@@ -63,6 +63,17 @@ export default function Dashboard() {
       <Header />
       
       <main className="container mx-auto px-4 pt-24 pb-16">
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+            onClick={() => navigate('/')}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">

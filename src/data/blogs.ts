@@ -15,25 +15,8 @@ export interface BlogPost {
   featured?: boolean;
 }
 
-const BLOG_IMAGES = [
-  'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1553877606-3c66955d9d75?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 
-  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
-];
-
-const pexels = (id: string) => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash << 5) - hash + id.charCodeAt(i);
-  return BLOG_IMAGES[Math.abs(hash) % BLOG_IMAGES.length];
-};
+const PEXELS_DOMAIN = "https://images.pexels.com/photos";
+const pexels = (id: string) => `${PEXELS_DOMAIN}/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
 
 export const blogs: BlogPost[] = [
   {
@@ -42,20 +25,14 @@ export const blogs: BlogPost[] = [
     slug: "how-to-find-winning-dropshipping-products",
     excerpt: "Speed is the ultimate edge in dropshipping. Learn how Pickspy detects trends early using product launch and removal data.",
     author: "Pickspy Intelligence Team",
-    date: "Jan 26, 2026",
+    date: "Jan 28, 2026",
     category: "Product Research",
     readTime: "8 min read",
-    image: pexels("5076511"),
-    contentImages: [pexels("3183150"), pexels("1181675")],
+    image: pexels("3183150"),
+    contentImages: [pexels("3183170"), pexels("1181671")],
     primaryKeyword: "winning dropshipping products",
     intent: "High-buying intent",
-    outline: [
-      "Why 'winning' products peak fast",
-      "The early-signal problem",
-      "Why ad libraries are always late",
-      "Using product launch & removal data",
-      "How Pickspy detects trends early"
-    ],
+    outline: ["Why 'winning' products peak fast", "The early-signal problem", "Why ad libraries are always late", "Using product launch & removal data", "How Pickspy detects trends early"],
     featured: true
   },
   {
@@ -64,20 +41,14 @@ export const blogs: BlogPost[] = [
     slug: "why-dropshippers-lose-money-saturated-products",
     excerpt: "Testing products that are already peaking is a recipe for high ad spend and low margins. Discover the real signals of saturation.",
     author: "Marketing Strategy",
-    date: "Jan 24, 2026",
+    date: "Jan 27, 2026",
     category: "Market Analysis",
     readTime: "6 min read",
     image: pexels("590022"),
     contentImages: [pexels("4483610")],
     primaryKeyword: "saturated dropshipping products",
     intent: "Pain-aware",
-    outline: [
-      "How saturation actually happens",
-      "Facebook ad illusion",
-      "The cost of being late",
-      "Real signals of saturation",
-      "How to avoid it with data"
-    ]
+    outline: ["How saturation actually happens", "Facebook ad illusion", "The cost of being late", "Real signals of saturation", "How to avoid it with data"]
   },
   {
     id: "3",
@@ -85,20 +56,14 @@ export const blogs: BlogPost[] = [
     slug: "ad-libraries-vs-product-intelligence",
     excerpt: "Ads don't always equal demand. Learn why survivorship bias in ad libraries leads to poor product selection.",
     author: "Intelligence Team",
-    date: "Jan 22, 2026",
+    date: "Jan 26, 2026",
     category: "Tools & Tech",
     readTime: "7 min read",
     image: pexels("6476587"),
     contentImages: [pexels("1181244")],
     primaryKeyword: "ad library alternatives",
     intent: "Comparison",
-    outline: [
-      "Why ads ≠ demand",
-      "Survivorship bias in ad libraries",
-      "Product-level vs ad-level tracking",
-      "Launch/removal intelligence",
-      "Pickspy positioning"
-    ]
+    outline: ["Why ads ≠ demand", "Survivorship bias in ad libraries", "Product-level vs ad-level tracking", "Launch/removal intelligence", "Pickspy positioning"]
   },
   {
     id: "4",
@@ -106,20 +71,14 @@ export const blogs: BlogPost[] = [
     slug: "fastest-way-to-validate-dropshipping-product",
     excerpt: "Stop wasting weeks on validation. Use launch velocity and removal patterns to validate in days, not weeks.",
     author: "Operations Lead",
-    date: "Jan 20, 2026",
+    date: "Jan 25, 2026",
     category: "Validation",
     readTime: "5 min read",
-    image: pexels("3183150"),
+    image: pexels("3183197"),
     contentImages: [pexels("3183170")],
     primaryKeyword: "dropshipping product validation",
     intent: "Tactical",
-    outline: [
-      "Validation mistakes",
-      "Signals that matter",
-      "Launch velocity",
-      "Removal patterns",
-      "Smart testing frameworks"
-    ]
+    outline: ["Validation mistakes", "Signals that matter", "Launch velocity", "Removal patterns", "Smart testing frameworks"]
   },
   {
     id: "5",
@@ -127,20 +86,14 @@ export const blogs: BlogPost[] = [
     slug: "spot-trends-before-tiktok",
     excerpt: "By the time a product goes viral on TikTok, the window is closing. Learn to spot the early indicators.",
     author: "Trend Analyst",
-    date: "Jan 18, 2026",
+    date: "Jan 24, 2026",
     category: "Trend Discovery",
     readTime: "9 min read",
     image: pexels("230544"),
     contentImages: [pexels("147413")],
     primaryKeyword: "dropshipping trends",
     intent: "Trend discovery",
-    outline: [
-      "TikTok lag explained",
-      "Trend lifecycle breakdown",
-      "Early vs late indicators",
-      "Product discovery vs content virality",
-      "Using Pickspy for early trend intel"
-    ]
+    outline: ["TikTok lag explained", "Trend lifecycle breakdown", "Early vs late indicators", "Product discovery vs content virality", "Using Pickspy for early trend intel"]
   },
   {
     id: "6",
@@ -148,19 +101,14 @@ export const blogs: BlogPost[] = [
     slug: "why-dropshipping-guesswork-fails",
     excerpt: "Emotional product selection is the enemy of profit. Replace instinct with high-fidelity intelligence.",
     author: "Founder's Corner",
-    date: "Jan 16, 2026",
+    date: "Jan 23, 2026",
     category: "Business Basics",
     readTime: "7 min read",
-    image: pexels("3183197"),
+    image: pexels("3184328"),
     contentImages: [pexels("3184328")],
     primaryKeyword: "dropshipping mistakes",
     intent: "Educational / cautionary",
-    outline: [
-      "Emotional product selection",
-      "“Gut feeling” myths",
-      "Data-driven founders win",
-      "Replacing instinct with intelligence"
-    ]
+    outline: ["Emotional product selection", "“Gut feeling” myths", "Data-driven founders win", "Replacing instinct with intelligence"]
   },
   {
     id: "7",
@@ -168,19 +116,14 @@ export const blogs: BlogPost[] = [
     slug: "reduce-dropshipping-ad-waste",
     excerpt: "Stop burning budget on dead products. Learn the early kill signals that save thousands in ad spend.",
     author: "Ad Specialist",
-    date: "Jan 14, 2026",
+    date: "Jan 22, 2026",
     category: "Advertising",
     readTime: "8 min read",
     image: pexels("3861969"),
     contentImages: [pexels("6476254")],
     primaryKeyword: "reduce ad spend dropshipping",
     intent: "Cost-saving",
-    outline: [
-      "Where ad waste actually happens",
-      "Testing dead products",
-      "Early kill signals",
-      "Data-backed go/no-go decisions"
-    ]
+    outline: ["Where ad waste actually happens", "Testing dead products", "Early kill signals", "Data-backed go/no-go decisions"]
   },
   {
     id: "8",
@@ -188,19 +131,14 @@ export const blogs: BlogPost[] = [
     slug: "product-launch-tracking-importance",
     excerpt: "Most researchers only look at sales. The real edge is in tracking the frequency and velocity of new launches.",
     author: "Data Scientist",
-    date: "Jan 12, 2026",
+    date: "Jan 21, 2026",
     category: "Product Research",
     readTime: "6 min read",
     image: pexels("1181671"),
     contentImages: [pexels("590020")],
     primaryKeyword: "product launch tracking",
     intent: "High-value niche keyword",
-    outline: [
-      "What launch data reveals",
-      "Why no one tracks removals",
-      "Early traction signals",
-      "Competitive intelligence explained"
-    ]
+    outline: ["What launch data reveals", "Why no one tracks removals", "Early traction signals", "Competitive intelligence explained"]
   },
   {
     id: "9",
@@ -208,19 +146,14 @@ export const blogs: BlogPost[] = [
     slug: "detecting-dead-dropshipping-products",
     excerpt: "Signs of decay aren't always obvious. Learn how to spot removal velocity and ad decay patterns.",
     author: "Tactical Support",
-    date: "Jan 10, 2026",
+    date: "Jan 20, 2026",
     category: "Market Analysis",
     readTime: "6 min read",
     image: pexels("4483610"),
     contentImages: [pexels("590022")],
     primaryKeyword: "dead dropshipping products",
     intent: "Tactical / curiosity",
-    outline: [
-      "Signs a product is dying",
-      "Removal velocity",
-      "Ad decay patterns",
-      "When to walk away fast"
-    ]
+    outline: ["Signs a product is dying", "Removal velocity", "Ad decay patterns", "When to walk away fast"]
   },
   {
     id: "10",
@@ -228,19 +161,14 @@ export const blogs: BlogPost[] = [
     slug: "dropshipping-testing-system-guide",
     excerpt: "Random testing is for amateurs. Build a repeatable system that converts raw data into profitable decisions.",
     author: "Systems Architect",
-    date: "Jan 08, 2026",
+    date: "Jan 19, 2026",
     category: "Systems",
     readTime: "10 min read",
     image: pexels("3182812"),
     contentImages: [pexels("1181671")],
     primaryKeyword: "dropshipping testing strategy",
     intent: "System builders",
-    outline: [
-      "Why random testing fails",
-      "Building a repeatable system",
-      "Input → signal → decision",
-      "Tools that matter vs noise"
-    ]
+    outline: ["Why random testing fails", "Building a repeatable system", "Input → signal → decision", "Tools that matter vs noise"]
   },
   {
     id: "11",
@@ -248,19 +176,14 @@ export const blogs: BlogPost[] = [
     slug: "why-winning-product-lists-are-late",
     excerpt: "If it's on a public list, it's likely already saturated. Learn why real-time tracking beats static lists every time.",
     author: "Pickspy Intel",
-    date: "Jan 06, 2026",
+    date: "Jan 18, 2026",
     category: "Market Saturation",
     readTime: "7 min read",
     image: pexels("1181316"),
     contentImages: [pexels("590022")],
     primaryKeyword: "winning product lists",
     intent: "Comparison",
-    outline: [
-      "Why lists are always late",
-      "The speed problem",
-      "Static vs live data",
-      "How real-time tracking wins"
-    ]
+    outline: ["Why lists are always late", "The speed problem", "Static vs live data", "How real-time tracking wins"]
   },
   {
     id: "12",
@@ -268,19 +191,14 @@ export const blogs: BlogPost[] = [
     slug: "small-teams-competitive-advantage",
     excerpt: "You don't need a huge budget if you have better intelligence. Speed is the small team's ultimate weapon.",
     author: "Growth Lead",
-    date: "Jan 04, 2026",
+    date: "Jan 17, 2026",
     category: "Business Strategy",
     readTime: "8 min read",
-    image: pexels("3184328"),
+    image: pexels("3184311"),
     contentImages: [pexels("3183150")],
     primaryKeyword: "dropshipping competitive advantage",
     intent: "Strategic",
-    outline: [
-      "Speed over scale",
-      "Intelligence > budget",
-      "Data leverage",
-      "Tools like Pickspy"
-    ]
+    outline: ["Speed over scale", "Intelligence > budget", "Data leverage", "Tools like Pickspy"]
   },
   {
     id: "13",
@@ -288,20 +206,14 @@ export const blogs: BlogPost[] = [
     slug: "dropshipping-product-lifecycle-explained",
     excerpt: "Understand the four phases of a product's life and learn exactly when to scale and when to exit.",
     author: "Market Strategist",
-    date: "Jan 02, 2026",
+    date: "Jan 16, 2026",
     category: "Market Analysis",
     readTime: "9 min read",
     image: pexels("590020"),
     contentImages: [pexels("4483610")],
     primaryKeyword: "dropshipping product lifecycle",
     intent: "Educational",
-    outline: [
-      "Discovery phase",
-      "Early adoption",
-      "Mass adoption",
-      "Saturation",
-      "Decline (and how to exit early)"
-    ]
+    outline: ["Discovery phase", "Early adoption", "Mass adoption", "Saturation", "Decline (and how to exit early)"]
   },
   {
     id: "14",
@@ -309,19 +221,14 @@ export const blogs: BlogPost[] = [
     slug: "why-track-product-removals",
     excerpt: "Removals reveal as much as launches. Learn why competitive exits are a massive signal for your next move.",
     author: "Data Team",
-    date: "Dec 30, 2025",
+    date: "Jan 15, 2026",
     category: "Product Research",
     readTime: "6 min read",
     image: pexels("4065876"),
     contentImages: [pexels("1181671")],
     primaryKeyword: "product removal tracking",
     intent: "Unique / low competition",
-    outline: [
-      "Why removals matter",
-      "What removals signal",
-      "Competitive exits",
-      "How this prevents losses"
-    ]
+    outline: ["Why removals matter", "What removals signal", "Competitive exits", "How this prevents losses"]
   },
   {
     id: "15",
@@ -329,19 +236,14 @@ export const blogs: BlogPost[] = [
     slug: "stop-chasing-virality-start-printing-profit",
     excerpt: "Viral doesn't always mean profitable. Learn to look for steady intelligence signals over social media hype.",
     author: "Strategic Finance",
-    date: "Dec 28, 2025",
+    date: "Jan 14, 2026",
     category: "Profitability",
     readTime: "8 min read",
     image: pexels("147413"),
     contentImages: [pexels("230544")],
     primaryKeyword: "viral dropshipping products",
     intent: "Anti-hype",
-    outline: [
-      "Viral ≠ profitable",
-      "Late traffic trap",
-      "Early data beats hype",
-      "Intelligence-led product selection"
-    ]
+    outline: ["Viral ≠ profitable", "Late traffic trap", "Early data beats hype", "Intelligence-led product selection"]
   },
   {
     id: "16",
@@ -349,19 +251,14 @@ export const blogs: BlogPost[] = [
     slug: "best-dropshipping-tools-2026",
     excerpt: "Cut the fluff. Discover the essential tools for product intelligence, operations, and scaling in 2026.",
     author: "Tool Reviewer",
-    date: "Dec 26, 2025",
+    date: "Jan 13, 2026",
     category: "Tools & Tech",
     readTime: "7 min read",
     image: pexels("1036623"),
     contentImages: [pexels("1181244")],
     primaryKeyword: "dropshipping tools",
     intent: "Tool comparison",
-    outline: [
-      "Research vs intelligence",
-      "Tools that waste time",
-      "Tools that save money",
-      "Where Pickspy fits"
-    ]
+    outline: ["Research vs intelligence", "Tools that waste time", "Tools that save money", "Where Pickspy fits"]
   },
   {
     id: "17",
@@ -369,19 +266,14 @@ export const blogs: BlogPost[] = [
     slug: "early-product-discovery-edge",
     excerpt: "In a world of copycats, discovery speed is the only sustainable competitive advantage.",
     author: "Thought Leader",
-    date: "Dec 24, 2025",
+    date: "Jan 12, 2026",
     category: "Thought Leadership",
     readTime: "9 min read",
     image: pexels("3183170"),
     contentImages: [pexels("3183150")],
     primaryKeyword: "product discovery dropshipping",
     intent: "Thought leadership",
-    outline: [
-      "No moats in dropshipping",
-      "Speed as the edge",
-      "Data as leverage",
-      "Execution framework"
-    ]
+    outline: ["No moats in dropshipping", "Speed as the edge", "Data as leverage", "Execution framework"]
   },
   {
     id: "18",
@@ -389,19 +281,14 @@ export const blogs: BlogPost[] = [
     slug: "avoid-testing-overused-products",
     excerpt: "Saturation isn't just a myth. Use data-backed detection to avoid the 'copycat trap' and high ad costs.",
     author: "Marketing Strategist",
-    date: "Dec 22, 2025",
+    date: "Jan 11, 2026",
     category: "Market Saturation",
     readTime: "7 min read",
     image: pexels("3184291"),
     contentImages: [pexels("4483610")],
     primaryKeyword: "avoid saturated products",
     intent: "Tactical",
-    outline: [
-      "Saturation myths",
-      "Data-backed detection",
-      "Early warning signs",
-      "Testing smarter, not harder"
-    ]
+    outline: ["Saturation myths", "Data-backed detection", "Early warning signs", "Testing smarter, not harder"]
   },
   {
     id: "19",
@@ -409,19 +296,14 @@ export const blogs: BlogPost[] = [
     slug: "inside-pickspy-intelligence-platform",
     excerpt: "What does 'intelligence' actually look like? Take a tour of Pickspy's data engine and launch/removal tracking.",
     author: "Product Team",
-    date: "Dec 20, 2025",
+    date: "Jan 10, 2026",
     category: "Behind the Scenes",
     readTime: "6 min read",
     image: pexels("6476254"),
     contentImages: [pexels("1181671")],
     primaryKeyword: "dropshipping intelligence platform",
     intent: "Product-aware",
-    outline: [
-      "What “intelligence” actually means",
-      "Raw data vs insights",
-      "Launch/removal tracking",
-      "How Pickspy works (soft demo)"
-    ]
+    outline: ["What “intelligence” actually means", "Raw data vs insights", "Launch/removal tracking", "How Pickspy works (soft demo)"]
   },
   {
     id: "20",
@@ -429,19 +311,14 @@ export const blogs: BlogPost[] = [
     slug: "future-of-dropshipping-2026",
     excerpt: "The market is maturing. Learn why rising ad costs require a shift from intuition to intelligence.",
     author: "Visionary Team",
-    date: "Dec 18, 2025",
+    date: "Jan 09, 2026",
     category: "Industry Trends",
     readTime: "8 min read",
     image: pexels("259027"),
     contentImages: [pexels("3183150")],
     primaryKeyword: "future of dropshipping",
     intent: "Forward-looking",
-    outline: [
-      "Market maturity",
-      "Rising ad costs",
-      "Intelligence over intuition",
-      "Tools that survive long-term"
-    ]
+    outline: ["Market maturity", "Rising ad costs", "Intelligence over intuition", "Tools that survive long-term"]
   },
   {
     id: "21",
@@ -449,7 +326,7 @@ export const blogs: BlogPost[] = [
     slug: "winning-product-patterns-q1-2026",
     excerpt: "Q1 is the season of new beginnings. Discover 7 structural patterns we're seeing in winning products this year.",
     author: "Trend Analyst",
-    date: "Dec 15, 2025",
+    date: "Jan 08, 2026",
     category: "Product Research",
     readTime: "10 min read",
     image: pexels("3182763"),
@@ -464,7 +341,7 @@ export const blogs: BlogPost[] = [
     slug: "scaling-dropshipping-to-10k",
     excerpt: "Learn how to use data to remove the glass ceiling on your store's growth.",
     author: "Growth Lead",
-    date: "Dec 12, 2025",
+    date: "Jan 07, 2026",
     category: "Business Strategy",
     readTime: "12 min read",
     image: pexels("6963068"),
@@ -479,7 +356,7 @@ export const blogs: BlogPost[] = [
     slug: "amazon-bestsellers-trap",
     excerpt: "Chasing Amazon's top list is a race to the bottom. Here's why you need unique intelligence.",
     author: "Market Strategist",
-    date: "Dec 10, 2025",
+    date: "Jan 06, 2026",
     category: "Market Analysis",
     readTime: "7 min read",
     image: pexels("264547"),
@@ -494,7 +371,7 @@ export const blogs: BlogPost[] = [
     slug: "predict-lifecycles-reddit-sentiment",
     excerpt: "Reddit is the 'front page of the internet.' Learn to read between the lines of user comments.",
     author: "Data Scientist",
-    date: "Dec 08, 2025",
+    date: "Jan 05, 2026",
     category: "Reddit Intelligence",
     readTime: "9 min read",
     image: pexels("1181673"),
@@ -509,7 +386,7 @@ export const blogs: BlogPost[] = [
     slug: "eco-friendly-dropshipping-trends",
     excerpt: "Sustainability is no longer a niche. It's a requirement for many consumers in 2026.",
     author: "Sustainability Lead",
-    date: "Dec 05, 2025",
+    date: "Jan 04, 2026",
     category: "Industry Trends",
     readTime: "8 min read",
     image: pexels("1072179"),
@@ -524,7 +401,7 @@ export const blogs: BlogPost[] = [
     slug: "source-high-quality-samples",
     excerpt: "Avoid the 'bait and switch' with a robust sampling process supported by data.",
     author: "Operations Lead",
-    date: "Dec 02, 2025",
+    date: "Jan 03, 2026",
     category: "Sourcing",
     readTime: "6 min read",
     image: pexels("3760067"),
@@ -539,7 +416,7 @@ export const blogs: BlogPost[] = [
     slug: "competition-removal-signals",
     excerpt: "When the big fish leave a market, there's often a massive opening. Learn to spot competitive exits.",
     author: "Intelligence Team",
-    date: "Nov 30, 2025",
+    date: "Jan 02, 2026",
     category: "Market Saturation",
     readTime: "8 min read",
     image: pexels("416405"),
@@ -554,7 +431,7 @@ export const blogs: BlogPost[] = [
     slug: "tiktok-shop-vs-fb-ads",
     excerpt: "A data-backed comparison of the two biggest traffic sources for dropshippers in 2026.",
     author: "Ad Specialist",
-    date: "Nov 28, 2025",
+    date: "Jan 01, 2026",
     category: "Advertising",
     readTime: "11 min read",
     image: pexels("5076527"),
@@ -569,7 +446,7 @@ export const blogs: BlogPost[] = [
     slug: "brand-building-dropshipping-trends",
     excerpt: "Don't just sell a product—build an asset. Learn how to transition from trending items to long-term brands.",
     author: "Founder's Corner",
-    date: "Nov 25, 2025",
+    date: "Jan 30, 2026",
     category: "Business Basics",
     readTime: "9 min read",
     image: pexels("3184465"),
@@ -584,7 +461,7 @@ export const blogs: BlogPost[] = [
     slug: "high-margin-niche-selection",
     excerpt: "Why some niches consistently outperform trending items. A data deep-dive into long-term profitability.",
     author: "Strategic Finance",
-    date: "Nov 22, 2025",
+    date: "Jan 29, 2026",
     category: "Profitability",
     readTime: "10 min read",
     image: pexels("259027"),
@@ -592,305 +469,7 @@ export const blogs: BlogPost[] = [
     primaryKeyword: "profitable dropshipping niches",
     intent: "Analytical",
     outline: ["Margin math", "Complexity moats", "Shipping logistics", "Customer LTV", "Pickspy niche rankings"]
-  },
-  {
-    id: "31",
-    title: "The Psychology of E-commerce Buying Trends",
-    slug: "ecommerce-buyer-psychology-trends",
-    excerpt: "Why people buy what they buy. Understanding the 'why' behind the 'what' in market data.",
-    author: "Trend Analyst",
-    date: "Nov 20, 2025",
-    category: "Trend Discovery",
-    readTime: "8 min read",
-    image: pexels("3181588"),
-    contentImages: [pexels("3184292")],
-    primaryKeyword: "buyer behavior analysis",
-    intent: "Educational",
-    outline: ["Impulse vs need", "Social proof impact", "Scarcity signals", "Authority power", "Emotional triggers"]
-  },
-  {
-    id: "32",
-    title: "Tracking Ad Spend Waste: A Pro’s Guide to Efficiency",
-    slug: "guide-to-ad-spend-efficiency",
-    excerpt: "Stop the bleed. Learn the exact metrics to track to ensure your ad spend is always ROI-positive.",
-    author: "Ad Specialist",
-    date: "Nov 18, 2025",
-    category: "Advertising",
-    readTime: "10 min read",
-    image: pexels("4960464"),
-    contentImages: [pexels("6476254")],
-    primaryKeyword: "reduce dropshipping ad waste",
-    intent: "Operational",
-    outline: ["Kill metrics", "Scaling metrics", "Attribution hacks", "Testing windows", "Efficiency benchmarks"]
-  },
-  {
-    id: "33",
-    title: "How to Use Google Trends for Dropshipping Verification",
-    slug: "use-google-trends-verification",
-    excerpt: "Google Search interest is the ultimate lag indicator. Learn how to pair it with Pickspy's forward-looking data.",
-    author: "Data Scientist",
-    date: "Nov 15, 2025",
-    category: "Tools & Tech",
-    readTime: "7 min read",
-    image: pexels("1181677"),
-    contentImages: [pexels("590020")],
-    primaryKeyword: "google trends dropshipping",
-    intent: "Tactical",
-    outline: ["Search volume vs intent", "Geographic filters", "Seasonality check", "Related queries", "Verification workflow"]
-  },
-  {
-    id: "34",
-    title: "The Hidden Costs of Late Market Entry",
-    slug: "costs-of-late-market-entry",
-    excerpt: "Being second is often worse than being last. The math behind the first-mover advantage in e-commerce.",
-    author: "Operations Lead",
-    date: "Nov 12, 2025",
-    category: "Market Saturation",
-    readTime: "8 min read",
-    image: pexels("2633344"),
-    contentImages: [pexels("4483610")],
-    primaryKeyword: "market entry strategy",
-    intent: "Instructional",
-    outline: ["CPM inflation", "Competition density", "Review velocity lag", "Supply chain strain", "Opportunity cost"]
-  },
-  {
-    id: "35",
-    title: "Diversifying Your Supplier Risk in 2026",
-    slug: "diversify-supplier-risk",
-    excerpt: "Relying on a single source is a business-killer. Learn to build a redundant supply chain with data.",
-    author: "Sourcing",
-    date: "Nov 10, 2025",
-    category: "Business strategy",
-    readTime: "9 min read",
-    image: pexels("7616628"),
-    contentImages: [pexels("3861961")],
-    primaryKeyword: "sourcing diversification",
-    intent: "Risk management",
-    outline: ["Supplier vulnerability", "Redundancy setup", "Quality monitoring", "Communication hacks", "Logistics mapping"]
-  },
-  {
-    id: "36",
-    title: "Mastering the Art of Low-Competition Product Selection",
-    slug: "mastering-low-competition-products",
-    excerpt: "High volume is great, but low competition is where the real profit lies. A masterclass in market selection.",
-    author: "Intelligence Team",
-    date: "Nov 08, 2025",
-    category: "Product Research",
-    readTime: "11 min read",
-    image: pexels("1311518"),
-    contentImages: [pexels("1181675")],
-    primaryKeyword: "low competition products",
-    intent: "High-buying intent",
-    outline: ["Blue ocean filters", "Specificity moats", "Search volume analysis", "Competitive density", "Execution guide"]
-  },
-  {
-    id: "37",
-    title: "Why Sentiment Score Is the Most Underrated E-com Metric",
-    slug: "sentiment-score-importance",
-    excerpt: "Moving beyond 'likes' and 'shares' to understand how customers actually feel about a potential product.",
-    author: "Data Scientist",
-    date: "Nov 05, 2025",
-    category: "Reddit Intelligence",
-    readTime: "8 min read",
-    image: pexels("60504"),
-    contentImages: [pexels("1181244")],
-    primaryKeyword: "product sentiment analysis",
-    intent: "Technical",
-    outline: ["Sentiment vs volume", "Identifying pain points", "Negative signal value", "Positive sentiment velocity", "Calibration"]
-  },
-  {
-    id: "38",
-    title: "Finding Winners in the Home-Office Niche",
-    slug: "home-office-winners-analysis",
-    excerpt: "The workstation of the future is still evolving. Learn to spot the next generation of WFH gadgets.",
-    author: "Trend Analyst",
-    date: "Nov 02, 2025",
-    category: "Product Research",
-    readTime: "10 min read",
-    image: pexels("37347"),
-    contentImages: [pexels("1181671")],
-    primaryKeyword: "home office dropshipping",
-    intent: "Niche-specific",
-    outline: ["Ergonomic shifts", "Tech integration", "Style vs utility", "Pricing bands", "Case studies"]
-  },
-  {
-    id: "39",
-    title: "The Impact of Logistics Intelligence on Profit Margins",
-    slug: "logistics-profit-margins",
-    excerpt: "Shipping isn't just a cost—it's a lever. How to optimize your fulfillment strategy using market data.",
-    author: "Operations Lead",
-    date: "Oct 30, 2025",
-    category: "Profitability",
-    readTime: "9 min read",
-    image: pexels("3184418"),
-    contentImages: [pexels("1181671")],
-    primaryKeyword: "shipping optimization dropshipping",
-    intent: "Actionable",
-    outline: ["Weight vs margin", "Delivery velocity", "Global hubs", "Partner vetting", "Logistics tech"]
-  },
-  {
-    id: "40",
-    title: "Automating Your Product Research with AI Engines",
-    slug: "automate-research-with-ai",
-    excerpt: "Switch from manual scanning to automated intelligence. How to reclaim 20 hours a week.",
-    author: "Systems Architect",
-    date: "Oct 28, 2025",
-    category: "Tools & Tech",
-    readTime: "12 min read",
-    image: pexels("1181244"),
-    contentImages: [pexels("6476587")],
-    primaryKeyword: "ai product research tools",
-    intent: "Efficiency",
-    outline: ["Automation loops", "Data pipelines", "Bias removal", "Scaling research", "Pickspy AI overview"]
-  },
-  {
-    id: "41",
-    title: "Social Proof Engineering for New Product Launches",
-    slug: "social-proof-engineering",
-    excerpt: "How to bootstrap credibility for a product that hasn't sold a thousand units yet.",
-    author: "Marketing Strategist",
-    date: "Oct 25, 2025",
-    category: "Business Strategy",
-    readTime: "8 min read",
-    image: pexels("3183198"),
-    contentImages: [pexels("3184328")],
-    primaryKeyword: "dropshipping marketing tips",
-    intent: "Tactical",
-    outline: ["UGC strategies", "Influencer seeding", "Review systems", "Authority badges", "Trust-first UI"]
-  },
-  {
-    id: "42",
-    title: "Why One-Product Stores Are Making a Comeback",
-    slug: "one-product-store-comeback",
-    excerpt: "Focus is the new competitive advantage. Why niche depth is beating general store breadth in 2026.",
-    author: "Growth Lead",
-    date: "Oct 22, 2025",
-    category: "Industry Trends",
-    readTime: "10 min read",
-    image: pexels("3182814"),
-    contentImages: [pexels("1181671")],
-    primaryKeyword: "single product dropshipping",
-    intent: "Strategic",
-    outline: ["Focus advantages", "Brand story depth", "Funnel efficiency", "Inventory simplicity", "Scaling models"]
-  },
-  {
-    id: "43",
-    title: "High-Velocity Launches: A 48-Hour Execution Guide",
-    slug: "high-velocity-launch-guide",
-    excerpt: "From discovery to first ad in two days. The framework for fast movers.",
-    author: "Founder's Corner",
-    date: "Oct 20, 2025",
-    category: "Validation",
-    readTime: "7 min read",
-    image: pexels("3183151"),
-    contentImages: [pexels("3183170")],
-    primaryKeyword: "launch winning product fast",
-    intent: "High-buying intent",
-    outline: ["Selection framework", "Assets setup", "Ad engine warmup", "Data feedback", "First 48 metrics"]
-  },
-  {
-    id: "44",
-    title: "The Science of Price Testing Your Trending Products",
-    slug: "science-of-price-testing",
-    excerpt: "Are you leaving money on the table? Learn to find the pricing sweet spot for maximum ROI.",
-    author: "Strategic Finance",
-    date: "Oct 18, 2025",
-    category: "Profitability",
-    readTime: "9 min read",
-    image: pexels("590021"),
-    contentImages: [pexels("590022")],
-    primaryKeyword: "pricing strategy dropshipping",
-    intent: "Analytical",
-    outline: ["Elasticity tests", "Competitor indexing", "Psychological price points", "Bundle testing", "Margin protection"]
-  },
-  {
-    id: "45",
-    title: "Customer Support as a Growth Engine for Your Store",
-    slug: "support-as-growth-engine",
-    excerpt: "Retention is the secret scaling weapon. Learn to use support to build high-LTV customer relationships.",
-    author: "Customer Experience Team",
-    date: "Oct 15, 2025",
-    category: "Business strategy",
-    readTime: "8 min read",
-    image: pexels("1181676"),
-    contentImages: [pexels("1181671")],
-    primaryKeyword: "dropshipping customer service",
-    intent: "Organizational",
-    outline: ["Response velocity", "Conflict resolution", "Review generation", "Loyalty loops", "Scaling teams"]
-  },
-  {
-    id: "46",
-    title: "Detecting Market Saturation Before the Crowd",
-    slug: "detect-saturation-early",
-    excerpt: "Don't wait for your CPAs to skyrocket. Learn the early-warning signs of a product reaching its peak.",
-    author: "Trend Analyst",
-    date: "Oct 12, 2025",
-    category: "Market Analysis",
-    readTime: "11 min read",
-    image: pexels("590026"),
-    contentImages: [pexels("4483610")],
-    primaryKeyword: "saturated products warning",
-    intent: "Educational",
-    outline: ["Launch/Removal ratios", "Ad frequency shifts", "Sentiment decay", "Supply chain spikes", "Peak signals"]
-  },
-  {
-    id: "47",
-    title: "How to Spot Evergreen Products in a Sea of Trends",
-    slug: "evergreen-dropshipping-products",
-    excerpt: "Trends make you rich, but evergreens keep you rich. Learn to identify the durable winners.",
-    author: "Thought Leader",
-    date: "Oct 10, 2025",
-    category: "Product Research",
-    readTime: "9 min read",
-    image: pexels("3183171"),
-    contentImages: [pexels("3183150")],
-    primaryKeyword: "evergreen dropshipping products",
-    intent: "Balanced",
-    outline: ["Evergreen structural traits", "Utility moats", "Replenishment cycles", "Niche stability", "Combination strategy"]
-  },
-  {
-    id: "48",
-    title: "E-commerce Compliance and Risk Management for Founders",
-    slug: "ecommerce-compliance-risk-management",
-    excerpt: "Protect your business from legal pitfalls and platform bans with these risk management strategies.",
-    author: "Legal Support",
-    date: "Oct 08, 2025",
-    category: "Trust & Legal",
-    readTime: "12 min read",
-    image: pexels("3760069"),
-    contentImages: [pexels("3861969")],
-    primaryKeyword: "dropshipping legal risks",
-    intent: "Informational",
-    outline: ["IP protection", "Consumer data laws", "Platform policies", "Insurance essentials", "Compliance audits"]
-  },
-  {
-    id: "49",
-    title: "Scaling Your Ad Creatives Based on Audience Sentiment",
-    slug: "scaling-creatives-sentiment-data",
-    excerpt: "Learn to iterate on your ads using actual customer feedback signals from the Pickspy engine.",
-    author: "Ad Specialist",
-    date: "Oct 05, 2025",
-    category: "Advertising",
-    readTime: "10 min read",
-    image: pexels("147415"),
-    contentImages: [pexels("230544")],
-    primaryKeyword: "dropshipping ad creative strategy",
-    intent: "Optimizing",
-    outline: ["Feedback mapping", "Creative iteration", "High-sentiment hooks", "Angle testing", "Sentiment-driven ROI"]
-  },
-  {
-    id: "50",
-    title: "Year-End Reflection: What We Learned from 10k+ Product Scans",
-    slug: "year-end-reflections-intelligence",
-    excerpt: "A bird's eye view of the 2025 e-commerce landscape and what it means for your strategy in 2026.",
-    author: "Intelligence Team",
-    date: "Oct 02, 2025",
-    category: "Behind the Scenes",
-    readTime: "15 min read",
-    image: pexels("3184331"),
-    contentImages: [pexels("6476254")],
-    primaryKeyword: "dropshipping data analysis",
-    intent: "Reflection / Strategic",
-    outline: ["The big shifts", "Winner profiles", "Fail patterns", "Category performance", "Future predictions"]
   }
 ];
+
+export const allBlogCategories = Array.from(new Set(blogs.map(blog => blog.category)));

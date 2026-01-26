@@ -6,6 +6,82 @@
 
 @layer base {
   :root {
+    /* PickSpy Light Intelligence Theme */
+    --background: 220 25% 98%;
+    --foreground: 220 20% 6%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 6%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 6%;
+
+    --primary: 175 80% 40%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 20% 15%;
+
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 175 80% 40%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 90%;
+    --ring: 175 80% 40%;
+
+    --radius: 0.75rem;
+
+    /* PickSpy Custom Tokens */
+    --signal-bullish: 160 85% 35%;
+    --signal-caution: 38 95% 45%;
+    --signal-bearish: 0 75% 55%;
+    --signal-neutral: 220 10% 50%;
+
+    --glow-primary: 175 80% 45%;
+    --glow-bullish: 160 85% 35%;
+
+    --surface-glass: 0 0% 100% / 0.7;
+    --surface-elevated: 220 20% 96% / 0.95;
+
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(220 25% 98%) 0%,
+      hsl(220 25% 94%) 50%,
+      hsl(175 80% 90% / 0.5) 100%
+    );
+    --gradient-card: linear-gradient(
+      145deg,
+      hsl(0 0% 100%) 0%,
+      hsl(220 25% 96%) 100%
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(175 80% 45%) 0%,
+      hsl(160 85% 40%) 100%
+    );
+
+    --shadow-glow: 0 0 40px hsl(175 80% 50% / 0.1);
+    --shadow-card: 0 10px 30px -10px hsl(220 20% 10% / 0.1);
+    --shadow-elevated: 0 20px 40px -12px hsl(220 20% 10% / 0.15);
+
+    /* Sidebar */
+    --sidebar-background: 220 25% 96%;
+    --sidebar-foreground: 220 20% 10%;
+    --sidebar-primary: 175 80% 40%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 220 15% 92%;
+    --sidebar-accent-foreground: 220 20% 6%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 175 80% 40%;
+  }
+
+  .dark {
     /* PickSpy Dark Intelligence Theme */
     --background: 220 20% 6%;
     --foreground: 210 20% 95%;
@@ -35,8 +111,6 @@
     --input: 220 15% 15%;
     --ring: 175 80% 50%;
 
-    --radius: 0.75rem;
-
     /* PickSpy Custom Tokens */
     --signal-bullish: 160 85% 45%;
     --signal-caution: 38 95% 55%;
@@ -46,7 +120,7 @@
     --glow-primary: 175 80% 50%;
     --glow-bullish: 160 85% 45%;
 
-    --surface-glass: 220 18% 12%;
+    --surface-glass: 220 18% 12% / 0.8;
     --surface-elevated: 220 16% 14%;
 
     --gradient-hero: linear-gradient(
@@ -79,10 +153,6 @@
     --sidebar-accent-foreground: 210 20% 90%;
     --sidebar-border: 220 15% 18%;
     --sidebar-ring: 175 80% 50%;
-  }
-
-  .dark {
-    /* Already dark by default */
   }
 }
 

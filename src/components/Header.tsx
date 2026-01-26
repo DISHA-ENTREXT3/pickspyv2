@@ -3,9 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Zap, BarChart3, Menu, X, ExternalLink } from 'lucide-react';
+import { Zap, BarChart3, Menu, X, ExternalLink, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { ThemeToggle } from './ThemeToggle';
 import {
   Sheet,
   SheetContent,
@@ -17,7 +18,7 @@ import {
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isLoading, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleSignOut = async () => {
@@ -117,7 +118,7 @@ export const Header = () => {
                   {link.name}
                 </Button>
               ))}
-              <Button variant="ghost" size="sm" className="flex items-center gap-1.5">
+              <Button variant="ghost" size="sm" className="hidden lg:flex items-center gap-1.5">
                 AI Analyzer
                 <Badge variant="premium" className="text-[10px] px-1.5 py-0">PRO</Badge>
               </Button>
@@ -125,6 +126,8 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
+            
             <Button 
               variant="ghost" 
               size="sm"

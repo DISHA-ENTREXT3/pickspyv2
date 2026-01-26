@@ -5,7 +5,7 @@ import { Footer } from '@/components/Footer';
 import { blogs } from '@/data/blogs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, ArrowRight, TrendingUp, Search } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, TrendingUp, Search, ChevronLeft } from 'lucide-react';
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -34,6 +34,17 @@ const Blog = () => {
       
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
+          <div className="mb-6 flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="group gap-2 text-muted-foreground hover:text-primary transition-all bg-card/20 hover:bg-card/40 border border-white/5"
+              onClick={() => navigate('/')}
+            >
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Back to Home
+            </Button>
+          </div>
           {/* Hero Section */}
           <div className="text-center mb-16 animate-fade-in">
             <Badge variant="outline" className="mb-4 border-primary/30 text-primary">

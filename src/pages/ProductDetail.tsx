@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   ArrowLeft, 
+  ChevronLeft,
   TrendingUp, 
   TrendingDown, 
   Minus,
@@ -163,13 +164,13 @@ const ProductDetail = () => {
         {/* Back Button */}
         <div className="mb-8">
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm"
-            className="gap-2"
+            className="group gap-2 text-muted-foreground hover:text-primary transition-all bg-card/20 hover:bg-card/40 border border-white/5"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back
+            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to Products
           </Button>
         </div>
 
