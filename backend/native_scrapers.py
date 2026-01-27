@@ -11,6 +11,7 @@ from datetime import datetime
 from urllib.parse import quote, urlencode
 import json
 import random
+import time
 from instagrapi import Client
 import logging
 
@@ -779,7 +780,11 @@ class InstagramScraper(BaseRequestScraper):
                             "source": "instagram_live"
                         } for m in medias]
                 except Exception as ig_e:
-                    print(f"⚠️ instagrapi failed: {ig_e}. (Check your Instagram credentials/account status)")
+                    error_msg = str(ig_e)
+                    if "blacklist" in error_msg.lower() or "email" in error_msg.lower():
+                        print(f"⚠️ Instagram temporarily blocked this account/IP. Try: 1) Wait 24-48hrs, 2) Use a different account, 3) Deploy on a different server/IP. Falling back to search.")
+                    else:
+                        print(f"⚠️ instagrapi failed: {ig_e}. (Check your Instagram credentials/account status)")
 
             else:
                 print("ℹ️ Instagram credentials not found in env. Falling back to search scraping.")

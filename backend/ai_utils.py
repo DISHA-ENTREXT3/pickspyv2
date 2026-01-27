@@ -67,7 +67,7 @@ def analyze_with_gemini(product_name, price, region):
         return None
         
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-pro')
         prompt = f"""
         Analyze e-commerce viability for: {product_name}
         Price: {price}
