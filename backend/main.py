@@ -13,8 +13,15 @@ from pydantic import BaseModel
 
 from supabase_utils import get_db
 from native_scrapers import get_native_scrapers
+from ai_utils import get_ai_analysis
 
 app = FastAPI()
+
+# --- MODELS ---
+class AnalyzeRequest(BaseModel):
+    productName: str
+    price: str
+    region: str = "Global"
 
 # --- CORS CONFIG ---
 # Simplified for production reliability between Vercel and Render
@@ -590,4 +597,21 @@ async def get_product_analysis(product_name: str):
             "success": False,
             "error": str(e),
             "data": None
+        }
+
+@app.post("/api/ai/analyze")
+async def analyze_ai(request: AnalyzeRequest):
+    """Analyze product viability using multiple AI layers (Gemini/OpenRouter)"""
+    try:
+        print(f"🧠 Backend AI Analysis requested for: {request.productName}")
+        result = get_ai_analysis(request.productName, request.price, request.region)
+        return {
+            "success": True,
+            "data": result
+        }
+    except Exception as e:
+        print(f"❌ Backend AI error: {e}")
+        return {
+            "success": False,
+            "error": str(e)
         }
