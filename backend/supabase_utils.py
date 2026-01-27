@@ -74,38 +74,39 @@ class SupabaseDB:
                 })
             
             # Batch upsert in chunks of 50
+            total_saved = 0
             for i in range(0, len(data), 50):
                 chunk = data[i:i+50]
                 
-                # Check for duplicate IDs in the chunk (Postgres upsert fails if same ID is in same stmt)
+                # Deduplication and Null checks
                 seen_chunk_ids = set()
                 clean_chunk = []
                 for item in chunk:
-                    if item["id"] not in seen_chunk_ids:
+                    if item.get("id") and item["id"] not in seen_chunk_ids:
                         clean_chunk.append(item)
                         seen_chunk_ids.add(item["id"])
                 
+                if not clean_chunk: continue
+
                 print(f"📦 Upserting chunk of {len(clean_chunk)} items...")
                 try:
                     response = self.client.table("products").upsert(clean_chunk, on_conflict="id").execute()
-                    # postgrest-py 0.10+ raises exception on error, but older versions return .error
-                    if hasattr(response, 'error') and response.error:
-                        print(f"❌ Supabase API Error: {response.error}")
-                        return {"success": False, "error": str(response.error), "count": 0}
+                    total_saved += len(clean_chunk)
                 except Exception as inner_e:
-                    print(f"❌ Supabase Execution Exception: {inner_e}")
-                    # If it's a connection issue or schema mismatch
-                    return {"success": False, "error": str(inner_e), "count": 0}
+                    print(f"❌ Chunk Upsert Failed: {inner_e}")
+                    # If it's a constraint error, we might want to try items one by one in this chunk
+                    # or just proceed to next chunk to avoid failing everything
+                    continue
             
             return {
-                "success": True,
-                "message": f"Successfully upserted {len(products)} products",
-                "count": len(products)
+                "success": total_saved > 0,
+                "message": f"Successfully upserted {total_saved} products",
+                "count": total_saved
             }
             
         except Exception as e:
             error_msg = str(e)
-            print(f"💥 Fatal Error upserting products: {error_msg}")
+            print(f"💥 Fatal Error in upsert_products: {error_msg}")
             return {
                 "success": False,
                 "error": error_msg,

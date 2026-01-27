@@ -80,13 +80,14 @@ def get_header():
         'Accept-Language': 'en-US,en;q=0.5',
     }
 
-def get_creative_logo(name):
-    initials = "".join([w[0] for w in name.split()[:2]]).upper()
-    bg = hashlib.md5(name.encode()).hexdigest()[:6]
-    return f"https://ui-avatars.com/api/?name={initials}&background={bg}&color=fff&size=512&bold=true&format=svg"
+def get_related_product_image(name, category="product"):
+    """Fetches a high-quality product image based on name/category from Unsplash"""
+    search_term = f"{name} {category}".replace(" ", ",")
+    # Using Unsplash source for real images instead of initials
+    return f"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800" if "demo" in name.lower() else f"https://source.unsplash.com/featured/800x800?{search_term}"
 
 def build_product(p_id, name, price, img, source, category):
-    final_img = get_creative_logo(name) if (not img or "placeholder" in img) else img
+    final_img = get_related_product_image(name, category) if (not img or "placeholder" in img or "ui-avatars" in img) else img
     
     seed = int(hashlib.md5(name.encode()).hexdigest(), 16)
     random.seed(seed)
@@ -122,27 +123,34 @@ def generate_smart_fill(category, limit=20):
     products = []
     keywords = CATEGORY_KEYWORDS.get(category, ["product"])
     
-    # Global Platforms Requested
+    # Realistic product descriptors
+    DESCRIPTORS = [
+        "Professional", "Industrial Grade", "Customizable", "Wireless", 
+        "Ergonomic", "Portable", "High-Performance", "Eco-Friendly",
+        "Compact", "Heavy Duty", "Advanced", "Smart", "Digital"
+    ]
+    
     PLATFORMS = [
         "amazon", "ebay", "alibaba", "taobao", "tmall", "etsy",
         "walmart", "aliexpress", "mercadolibre", "shopee", "rakuten",
-        "shopify", "bigcommerce", "woocommerce", "wix", "squarespace", "magento"
+        "shopify", "shopify", "woocommerce"
     ]
     
     for i in range(limit):
         kw = random.choice(keywords)
-        adjs = ["Premium", "Smart", "Ultra", "Pro", "Eco", "Luxury", "Global"]
+        desc = random.choice(DESCRIPTORS)
         
         # Pick a platform
         source = random.choice(PLATFORMS)
         
-        # Adjust branding based on platform
-        if source == "etsy":
-            adjs = ["Handmade", "Vintage", "Custom", "Artisan", "Crafted"]
-        elif source in ["alibaba", "aliexpress"]:
-            adjs = ["Wholesale", "Bulk", "Factory", "Direct"]
+        # Construct realistic names
+        if category == "fashion":
+            name = f"{desc} {kw.title()} for Men & Women"
+        elif category == "electronics":
+            name = f"Next-Gen {desc} {kw.title()}"
+        else:
+            name = f"{desc} {kw.title()} {random.choice(['Series X', 'Elite', 'Pro Max', 'v3.0'])}"
             
-        name = f"{random.choice(adjs)} {kw.title()} {random.randint(2024, 2025)}"
         price = round(random.uniform(15, 150), 2)
         
         # Stable ID for generated items too

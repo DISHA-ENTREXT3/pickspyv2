@@ -336,40 +336,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         socialSignals: item.social_signals || [],
       }));
 
-      // Sync with Supabase (Upsert)
-      if (mappedProducts.length > 0) {
-        const { error: upsertError } = await supabase
-          .from('products')
-          .upsert(
-            mappedProducts.map(p => ({
-              id: p.id,
-              name: p.name,
-              category: p.category,
-              price: p.price,
-              image_url: p.imageUrl,
-              velocity_score: p.velocityScore,
-              saturation_score: p.saturationScore,
-              demand_signal: p.demandSignal,
-              weekly_growth: p.weeklyGrowth,
-              reddit_mentions: p.redditMentions,
-              sentiment_score: p.sentimentScore,
-              top_reddit_themes: p.topRedditThemes,
-              last_updated: p.lastUpdated,
-              source: p.source,
-              rating: p.rating,
-              review_count: p.reviewCount,
-              ad_signal: p.adSignal,
-              reddit_threads: p.redditThreads || [],
-              faqs: p.faqs || [],
-              competitors: p.competitors || [],
-              social_signals: p.socialSignals || [],
-              created_at: new Date().toISOString()
-            }))
-          );
-
-        if (upsertError) console.error('Error syncing with Supabase:', upsertError);
-        setProducts(mappedProducts);
-      }
+      setProducts(mappedProducts);
     } catch (error) {
       console.error('Refresh error:', error);
       throw error;
@@ -378,9 +345,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [BACKEND_API_URL]);
 
-  // Fetch initial data from Supabase
+  // Fetch initial data and subscribe to realtime updates
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchInitialProducts = async () => {
       try {
         const { data, error } = await supabase
           .from('products')
@@ -390,35 +357,13 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         if (error) throw error;
 
         if (data && data.length > 0) {
-          const mappedProducts: Product[] = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            price: Number(item.price),
-            imageUrl: item.image_url || '/placeholder.svg',
-            velocityScore: item.velocity_score || 0,
-            saturationScore: item.saturation_score || 0,
-            demandSignal: (item.demand_signal || 'neutral') as Product['demandSignal'],
-            weeklyGrowth: Number(item.weekly_growth) || 0,
-            redditMentions: item.reddit_mentions || 0,
-            sentimentScore: item.sentiment_score || 0,
-            topRedditThemes: item.top_reddit_themes || [],
-            lastUpdated: item.last_updated || 'Just now',
-            source: item.source,
-            rating: item.rating,
-            reviewCount: item.review_count,
-            adSignal: item.ad_signal,
-            redditThreads: item.reddit_threads || [],
-            faqs: item.faqs || [],
-          }));
-          setProducts(mappedProducts);
+          const mapped = data.map(mapSupabaseToProduct);
+          setProducts(mapped);
         } else {
-          // No products in Supabase, triggering cloud refresh
           refreshProducts();
         }
-      } catch (error) {
-        console.error('Error fetching from Supabase:', error);
-        // Also trigger refresh on error (e.g. no supabase connection)
+      } catch (err) {
+        console.error('Supabase fetch error:', err);
         refreshProducts();
       } finally {
         setIsLoading(false);
@@ -426,8 +371,71 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    fetchProducts();
+    // 1. Initial Load
+    fetchInitialProducts();
+
+    // 2. Realtime Subscription
+    // This allows the frontend to update automatically as the backend background scraper
+    // saves items to the database. No page refresh needed!
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'products'
+        },
+        (payload) => {
+          console.log('🔔 Realtime Update Received:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newProduct = mapSupabaseToProduct(payload.new);
+            setProducts(prev => {
+              // Avoid duplicates
+              if (prev.find(p => p.id === newProduct.id)) return prev;
+              return [newProduct, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedProduct = mapSupabaseToProduct(payload.new);
+            setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+          } else if (payload.eventType === 'DELETE') {
+            setProducts(prev => prev.filter(p => p.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [refreshProducts]);
+
+  // Helper to map DB record to Product type
+  const mapSupabaseToProduct = (item: RawProduct): Product => ({
+    id: item.id?.toString() || Math.random().toString(36).substr(2, 9),
+    name: item.name || item.product_name || 'Unnamed Product',
+    category: item.category || 'electronics',
+    price: Number(item.price) || 0,
+    imageUrl: item.imageUrl || item.image_url || '/placeholder.svg',
+    velocityScore: Number(item.velocityScore) || Number(item.velocity_score) || 0,
+    saturationScore: Number(item.saturationScore) || Number(item.saturation_score) || 0,
+    demandSignal: (item.demandSignal || item.demand_signal || 'neutral').toLowerCase() as Product['demandSignal'],
+    weeklyGrowth: Number(item.weeklyGrowth) || Number(item.weekly_growth) || 0,
+    redditMentions: Number(item.redditMentions) || Number(item.reddit_mentions) || 0,
+    sentimentScore: Number(item.sentimentScore) || Number(item.sentiment_score) || 0,
+    topRedditThemes: Array.isArray(item.topRedditThemes) ? item.topRedditThemes : 
+                     (Array.isArray(item.top_reddit_themes) ? item.top_reddit_themes :
+                     (typeof item.top_reddit_themes === 'string' ? item.top_reddit_themes.split(',') : [])),
+    lastUpdated: item.lastUpdated || item.last_updated || 'Just now',
+    source: item.source as Product['source'],
+    rating: Number(item.rating) || 0,
+    reviewCount: Number(item.review_count) || 0,
+    adSignal: (item.ad_signal || 'low') as Product['adSignal'],
+    redditThreads: item.reddit_threads || [],
+    faqs: item.faqs || [],
+    socialSignals: item.social_signals || [],
+  });
 
   return (
     <ProductContext.Provider value={{ 
