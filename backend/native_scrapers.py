@@ -86,11 +86,34 @@ class BaseSeleniumScraper:
 
             print("🔧 Initializing Chrome Driver...")
             try:
-                driver_path = ChromeDriverManager().install()
-                self.driver = webdriver.Chrome(service=Service(driver_path), options=options)
+                # On Linux/Render Docker, prefer the system installed driver
+                if os.path.exists("/usr/bin/chromedriver"):
+                    print("📍 Using system chromedriver at /usr/bin/chromedriver")
+                    service = Service("/usr/bin/chromedriver")
+                    self.driver = webdriver.Chrome(service=service, options=options)
+                elif os.path.exists("/usr/local/bin/chromedriver"):
+                    print("📍 Using system chromedriver at /usr/local/bin/chromedriver")
+                    service = Service("/usr/local/bin/chromedriver")
+                    self.driver = webdriver.Chrome(service=service, options=options)
+                else:
+                    driver_path = ChromeDriverManager().install()
+                    # Fix: WebDriverManager sometimes returns a path to a dir or non-executable
+                    if "THIRD_PARTY_NOTICES" in driver_path:
+                        # Attempt to find the actual executable in the same or parent dir
+                        dir_path = os.path.dirname(driver_path)
+                        for f in os.listdir(dir_path):
+                            if "chromedriver" in f.lower() and f.endswith(("", ".exe")) and "notice" not in f.lower():
+                                driver_path = os.path.join(dir_path, f)
+                                break
+                    
+                    self.driver = webdriver.Chrome(service=Service(driver_path), options=options)
             except Exception as inner_e:
                 print(f"⚠️ WebDriverManager failed, trying system default: {inner_e}")
-                self.driver = webdriver.Chrome(options=options)
+                try:
+                    self.driver = webdriver.Chrome(options=options)
+                except:
+                    print("❌ Minimal fallback failed too.")
+                    raise inner_e
             
             # Anti-detection script
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -291,7 +314,7 @@ class EbayScraper(BaseSeleniumScraper):
                 self.BASE_URL,
                 params=params,
                 headers=headers,
-                timeout=15
+                timeout=25 # Increased timeout
             )
             
             content = response.content if response.status_code == 200 else None
