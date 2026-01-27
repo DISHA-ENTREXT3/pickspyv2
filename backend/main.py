@@ -138,8 +138,9 @@ def generate_smart_fill(category, limit=20):
         name = f"{random.choice(adjs)} {kw.title()} {random.randint(2024, 2025)}"
         price = round(random.uniform(15, 150), 2)
         
-        p_id = hashlib.md5(f"{name}{i}".encode()).hexdigest()[:12]
-        products.append(build_product(f"gen-{p_id}", name, price, None, source, category))
+        # Stable ID for generated items too
+        p_id = hashlib.md5(name.encode()).hexdigest()[:12]
+        products.append(build_product(p_id, name, price, None, source, category))
         
     return products
 
@@ -177,7 +178,7 @@ def scrape_amazon_listing(query, category, limit=20):
                 p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
                 
                 parsed.append(build_product(
-                    p_id, p["name"], price, None, "amazon", category
+                    p_id, p["name"], price, p.get('imageUrl'), "amazon", category
                 ))
             except: continue
         return parsed
@@ -199,7 +200,7 @@ def scrape_flipkart_listing(query, category, limit=20):
                 p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
                 
                 parsed.append(build_product(
-                    p_id, p["name"], round(price, 2), None, "flipkart", category
+                    p_id, p["name"], round(price, 2), p.get('imageUrl'), "flipkart", category
                 ))
             except: continue
         return parsed
@@ -221,7 +222,7 @@ def scrape_ebay_listing(query, category, limit=20):
                 p_id = hashlib.md5(p["name"].encode()).hexdigest()[:10]
                 
                 parsed.append(build_product(
-                    p_id, p["name"], price, p.get("url"), "ebay", category
+                    p_id, p["name"], price, p.get("imageUrl"), "ebay", category
                 ))
             except: continue
         return parsed
@@ -266,7 +267,11 @@ def run_deep_scan():
         trends = []
 
     # 2. Iterate Categories with fallback
+    db = get_db()
     for cat in CATEGORIES:
+        # Clear existing products for this category to ensure "replacement"
+        db.clear_category_products(cat)
+        
         # Step A: Try Scrape
         queries = [f"best {cat}", f"trending {cat}"] + (trends[:1] if trends else [])
         found_products = []
@@ -315,7 +320,7 @@ async def refresh_data(background_tasks: BackgroundTasks):
     # Quick foreground check
     foreground = generate_smart_fill("electronics", limit=3) # Instant response
     background_tasks.add_task(run_deep_scan)
-    return {"status": "refreshing", "message": "Background scan started.", "preview": foreground}
+    return {"status": "refreshing", "message": "Background scan started.", "products": foreground}
 
 @app.post("/deep-scan")
 async def trigger_deep_scan(background_tasks: BackgroundTasks):

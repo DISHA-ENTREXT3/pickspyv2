@@ -76,7 +76,8 @@ class SupabaseDB:
             # Batch upsert in chunks of 50
             for i in range(0, len(data), 50):
                 chunk = data[i:i+50]
-                response = self.client.table("products").upsert(chunk).execute()
+                print(f"Upserting chunk with IDs: {[p['id'] for p in chunk]}")
+                response = self.client.table("products").upsert(chunk, on_conflict="id").execute()
                 if hasattr(response, 'error') and response.error:
                     raise Exception(f"Upsert error: {response.error}")
             
@@ -91,9 +92,20 @@ class SupabaseDB:
             print(f"Error upserting products: {error_msg}")
             return {
                 "success": False,
-                "error": error_msg,
                 "count": 0
             }
+
+    def clear_category_products(self, category: str) -> bool:
+        """Clear all products in a given category"""
+        if not self.is_connected():
+            return False
+        try:
+            self.client.table("products").delete().eq("category", category).execute()
+            print(f"🗑️ Cleared products for category: {category}")
+            return True
+        except Exception as e:
+            print(f"Error clearing products: {e}")
+            return False
     
     def track_user_activity(self, user_id: str, activity_type: str, product_id: str = None, metadata: Dict = None) -> bool:
         """

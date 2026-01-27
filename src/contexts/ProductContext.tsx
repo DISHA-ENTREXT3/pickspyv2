@@ -298,13 +298,12 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
-      // console.log('Scraper raw data received:', data);
       
-      const rawProducts: RawProduct[] = Array.isArray(data) ? data : (data.products || []);
+      const rawProducts: RawProduct[] = Array.isArray(data) ? data : 
+                                      (data.products || data.preview || data.data || []);
       
       if (rawProducts.length === 0) {
         console.info('ℹ️ Live data currently unavailable. Displaying demo products for demonstration.');
-        // Use demo data if scraper fails
         const demoProducts = getDemoProducts();
         setProducts(demoProducts);
         setIsLoading(false);

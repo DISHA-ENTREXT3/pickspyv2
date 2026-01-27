@@ -110,12 +110,12 @@ const ProductDetail = () => {
       setIsLoading(true);
       setError(null);
       
-      const result = await apiService.getProductAnalysis(productName) as unknown as LiveAnalysisData;
+      const result = await apiService.getProductAnalysis(productName) as { success: boolean, data?: LiveAnalysisData, error?: string };
        
       
       if (result.success && result.data) {
         console.log('✅ Live analysis fetched successfully:', result.data);
-        setLiveAnalysis(result as LiveAnalysisData);
+        setLiveAnalysis(result.data as LiveAnalysisData);
         toast.success('Product analysis loaded');
       } else {
         throw new Error(result.error || 'Failed to fetch analysis');
