@@ -71,6 +71,7 @@ export interface CompetitorData {
   shippingDays: number;
   estimatedSales: string;
   trend: 'up' | 'down' | 'stable';
+  imageUrl?: string;
 }
 
 export interface ProductAnalysis {

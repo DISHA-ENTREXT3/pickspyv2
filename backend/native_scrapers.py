@@ -204,11 +204,13 @@ class WalmartScraper:
                     try:
                         title_elem = item.select_one('span[data-automation-id="product-title"], span.normal')
                         price_elem = item.select_one('div[data-automation-id="product-price"] .w_iS7S') or item.select_one('.f2')
+                        img_elem = item.select_one('img')
                         
                         if title_elem and price_elem:
                             products.append({
                                 "name": title_elem.text.strip(),
                                 "price": price_elem.text.strip().replace("$", ""),
+                                "imageUrl": img_elem.get('src') if img_elem else "",
                                 "source": "walmart_html"
                             })
                     except: continue
@@ -309,7 +311,7 @@ class FlipkartScraper(BaseRequestScraper):
                             "name": name,
                             "price": price,
                             "url": f"https://flipkart.com{link_elem.get('href')}" if link_elem and link_elem.get('href', '').startswith('/') else link_elem.get('href') if link_elem else "",
-                            "imageUrl": img_elem.get('src') or img_elem.get('data-src') if img_elem else "",
+                            "imageUrl": img_elem.get('src') or img_elem.get('data-src') or img_elem.get('srcset', '').split(' ')[0] if img_elem else "",
                             "source": "flipkart"
                         })
                 except:

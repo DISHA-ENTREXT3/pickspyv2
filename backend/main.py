@@ -499,13 +499,20 @@ async def get_product_analysis(product_name: str):
             print(f"⚠️  Market trends fetch failed: {e}")
         
         # 2. Get social sentiment analysis
-        print(f"  📱 Fetching social sentiment...")
+        print(f"  📱 Fetching social content & sentiment...")
         try:
             sentiment = scrapers["sentiment"].get_product_sentiment(product_name)
             if sentiment:
                 analysis["sources"]["social_analysis"] = sentiment
+                
+            # Fetch real Instagram posts
+            ig_posts = scrapers["instagram"].get_public_posts(product_name.replace(" ", ""))
+            if ig_posts:
+                if "social_analysis" not in analysis["sources"]:
+                    analysis["sources"]["social_analysis"] = {}
+                analysis["sources"]["social_analysis"]["instagram_posts"] = ig_posts
         except Exception as e:
-            print(f"⚠️  Sentiment analysis failed: {e}")
+            print(f"⚠️  Social analysis failed: {e}")
         
         # 3. Search ecommerce platforms (Walmart, eBay, Flipkart, Amazon)
         print(f"  🛒 Fetching ecommerce data...")

@@ -23,6 +23,8 @@ import {
   Info,
   ShieldCheck,
   TrendingUp as TrendingIcon,
+  ShoppingCart,
+  ExternalLink,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -44,6 +46,7 @@ interface LiveAnalysisData {
        sentiment_percentage?: { positive: number; negative: number };
        total_mentions?: number;
        top_comments?: Array<{ user: string; text: string; likes?: number; platform?: string }>;
+       instagram_posts?: Array<{ id: string; caption?: string; url: string; source?: string }>;
     };
     ecommerce?: Record<string, unknown> & {
       walmart?: unknown[];
@@ -52,6 +55,7 @@ interface LiveAnalysisData {
     };
     search_results?: {
        total_results?: number;
+       top_mentions?: Array<{ title: string; url: string; snippet: string }>;
     };
     product_insights?: {
        market_position?: string;
@@ -67,6 +71,8 @@ interface LiveAnalysisData {
 interface EcommerceItem {
   name?: string;
   price?: string | number;
+  imageUrl?: string;
+  url?: string;
 }
 
 const ProductDetail = () => {
@@ -317,7 +323,10 @@ const ProductDetail = () => {
             )}
 
             {/* Instagram Section */}
-            <InstagramReels productName={product.name} />
+            <InstagramReels 
+              productName={product.name} 
+              externalPosts={liveAnalysis?.sources?.social_analysis?.instagram_posts}
+            />
 
             {/* Reddit Section */}
             {product.redditThreads && product.redditThreads.length > 0 ? (
@@ -339,46 +348,79 @@ const ProductDetail = () => {
                 </Card>
                 {/* Live Shop Matches from Engine */}
                  {liveAnalysis?.sources?.ecommerce && (
-                  <div className="grid gap-4">
-                     <h3 className="font-bold flex items-center gap-2">🛒 Live Listings Found</h3>
-                     {Object.entries(liveAnalysis.sources.ecommerce).map(([site, items]) => (
-                       Array.isArray(items) && (items as EcommerceItem[]).map((item, i) => (
-                         <div key={`${site}-${i}`} className="p-3 rounded-lg border border-border flex items-center justify-between">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">{item.name}</span>
-                              <span className="text-xs text-muted-foreground uppercase">{site}</span>
-                            </div>
-                            <span className="font-bold">${item.price}</span>
-                         </div>
-                       ))
-                     ))}
+                  <div className="space-y-4">
+                     <h3 className="font-bold font-heading text-lg flex items-center gap-2 px-2">
+                       <ShoppingCart className="h-5 w-5 text-primary" />
+                       Live Market Listings
+                     </h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       {Object.entries(liveAnalysis.sources.ecommerce).map(([site, items]) => (
+                         Array.isArray(items) && (items as EcommerceItem[]).map((item, i) => (
+                           <a 
+                             key={`${site}-${i}`} 
+                             href={item.url || '#'} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="group p-3 rounded-xl border border-white/5 bg-card/40 hover:bg-card/60 transition-all flex items-center gap-4 hover:border-primary/30"
+                           >
+                              <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted/20 shrink-0 border border-white/5">
+                                <img 
+                                  src={item.imageUrl || `https://ui-avatars.com/api/?name=${site[0]}&background=random`} 
+                                  alt={item.name} 
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-bold truncate group-hover:text-primary transition-colors">{item.name}</div>
+                                <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5 font-bold flex items-center gap-2">
+                                  <span>{site}</span>
+                                  <Badge variant="outline" className="text-[8px] h-4 py-0 font-medium">Verified</Badge>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-heading font-black text-primary text-lg">${item.price}</span>
+                                <ExternalLink className="h-3 w-3 ml-auto mt-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                           </a>
+                         ))
+                       ))}
+                     </div>
                   </div>
                 )}
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="faq" className="mt-0">
-             <div className="space-y-8">
-               <ProductFAQ faqs={product.faqs || []} productName={product.name} />
-               
-               {liveAnalysis?.sources?.faqs && (
-                 <div className="space-y-4">
-                   <h3 className="text-lg font-bold flex items-center gap-2 px-2">
-                     <Share2 className="h-4 w-4" />
-                     Web Mentions & FAQs
-                   </h3>
-                   <div className="grid gap-3">
-                     {liveAnalysis.sources.faqs.map((faq, i) => (
-                       <Card key={i} className="p-4 bg-secondary/10">
-                         <p className="text-sm font-bold mb-1">{faq.question}</p>
-                         <p className="text-xs text-muted-foreground">{faq.snippet || faq.answer}</p>
-                       </Card>
-                     ))}
-                   </div>
+          <TabsContent value="faq" className="mt-0 space-y-8">
+             {/* Integrated FAQ Section */}
+             <ProductFAQ 
+               faqs={[...(product.faqs || []), ...(liveAnalysis?.sources?.faqs || [])]} 
+               productName={product.name} 
+             />
+
+             {/* Web Mentions / Additional Context */}
+             {liveAnalysis?.sources?.search_results && (
+               <div className="space-y-4">
+                 <h3 className="text-lg font-bold flex items-center gap-2 px-2 text-muted-foreground">
+                   <Share2 className="h-4 w-4" />
+                   Market Mentions
+                 </h3>
+                 <div className="grid gap-3">
+                   {liveAnalysis.sources.search_results.top_mentions?.map((result, i) => (
+                     <a 
+                       key={i} 
+                       href={result.url} 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="p-4 rounded-xl border border-white/5 bg-secondary/10 hover:bg-secondary/20 transition-all block group"
+                     >
+                       <p className="text-sm font-bold mb-1 group-hover:text-primary transition-colors">{result.title}</p>
+                       <p className="text-xs text-muted-foreground line-clamp-2">{result.snippet}</p>
+                     </a>
+                   ))}
                  </div>
-               )}
-             </div>
+               </div>
+             )}
           </TabsContent>
         </Tabs>
       </main>
