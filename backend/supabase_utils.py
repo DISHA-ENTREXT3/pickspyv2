@@ -76,10 +76,26 @@ class SupabaseDB:
             # Batch upsert in chunks of 50
             for i in range(0, len(data), 50):
                 chunk = data[i:i+50]
-                print(f"Upserting chunk with IDs: {[p['id'] for p in chunk]}")
-                response = self.client.table("products").upsert(chunk, on_conflict="id").execute()
-                if hasattr(response, 'error') and response.error:
-                    raise Exception(f"Upsert error: {response.error}")
+                
+                # Check for duplicate IDs in the chunk (Postgres upsert fails if same ID is in same stmt)
+                seen_chunk_ids = set()
+                clean_chunk = []
+                for item in chunk:
+                    if item["id"] not in seen_chunk_ids:
+                        clean_chunk.append(item)
+                        seen_chunk_ids.add(item["id"])
+                
+                print(f"📦 Upserting chunk of {len(clean_chunk)} items...")
+                try:
+                    response = self.client.table("products").upsert(clean_chunk, on_conflict="id").execute()
+                    # postgrest-py 0.10+ raises exception on error, but older versions return .error
+                    if hasattr(response, 'error') and response.error:
+                        print(f"❌ Supabase API Error: {response.error}")
+                        return {"success": False, "error": str(response.error), "count": 0}
+                except Exception as inner_e:
+                    print(f"❌ Supabase Execution Exception: {inner_e}")
+                    # If it's a connection issue or schema mismatch
+                    return {"success": False, "error": str(inner_e), "count": 0}
             
             return {
                 "success": True,
@@ -89,9 +105,10 @@ class SupabaseDB:
             
         except Exception as e:
             error_msg = str(e)
-            print(f"Error upserting products: {error_msg}")
+            print(f"💥 Fatal Error upserting products: {error_msg}")
             return {
                 "success": False,
+                "error": error_msg,
                 "count": 0
             }
 
