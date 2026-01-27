@@ -293,15 +293,15 @@ class FlipkartScraper(BaseRequestScraper):
             products = []
             
             # Target both list and grid views
-            items = soup.select('div[data-id], ._1AtVbE')[:limit]
+            items = soup.select('div[data-id], ._1AtVbE, .cPHDOP, ._75_9zl, ._13oc-S')[:limit]
             
             for item in items:
                 try:
-                    # Very resilient selectors
-                    name_elem = item.select_one('a.IRpwTa, ._4rR01T, .s1Q9rs, a[title]')
-                    price_elem = item.select_one('._30jeq3, ._ retail-price, ._30jeq3._1_WHN1')
-                    img_elem = item.select_one('img._396cs4, img._2r_T1_, img')
-                    link_elem = item.select_one('a._1fQY7K, a.IRpwTa, a')
+                    # Very resilient selectors (Updated for 2025/2026)
+                    name_elem = item.select_one('a.IRpwTa, ._4rR01T, .s1Q9rs, a[title], .w6nN96, ._2WkVRV')
+                    price_elem = item.select_one('._30jeq3, .Nx9W0j, ._25b18c, span[class*="price"]')
+                    img_elem = item.select_one('img._396cs4, img._2r_T1_, img, img._53u_M-')
+                    link_elem = item.select_one('a._1fQY7K, a.IRpwTa, a, a[href*="/p/"]')
                     
                     if name_elem and price_elem:
                         name = name_elem.get('title') or name_elem.text.strip()
