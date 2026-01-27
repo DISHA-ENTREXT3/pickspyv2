@@ -889,6 +889,10 @@ class AIProductFetcher:
         key = category_map.get(category.lower(), category.lower().replace(" ", "-"))
         pool = knowledge_base.get(key, ["Universal Smart Device", "Professional Grade Tool", "Premium Lifestyle Accessory"])
         
+        # Initialize products list and descriptors
+        products = []
+        descs = ["Advanced", "Eco-Smart", "Portable", "Heavy Duty", "Wireless", "Ergonomic"]
+        
         for i in range(limit):
             try:
                 base_name = pool[i % len(pool)]
