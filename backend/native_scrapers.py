@@ -14,20 +14,14 @@ import time
 import random
 
 try:
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from webdriver_manager.chrome import ChromeDriverManager
-    from selenium.webdriver.chrome.service import Service
+    from fake_useragent import UserAgent
 except ImportError:
-    print("⚠️  Selenium not available, will use requests fallback")
-    webdriver = None
-    Service = None
-    ChromeDriverManager = None
-    WebDriverWait = None
-    EC = None
-    By = None
+    print("⚠️  fake-useragent not available, using default")
+    class UserAgent:
+        def __init__(self): pass
+        @property
+        def random(self):
+            return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
 try:
     from fake_useragent import UserAgent
@@ -49,106 +43,44 @@ OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 AI_MODEL = os.environ.get("AI_MODEL", "openai/gpt-4o-mini")
 
 
-class BaseSeleniumScraper:
-    """Base class for Selenium-based scraping"""
+class BaseRequestScraper:
+    """Base class for Requests-based scraping"""
     def __init__(self):
-        self.driver = None
+        self.ua = UserAgent()
+        self.session = requests.Session()
 
-    def _init_driver(self):
-        if not webdriver:
-            print("❌ Selenium not installed/available inside scraper.")
-            return
+    def _get_headers(self):
+        return {
+            "User-Agent": self.ua.random,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Cache-Control": "max-age=0",
+        }
 
+    def _get_page_content(self, url, timeout=15):
         try:
-            options = webdriver.ChromeOptions()
-            options.add_argument('--headless=new')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--disable-gpu')
-            options.add_argument('--disable-blink-features=AutomationControlled')
+            # Randomized delay to simulate human behavior
+            time.sleep(random.uniform(1.0, 2.5))
             
-            # Randomized window sizes
-            width = random.randint(1280, 1920)
-            height = random.randint(720, 1080)
-            options.add_argument(f'--window-size={width},{height}')
+            response = self.session.get(
+                url, 
+                headers=self._get_headers(), 
+                timeout=timeout
+            )
             
-            # Additional evasion
-            options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            options.add_experimental_option('useAutomationExtension', False)
-            options.add_argument("--disable-infobars")
-            options.add_argument("--mute-audio")
-            
-            # Check for binary in common places (Render/Linux support)
-            chrome_bin = os.environ.get("GOOGLE_CHROME_BIN") or os.environ.get("CHROME_PATH")
-            if chrome_bin:
-                options.binary_location = chrome_bin
-                print(f"📍 Using Chrome binary at: {chrome_bin}")
-
-            print("🔧 Initializing Chrome Driver...")
-            try:
-                # On Linux/Render Docker, prefer the system installed driver
-                if os.path.exists("/usr/bin/chromedriver"):
-                    print("📍 Using system chromedriver at /usr/bin/chromedriver")
-                    service = Service("/usr/bin/chromedriver")
-                    self.driver = webdriver.Chrome(service=service, options=options)
-                elif os.path.exists("/usr/local/bin/chromedriver"):
-                    print("📍 Using system chromedriver at /usr/local/bin/chromedriver")
-                    service = Service("/usr/local/bin/chromedriver")
-                    self.driver = webdriver.Chrome(service=service, options=options)
-                else:
-                    driver_path = ChromeDriverManager().install()
-                    # Fix: WebDriverManager sometimes returns a path to a dir or non-executable
-                    if "THIRD_PARTY_NOTICES" in driver_path:
-                        # Attempt to find the actual executable in the same or parent dir
-                        dir_path = os.path.dirname(driver_path)
-                        for f in os.listdir(dir_path):
-                            if "chromedriver" in f.lower() and f.endswith(("", ".exe")) and "notice" not in f.lower():
-                                driver_path = os.path.join(dir_path, f)
-                                break
-                    
-                    self.driver = webdriver.Chrome(service=Service(driver_path), options=options)
-            except Exception as inner_e:
-                print(f"⚠️ WebDriverManager failed, trying system default: {inner_e}")
-                try:
-                    self.driver = webdriver.Chrome(options=options)
-                except:
-                    print("❌ Minimal fallback failed too.")
-                    raise inner_e
-            
-            # Anti-detection script
-            self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            
-        except Exception as e:
-            print(f"❌ Selenium Driver Error: {e}")
-            if "executable needs to be in PATH" in str(e):
-                print("💡 Recommendation: Install Google Chrome and chromedriver.")
-
-    def _get_page_content(self, url, wait_selector=None):
-        if not self.driver:
-            self._init_driver()
-        if not self.driver:
-            return None
-            
-        try:
-            # Randomized delay before navigation
-            time.sleep(random.uniform(1.5, 3.5))
-            
-            self.driver.set_page_load_timeout(30)
-            self.driver.get(url)
-            
-            # Random mouse movement simulation (if not headless, or via JS)
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
-            time.sleep(random.uniform(0.5, 1.5))
-            
-            if wait_selector:
-                try:
-                    WebDriverWait(self.driver, 10).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))
-                    )
-                except:
-                    print(f"⚠️ Timeout waiting for selector {wait_selector}, proceeding with available source")
-            
-            return self.driver.page_source
+            if response.status_code == 200:
+                print(f"✅ Successfully fetched: {url}")
+                return response.text
+            else:
+                print(f"⚠️ Failed to fetch {url}: Status {response.status_code}")
+                return None
         except Exception as e:
             print(f"❌ Error getting page {url}: {e}")
             return None
@@ -188,11 +120,7 @@ class BaseSeleniumScraper:
         return data
 
     def close(self):
-        if self.driver:
-            try:
-                self.driver.quit()
-            except: pass
-            self.driver = None
+        self.session.close()
 
 
 class WalmartScraper:
@@ -292,36 +220,22 @@ class WalmartScraper:
         return None
 
 
-class EbayScraper(BaseSeleniumScraper):
-    """Scrape products from eBay.com with Selenium fallback"""
+class EbayScraper(BaseRequestScraper):
+    """Scrape products from eBay.com"""
     
     BASE_URL = "https://www.ebay.com/sch/i.html"
     
     def search(self, query: str, limit: int = 50) -> Optional[List[Dict[str, Any]]]:
         """Search products on eBay"""
         try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
-            }
-            
             params = {
                 "_nkw": query,
                 "_ipg": min(limit, 200)
             }
             
             print(f"🔄 Scraping eBay for: {query}")
-            response = requests.get(
-                self.BASE_URL,
-                params=params,
-                headers=headers,
-                timeout=25 # Increased timeout
-            )
-            
-            content = response.content if response.status_code == 200 else None
-            if not content or b"s-item" not in content:
-                print("⚠️ eBay blocked or low yield, triggering Selenium...")
-                url = f"{self.BASE_URL}?_nkw={quote(query)}"
-                content = self._get_page_content(url, ".s-item")
+            url = f"{self.BASE_URL}?{urlencode(params)}"
+            content = self._get_page_content(url, timeout=25)
 
             if not content: return None
 
@@ -359,37 +273,17 @@ class EbayScraper(BaseSeleniumScraper):
         return None
 
 
-class FlipkartScraper(BaseSeleniumScraper):
-    """Scrape products from Flipkart.com with Selenium fallback"""
+class FlipkartScraper(BaseRequestScraper):
+    """Scrape products from Flipkart.com"""
     
     BASE_URL = "https://www.flipkart.com/search"
     
     def search(self, query: str, limit: int = 50) -> Optional[List[Dict[str, Any]]]:
         """Search products on Flipkart"""
         try:
-            # Flipkart is very aggressive, headers must be precise
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Referer": "https://www.flipkart.com/"
-            }
-            
-            params = {"q": query}
-            
             print(f"🔄 Scraping Flipkart for: {query}")
-            response = requests.get(
-                self.BASE_URL,
-                params=params,
-                headers=headers,
-                timeout=15
-            )
-            
-            content = response.content if response.status_code == 200 else None
-            # Flipkart classes change, look for common patterns
-            if not content or b"_1AtVbE" not in content and b"_4dd8f5" not in content:
-                print("⚠️ Flipkart restricted, using Selenium...")
-                url = f"{self.BASE_URL}?q={quote(query)}"
-                content = self._get_page_content(url, "div[data-id]")
+            url = f"{self.BASE_URL}?q={quote(query)}"
+            content = self._get_page_content(url)
 
             if not content: return None
 
@@ -526,43 +420,17 @@ class GoogleSearchScraper:
         return None
 
 
-class AmazonScraper(BaseSeleniumScraper):
-    """Scrape products from Amazon.com with Selenium fallback"""
+class AmazonScraper(BaseRequestScraper):
+    """Scrape products from Amazon.com"""
     
     BASE_URL = "https://www.amazon.com/s"
     
     def search(self, query: str, limit: int = 50) -> Optional[List[Dict[str, Any]]]:
         """Search products on Amazon"""
         try:
-            # Try requests first (cheaper/faster)
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Referer": "https://www.amazon.com/",
-            }
-            
-            params = {
-                "k": query,
-                "ref": "nb_sb_noss"
-            }
-            
             print(f"🔄 Scraping Amazon for: {query}")
-            response = requests.get(
-                self.BASE_URL,
-                params=params,
-                headers=headers,
-                timeout=15
-            )
-            
-            content = None
-            if response.status_code == 200 and "s-result-item" in response.text:
-                content = response.text
-                print("✅ Amazon HTML reached via Requests")
-            else:
-                print(f"⚠️ Amazon blocked (Status {response.status_code}), triggering Selenium...")
-                url = f"{self.BASE_URL}?k={quote(query)}"
-                content = self._get_page_content(url, "div[data-component-type='s-search-result']")
+            url = f"{self.BASE_URL}?k={quote(query)}"
+            content = self._get_page_content(url)
 
             if not content: return None
 
@@ -744,20 +612,20 @@ class FAQScraper:
 
 
 
-class AntiBotScraper(BaseSeleniumScraper):
+class AntiBotScraper(BaseRequestScraper):
     """
     Advanced Scraper wrapper designed to bypass anti-bot protections.
-    Uses randomized headers, delays, and Selenium stealth techniques.
+    Uses randomized headers and delays.
     """
     
-    def scrape_url(self, url: str, wait_selector: str = None) -> Optional[str]:
+    def scrape_url(self, url: str) -> Optional[str]:
         """Scrape a generic URL with anti-bot protection"""
         print(f"🕵️  Stealth scraping: {url}...")
-        return self._get_page_content(url, wait_selector)
+        return self._get_page_content(url)
 
 
-class GoogleShoppingScraper(BaseSeleniumScraper):
-    """Scrape Google Shopping results using Selenium + BS4"""
+class GoogleShoppingScraper(BaseRequestScraper):
+    """Scrape Google Shopping results using BS4"""
     
     BASE_URL = "https://www.google.com/search"
     
@@ -770,18 +638,7 @@ class GoogleShoppingScraper(BaseSeleniumScraper):
                 "hl": "en"
             }
             url = f"{self.BASE_URL}?{urlencode(params)}"
-            
-            # Try plain requests first (faster)
-            headers = {"User-Agent": UserAgent().random}
-            response = requests.get(url, headers=headers, timeout=10)
-            
-            content = None
-            if response.status_code == 200 and "sh-dgr__content" in response.text:
-                 content = response.text
-            else:
-                 # Fallback to Selenium
-                 print("⚠️ Requests blocked/empty, using Selenium for Google Shopping...")
-                 content = self._get_page_content(url, ".sh-dgr__content, .sh-np__click-target")
+            content = self._get_page_content(url)
             
             if not content: return None
 
@@ -817,40 +674,26 @@ class GoogleShoppingScraper(BaseSeleniumScraper):
             print(f"❌ Google Shopping error: {e}")
             return None
 
-class InstagramScraper(BaseSeleniumScraper):
-    """Scrape Instagram public tags/posts using Selenium"""
+class InstagramScraper(BaseRequestScraper):
+    """Scrape Instagram public information"""
     
     def get_public_posts(self, tag: str, limit: int = 10) -> Optional[List[Dict[str, Any]]]:
         try:
-            print(f"🔄 Scraping Instagram tag: #{tag}")
-            url = f"https://www.instagram.com/explore/tags/{tag}/"
+            print(f"🔄 Fetching Instagram info for: #{tag} via Search Fallback")
+            # Direct IG is login-walled for requests, use Google Search fallback
+            gs = GoogleSearchScraper()
+            results = gs.search(f"site:instagram.com/explore/tags/{tag}/", limit=limit)
             
-            content = self._get_page_content(url, "article")
-            if not content:
-                # Fallback: Use Google Search to find IG posts if direct access is login-walled
-                print("⚠️ Direct IG blocked, trying Google Search fallback...")
-                gs = GoogleSearchScraper()
+            if not results:
+                # Try specific post search
                 results = gs.search(f"site:instagram.com/p/ \"#{tag}\"", limit=limit)
-                return [{
-                    "id": r.get("url"),
-                    "caption": r.get("title"),
-                    "url": r.get("url"),
-                    "source": "instagram_fallback"
-                } for r in results] if results else []
 
-            soup = BeautifulSoup(content, "html.parser")
-            posts = []
-            
-            # Instagram structure is very dynamic/obfuscated
-            for link in soup.select('a[href^="/p/"]')[:limit]:
-                posts.append({
-                    "id": link['href'],
-                    "url": f"https://www.instagram.com{link['href']}",
-                    "source": "instagram_direct"
-                })
-                
-            print(f"✅ Found {len(posts)} posts on Instagram")
-            return posts
+            return [{
+                "id": r.get("url"),
+                "caption": r.get("title"),
+                "url": r.get("url"),
+                "source": "instagram_search"
+            } for r in results] if results else []
 
         except Exception as e:
             print(f"❌ Instagram Scraper error: {e}")

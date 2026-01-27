@@ -328,7 +328,7 @@ def health():
         "status": "online",
         "mode": "deep-scraper-v2",
         "database": "connected" if get_db().is_connected() else "disconnected",
-        "scraping_engine": "native-soup-selenium"
+        "scraping_engine": "native-soup"
     }
 
 
@@ -350,7 +350,7 @@ async def get_scraper_status():
             "sentiment_analysis": "active",
             "faqs": "active"
         },
-        "note": "Using BeautifulSoup, Selenium, and Scrapy instead of ScrapingDog API"
+        "note": "Using BeautifulSoup and Scrapy instead of ScrapingDog API"
     }
 
 
