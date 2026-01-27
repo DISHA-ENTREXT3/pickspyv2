@@ -88,9 +88,11 @@ export const CompetitorAnalysis = ({ competitors, currentPrice }: CompetitorAnal
           <div className="text-xs text-muted-foreground mb-1">Average Price</div>
           <div className="text-2xl font-bold">${averagePrice.toFixed(2)}</div>
         </Card>
-        <Card variant="glass" className="p-4">
-          <div className="text-xs text-muted-foreground mb-1">Highest Price</div>
-          <div className="text-2xl font-bold text-signal-bearish">${highestPrice.toFixed(2)}</div>
+        <Card variant="glass" className="p-4 bg-primary/5 border-primary/20">
+          <div className="text-xs text-muted-foreground mb-1">Market Position Score</div>
+          <div className="text-2xl font-black text-primary">
+            {currentPrice < averagePrice ? 'Dominant' : currentPrice > highestPrice ? 'Premium' : 'Competitive'}
+          </div>
         </Card>
       </div>
 
@@ -107,15 +109,22 @@ export const CompetitorAnalysis = ({ competitors, currentPrice }: CompetitorAnal
                 <TableHead className="text-muted-foreground text-center">Shipping</TableHead>
                 <TableHead className="text-muted-foreground text-right">Est. Sales</TableHead>
                 <TableHead className="text-muted-foreground text-center">Trend</TableHead>
+                <TableHead className="text-muted-foreground text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {competitors.map((competitor) => (
                 <TableRow key={competitor.id} className="border-border/50 hover:bg-secondary/30">
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium truncate max-w-[200px]">{competitor.name}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded bg-muted/20 overflow-hidden border border-white/5 shrink-0">
+                        <img 
+                          src={competitor.imageUrl || `https://ui-avatars.com/api/?name=${competitor.name[0]}&background=random`} 
+                          alt={competitor.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="font-medium truncate max-w-[180px]">{competitor.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>{getMarketplaceBadge(competitor.marketplace)}</TableCell>
@@ -143,6 +152,19 @@ export const CompetitorAnalysis = ({ competitors, currentPrice }: CompetitorAnal
                   </TableCell>
                   <TableCell className="text-center">
                     {getTrendIcon(competitor.trend)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      asChild
+                      disabled={!competitor.url}
+                    >
+                      <a href={competitor.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

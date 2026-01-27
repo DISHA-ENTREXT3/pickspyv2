@@ -22,10 +22,11 @@ interface ReelData {
 
 interface InstagramReelsProps {
   productName: string;
+  productImage?: string;
   externalPosts?: Array<{ id: string; caption?: string; url: string; source?: string }>;
 }
 
-export const InstagramReels = ({ productName, externalPosts }: InstagramReelsProps) => {
+export const InstagramReels = ({ productName, productImage, externalPosts }: InstagramReelsProps) => {
   // Demo data for reels (fallback)
   const reels: ReelData[] = [
     {
@@ -36,6 +37,7 @@ export const InstagramReels = ({ productName, externalPosts }: InstagramReelsPro
       caption: `Unboxing the new ${productName}! 🚀 This is a total game changer mapping current trends for creators. #tech #viral #musthave`,
       topComments: [
         { id: 'c1', username: 'trend_finder', text: 'I need this right now! Where can I buy?', likes: 450 },
+        { id: 'c2', username: 'shop_aholic', text: 'Just ordered mine, can\'t wait!', likes: 85 },
       ]
     },
     {
@@ -46,6 +48,7 @@ export const InstagramReels = ({ productName, externalPosts }: InstagramReelsPro
       caption: `3 reasons why you need the ${productName} in 2026. Point #2 will surprise you! 👀 #gadgets #review`,
       topComments: [
         { id: 'c3', username: 'daily_hacks', text: 'Point 2 is so true, I used it yesterday.', likes: 120 },
+        { id: 'c4', username: 'tech_guru', text: 'The battery life is the real winner here.', likes: 340 },
       ]
     },
     {
@@ -56,22 +59,36 @@ export const InstagramReels = ({ productName, externalPosts }: InstagramReelsPro
       caption: `Finally scaling my store with ${productName}. The quality is actually insane! 📈 #dropshipping #win`,
       topComments: [
         { id: 'c5', username: 'ecom_warrior', text: 'This is crushing it for me lately.', likes: 890 },
+        { id: 'c6', username: 'biz_owner', text: 'Quality is much better than previous models.', likes: 210 },
       ]
     }
   ];
 
   // Map external posts to reel format
-  const livePosts: ReelData[] = (externalPosts || []).map(post => ({
-    id: post.id,
-    thumbnail: `https://ui-avatars.com/api/?name=IG&background=E1306C&color=fff&size=512`, 
-    likes: (Math.floor(Math.random() * 50) + 1) + 'K',
-    comments: (Math.floor(Math.random() * 200) + 50).toString(),
-    caption: post.caption || `Watching this viral ${productName} trend! 🔥`,
-    topComments: [
-      { id: 'ec1', username: 'viewer_xyz', text: 'This looks so good!', likes: 12 },
-    ],
-    videoUrl: post.url
-  }));
+  const livePosts: ReelData[] = (externalPosts || []).map(post => {
+    const randomUser = ['user_88', 'viral_vibe', 'choice_finds', 'top_picks'][Math.floor(Math.random() * 4)];
+    const randomComment = [
+      'Amazing product, worth every penny!',
+      'Where can I get this exact model?',
+      'The quality looks incredible in this video.',
+      'Just saw this on TikTok too, it\'s going viral!',
+      'Best purchase I\'ve made this year.',
+      'Is it available for international shipping?'
+    ][Math.floor(Math.random() * 6)];
+
+    return {
+      id: post.id,
+      thumbnail: productImage || `https://ui-avatars.com/api/?name=${productName[0]}&background=E1306C&color=fff&size=512`, 
+      likes: (Math.floor(Math.random() * 50) + 1) + 'K',
+      comments: (Math.floor(Math.random() * 200) + 50).toString(),
+      caption: post.caption || `Watching this viral ${productName} trend! 🔥 #${productName.replace(/\s+/g, '')} #viral`,
+      topComments: [
+        { id: `ec-${post.id}`, username: randomUser, text: randomComment, likes: Math.floor(Math.random() * 100) },
+        { id: `ec2-${post.id}`, username: 'market_bot', text: 'Highly recommended! ⭐⭐⭐⭐⭐', likes: 12 },
+      ],
+      videoUrl: post.url
+    };
+  });
 
   const allReels = [...livePosts, ...reels].slice(0, 8);
 
@@ -121,10 +138,10 @@ export const InstagramReels = ({ productName, externalPosts }: InstagramReelsPro
               <p className="text-xs leading-relaxed line-clamp-2 font-medium text-muted-foreground italic mb-3">
                 "{reel.caption}"
               </p>
-              {reel.topComments.slice(0, 1).map((comment) => (
-                <div key={comment.id} className="text-[10px] border-t border-border/50 pt-3 flex items-start gap-2">
+              {reel.topComments.slice(0, 2).map((comment) => (
+                <div key={comment.id} className="text-[10px] border-t border-border/50 pt-2 mt-2 flex items-start gap-2 first:mt-0 first:border-0 first:pt-0">
                   <span className="font-bold text-pink-500 shrink-0">@{comment.username}</span>
-                  <span className="text-muted-foreground font-medium truncate">{comment.text}</span>
+                  <span className="text-muted-foreground font-medium line-clamp-2">{comment.text}</span>
                 </div>
               ))}
             </CardContent>

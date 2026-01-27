@@ -72,6 +72,7 @@ export interface CompetitorData {
   estimatedSales: string;
   trend: 'up' | 'down' | 'stable';
   imageUrl?: string;
+  url?: string;
 }
 
 export interface ProductAnalysis {
