@@ -10,7 +10,8 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 # Import native scrapers
-from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper
+from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
+import json
 
 class GoogleProductInsightsAnalyzer:
     """Fetches and analyzes product insights using Native Web Scraping (Google Search + Shopping)"""
@@ -93,8 +94,32 @@ class GoogleProductInsightsAnalyzer:
         return product
     
     def extract_product_features(self, product: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract features (mock/simple logic)"""
+        """Extract features (enhanced with AI if available)"""
         desc = product.get("description", "")
+        
+        if OPENROUTER_API_KEY and desc:
+            try:
+                prompt = (
+                    f"Extract key specifications and highlights for this product based on its description: '{desc}'. "
+                    "Format as a JSON: {\"key_specs\": [\"...\"], \"highlights\": [\"...\"]}"
+                )
+                res = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                    json={
+                        "model": AI_MODEL,
+                        "messages": [{"role": "user", "content": prompt}]
+                    },
+                    timeout=10
+                )
+                if res.status_code == 200:
+                    ai_res = res.json()["choices"][0]["message"]["content"]
+                    import re
+                    match = re.search(r'\{.*\}', ai_res, re.DOTALL)
+                    if match:
+                        return json.loads(match.group())
+            except: pass
+
         return {
             "key_specs": [s.strip() for s in desc.split(".") if len(s) > 10][:5],
             "highlights": ["High Quality", "Trending"] # Generic fallback
@@ -105,7 +130,33 @@ class GoogleProductInsightsAnalyzer:
         product: Dict[str, Any],
         competitor_products: List[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        # Simple logic based on price comparison
+        """Analyze competitiveness (enhanced with AI if available)"""
+        if OPENROUTER_API_KEY:
+            try:
+                comp_data = json.dumps(competitor_products) if competitor_products else "No specific competitor data available"
+                prompt = (
+                    f"Analyze the market competitiveness for '{product.get('title')}' at price {product.get('price')}. "
+                    f"Competitors: {comp_data}. "
+                    "Provide a JSON with: 'market_position' (string), 'advantages' (list), 'disadvantages' (list)."
+                )
+                res = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                    json={
+                        "model": AI_MODEL,
+                        "messages": [{"role": "user", "content": prompt}]
+                    },
+                    timeout=10
+                )
+                if res.status_code == 200:
+                    ai_res = res.json()["choices"][0]["message"]["content"]
+                    import re
+                    match = re.search(r'\{.*\}', ai_res, re.DOTALL)
+                    if match:
+                        return json.loads(match.group())
+            except: pass
+
+        # Simple logic based on price comparison fallback
         return {
             "product_name": product.get("title", ""),
             "market_position": "Competitive",
