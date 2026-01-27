@@ -57,12 +57,14 @@ interface LiveAnalysisData {
        total_results?: number;
        top_mentions?: Array<{ title: string; url: string; snippet: string }>;
     };
+    faqs?: Array<{ question: string; answer: string; snippet?: string }>;
     product_insights?: {
        market_position?: string;
        quality_score?: number;
     };
-    faqs?: Array<{ question: string; answer: string; snippet?: string }>;
   };
+  actualFullName?: string;
+  realImageUrl?: string;
   success?: boolean;
   data?: unknown;
   error?: string;
@@ -188,17 +190,46 @@ const ProductDetail = () => {
       <Header />
       
       <main className="container mx-auto px-4 pt-24 pb-12">
-        {/* Back Button */}
-        <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="group gap-2 text-muted-foreground hover:text-primary transition-all bg-card/20 hover:bg-card/40 border border-white/5"
-            onClick={() => navigate(-1)}
-          >
-            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            Back to Products
-          </Button>
+        {/* Back Button & Title */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 mt-4">
+          <div className="space-y-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="group gap-2 text-muted-foreground hover:text-primary transition-all bg-card/20 hover:bg-card/40 border border-white/5"
+              onClick={() => navigate(-1)}
+            >
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Back to Products
+            </Button>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
+                {liveAnalysis?.actualFullName || product.name}
+              </h1>
+              {liveAnalysis?.actualFullName && (
+                <Badge variant="glass" className="rotate-3 -translate-y-2 bg-primary/20 text-primary border-primary/30 text-[10px] py-0 px-2 animate-bounce">AI ENHANCED</Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              {getSignalBadge()}
+              <div className="h-4 w-px bg-white/10 mx-1 hidden md:block" />
+              <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                <Clock className="h-4 w-4" />
+                Scanned {product.lastUpdated}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2 border-white/5 bg-white/5">
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+            <Button variant="hero" size="sm" className="gap-2" onClick={() => fetchLiveAnalysis(product.name)}>
+              <Zap className="h-4 w-4" />
+              Refresh Intel
+            </Button>
+          </div>
         </div>
 
         {/* Product Details Content */}
@@ -229,8 +260,8 @@ const ProductDetail = () => {
                 <Card variant="glass" className="overflow-hidden bg-muted/20">
                   <div className="aspect-square relative flex items-center justify-center overflow-hidden">
                     <img 
-                      src={product.imageUrl} 
-                      alt={product.name}
+                      src={liveAnalysis?.realImageUrl || product.imageUrl} 
+                      alt={liveAnalysis?.actualFullName || product.name}
                       className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                     />
                     <div className="absolute top-4 right-4">
