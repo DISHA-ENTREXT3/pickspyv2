@@ -107,7 +107,9 @@ def scheduled_scrapers():
         except Exception as e:
             print(f"❌ Scheduled spider {spider} failed: {e}", flush=True)
             results[spider] = {"success": False, "error": str(e)}
-            
+    print("✅ Scheduled maintenance run completed.", flush=True)
+    return results
+
 # --- WEB API (REPLACING RENDER) ---
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -126,9 +128,31 @@ async def root():
 
 @web_app.post("/refresh")
 async def refresh():
-    """Trigger daily scrapers on demand"""
+    """Trigger daily scrapers on demand and return current data"""
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    
+    # 1. Trigger crawlers in background
+    # Note: spawn() initiates the function without waiting for it
+    print("🚀 Manual refresh triggered. Spawning scheduled_scrapers handle...")
     scheduled_scrapers.spawn()
-    return {"status": "success", "message": "Cloud scrapers triggered via Modal API."}
+    
+    # 2. Get current data to keep UI active
+    try:
+        db = get_db()
+        # Query existing products so the frontend doesn't blank out
+        response = db.client.table("products").select("*").order("created_at", desc=True).limit(50).execute()
+        products = response.data
+        print(f"✅ Refresh responding with {len(products)} cached products.")
+        return {
+            "status": "success", 
+            "message": "Update started in cloud. Showing existing products...",
+            "products": products
+        }
+    except Exception as e:
+        print(f"⚠️ Refresh data fetch error: {e}")
+        return {"status": "success", "message": "Scrapers started."}
 
 @web_app.get("/api/product-analysis/{product_name}")
 async def get_analysis(product_name: str):
