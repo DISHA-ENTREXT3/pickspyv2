@@ -23,7 +23,8 @@ image = (
         "itemadapter",
         "scrapy-user-agents",
         "instagrapi",
-        "pillow"
+        "pillow",
+        "fastapi"
     )
     .add_local_dir("d:/PickSpy-main/backend", remote_path="/root/backend", ignore=["venv", "__pycache__", ".git", ".env"])
 )
@@ -39,6 +40,18 @@ def run_spider_on_modal(spider_name: str):
     print(f"🕷️ Starting spider: {spider_name} on Modal...", flush=True)
     try:
         os.chdir("/root/backend")
+        
+        # Verify DB connection inside Modal
+        sys.path.append("/root/backend")
+        from supabase_utils import get_db
+        db = get_db()
+        if db.is_connected():
+            print("✅ Supabase connected from Modal remote.", flush=True)
+            print(f"URL: {db.url[:25]}... Key set: {bool(db.key)}", flush=True)
+        else:
+            print("❌ Supabase NOT connected from Modal remote!", flush=True)
+            print(f"ENV URL: {os.environ.get('SUPABASE_URL')}", flush=True)
+        
         cmd = ["scrapy", "crawl", spider_name]
         print(f"Running command: {' '.join(cmd)}", flush=True)
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -95,24 +108,103 @@ def scheduled_scrapers():
             print(f"❌ Scheduled spider {spider} failed: {e}", flush=True)
             results[spider] = {"success": False, "error": str(e)}
             
-    print("✅ Scheduled maintenance run completed.", flush=True)
-    return results
+# --- WEB API (REPLACING RENDER) ---
+from fastapi import FastAPI, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
+
+web_app = FastAPI()
+web_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@web_app.get("/")
+async def root():
+    return {"message": "PickSpy Serverless API is running on Modal!", "status": "online"}
+
+@web_app.post("/refresh")
+async def refresh():
+    """Trigger daily scrapers on demand"""
+    scheduled_scrapers.spawn()
+    return {"status": "success", "message": "Cloud scrapers triggered via Modal API."}
+
+@web_app.get("/api/product-analysis/{product_name}")
+async def get_analysis(product_name: str):
+    """Deep product analysis endpoint (matches Render)"""
+    result = run_product_analysis_on_modal.remote(product_name)
+    if result.get("success"):
+        return {"success": True, "data": result.get("data")}
+    return result
+
+@web_app.post("/api/ai/analyze")
+async def analyze_ai(request: dict):
+    """AI Analysis endpoint (matches Render)"""
+    # Simply route to the product analysis for now or implement direct AI logic
+    product_name = request.get("productName", "")
+    result = run_product_analysis_on_modal.remote(product_name)
+    return {"success": True, "data": result.get("data")}
+
+@web_app.get("/health")
+async def health():
+    return {"status": "online", "provider": "Modal Serverless"}
+
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+)
+@modal.asgi_app()
+def api():
+    return web_app
+
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+    timeout=600
+)
+def test_db_func():
+    """Test Supabase connection and write from Modal"""
+    import os
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    
+    print(f"🔗 Supabase URL: {db.url}", flush=True)
+    if not db.is_connected():
+        return {"success": False, "error": "Could not connect to Supabase"}
+        
+    test_product = {
+        "id": "modal-test-conn",
+        "name": "Modal Connection Test",
+        "source": "modal_system",
+        "category": "system",
+        "price": 0
+    }
+    
+    print("📝 Testing UPSERT...", flush=True)
+    result = db.upsert_products([test_product])
+    return result
 
 @app.local_entrypoint()
-def main(spider_name: str = None, analyze: str = None):
-    """
-    Usage:
-    - Run spider: modal run backend/modal_scraper.py --spider-name amazon_bestsellers
-    - Run analysis: modal run backend/modal_scraper.py --analyze "wireless earbuds"
-    """
-    if analyze:
+def main(spider_name: str = None, analyze: str = None, test_db: bool = False):
+    if test_db:
+        print("🧪 Triggering DB Test on Modal...")
+        ret = test_db_func.remote()
+        print(f"Result: {ret}")
+    elif analyze:
         print(f"🚀 Triggering Analysis for: {analyze}")
         ret = run_product_analysis_on_modal.remote(analyze)
         print(f"Result: {ret}")
     elif spider_name:
         print(f"🚀 Triggering Spider: {spider_name}")
         ret = run_spider_on_modal.remote(spider_name)
-        print(f"Result: {ret}")
+        if ret.get("success"):
+            print(f"✅ Spider Run Log:\n{ret.get('log')}")
+        else:
+            print(f"❌ Spider failed: {ret.get('error')}")
+        print(f"Result Recap: {ret}")
     else:
         print("💡 Please provide --spider-name or --analyze argument.")
 

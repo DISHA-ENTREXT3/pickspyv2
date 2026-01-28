@@ -39,6 +39,7 @@ class EbaySpider(scrapy.Spider):
                         'url': link,
                         'imageUrl': img,
                         'source': 'ebay',
+                        'category': 'electronics' if any(kw in query.lower() for kw in ['phone', 'watch', 'earbuds', 'laptop']) else 'general',
                         'query': query
                     }
             except: continue

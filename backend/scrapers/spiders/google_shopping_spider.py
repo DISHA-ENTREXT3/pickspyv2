@@ -50,6 +50,7 @@ class GoogleShoppingSpider(scrapy.Spider):
                         'url': link if link.startswith('http') else f"https://google.com{link}",
                         'imageUrl': img,
                         'source': 'google_shopping',
+                        'category': 'electronics' if any(kw in query.lower() for kw in ['phone', 'watch', 'earbuds', 'laptop', 'tablet']) else 'general',
                         'query': query
                     }
             except Exception as e:

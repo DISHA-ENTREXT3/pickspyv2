@@ -23,12 +23,17 @@ class AmazonBestsellersSpider(scrapy.Spider):
             'https://www.amazon.com/Best-Sellers-Electronics/zgbs/electronics',
             'https://www.amazon.com/Best-Sellers-Home-Kitchen/zgbs/home-garden',
             'https://www.amazon.com/Best-Sellers-Beauty/zgbs/beauty',
+            'https://www.amazon.com/Best-Sellers-Clothing-Shoes-Jewelry/zgbs/fashion',
+            'https://www.amazon.com/Best-Sellers-Sports-Outdoors/zgbs/sports',
+            'https://www.amazon.com/Best-Sellers-Toys-Games/zgbs/toys',
+            'https://www.amazon.com/Best-Sellers-Automotive/zgbs/automotive',
+            'https://www.amazon.com/Best-Sellers-Pet-Supplies/zgbs/pet-supplies',
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
     
     def parse(self, response):
-        category = response.url.split('/')[-2] if 'zgbs' in response.url else 'general'
+        category = response.url.strip('/').split('/')[-1] if 'zgbs' in response.url else 'general'
         
         for item in response.css('div.zg-item-immersion, div[data-asin]'):
             name = item.css('span.zg-text-center-align::text, span.a-size-small::text, div._cDEzb_p13n-sc-css-line-clamp-3_g3dy1::text').get()
