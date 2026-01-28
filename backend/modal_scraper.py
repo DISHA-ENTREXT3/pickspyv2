@@ -116,74 +116,164 @@ def scheduled_scrapers():
     return results
 
 # --- WEB API (REPLACING RENDER) ---
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
 
 web_app = FastAPI()
 web_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- MODELS ---
+class SaveProductRequest(BaseModel):
+    user_id: str
+    product_id: str
+
+class ProductComparisonRequest(BaseModel):
+    user_id: str
+    product_ids: List[str]
+    notes: Optional[str] = None
+
+class ActivityTrackingRequest(BaseModel):
+    user_id: str
+    activity_type: str  # 'view', 'analyze', 'compare', 'search'
+    product_id: Optional[str] = None
+    metadata: Optional[dict] = None
+
+class AnalyzeRequest(BaseModel):
+    productName: str
+    price: str = "0"
+    region: str = "Global"
 
 @web_app.get("/")
 async def root():
     return {"message": "PickSpy Serverless API is running on Modal!", "status": "online"}
 
 @web_app.post("/refresh")
-async def refresh():
+@web_app.post("/deep-scan")
+async def trigger_refresh():
     """Trigger daily scrapers on demand and return current data"""
+    scheduled_scrapers.spawn()
+    
     import sys
     sys.path.append("/root/backend")
     from supabase_utils import get_db
     
-    # 1. Trigger crawlers in background
-    # Note: spawn() initiates the function without waiting for it
-    print("🚀 Manual refresh triggered. Spawning scheduled_scrapers handle...")
-    scheduled_scrapers.spawn()
-    
-    # 2. Get current data to keep UI active
     try:
         db = get_db()
-        # Query existing products so the frontend doesn't blank out
         response = db.client.table("products").select("*").order("created_at", desc=True).limit(50).execute()
-        products = response.data
-        print(f"✅ Refresh responding with {len(products)} cached products.")
         return {
             "status": "success", 
             "message": "Update started in cloud. Showing existing products...",
-            "products": products
+            "products": response.data
         }
-    except Exception as e:
-        print(f"⚠️ Refresh data fetch error: {e}")
+    except:
         return {"status": "success", "message": "Scrapers started."}
 
 @web_app.get("/api/product-analysis/{product_name}")
 async def get_analysis(product_name: str):
-    """Deep product analysis endpoint (matches Render)"""
+    """Deep product analysis endpoint"""
     result = run_product_analysis_on_modal.remote(product_name)
-    if result.get("success"):
-        return {"success": True, "data": result.get("data")}
     return result
 
 @web_app.post("/api/ai/analyze")
-async def analyze_ai(request: dict):
-    """AI Analysis endpoint (matches Render)"""
-    # Simply route to the product analysis for now or implement direct AI logic
-    product_name = request.get("productName", "")
-    result = run_product_analysis_on_modal.remote(product_name)
-    return {"success": True, "data": result.get("data")}
-
-@web_app.post("/deep-scan")
-async def deep_scan():
-    """Alias for refresh to support all frontend buttons"""
-    scheduled_scrapers.spawn()
-    return {"message": "Cloud deep scan started via Modal."}
+async def analyze_ai(request: AnalyzeRequest):
+    """AI Analysis endpoint"""
+    result = run_product_analysis_on_modal.remote(request.productName)
+    return result
 
 @web_app.get("/health")
 async def health():
-    return {"status": "online", "provider": "Modal Serverless", "version": "1.2.0"}
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    return {
+        "status": "online", 
+        "provider": "Modal", 
+        "database": "connected" if db.is_connected() else "disconnected"
+    }
+
+# --- USER ROUTES ---
+
+@web_app.post("/user/save-product")
+async def save_product(request: SaveProductRequest):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    result = db.save_product(request.user_id, request.product_id)
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+@web_app.delete("/user/saved-product/{user_id}/{product_id}")
+async def remove_saved_product(user_id: str, product_id: str):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    success = db.remove_saved_product(user_id, product_id)
+    return {"success": success}
+
+@web_app.get("/user/saved-products/{user_id}")
+async def get_saved_products(user_id: str):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    products = db.get_user_saved_products(user_id)
+    return {"user_id": user_id, "saved_products": products, "count": len(products)}
+
+@web_app.post("/user/track-activity")
+async def track_activity(request: ActivityTrackingRequest):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    success = db.track_user_activity(request.user_id, request.activity_type, request.product_id, request.metadata)
+    return {"success": success}
+
+@web_app.get("/analytics/products")
+async def get_analytics():
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    return db.get_product_analytics(days=7)
+
+@web_app.post("/user/create-comparison")
+async def create_comparison(request: ProductComparisonRequest):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    result = db.create_comparison(request.user_id, request.product_ids, request.notes)
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+@web_app.get("/user/comparisons/{user_id}")
+async def get_comparisons(user_id: str):
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    db = get_db()
+    comparisons = db.get_user_comparisons(user_id)
+    return {"user_id": user_id, "comparisons": comparisons, "count": len(comparisons)}
+
+@web_app.get("/api/scraper-status")
+async def scraper_status():
+    return {
+        "success": True, 
+        "scrapers": ["amazon", "ebay", "flipkart", "google_shopping", "trends", "sentiment"]
+    }
 
 @app.function(
     image=image,
