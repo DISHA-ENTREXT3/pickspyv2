@@ -355,17 +355,31 @@ def run_deep_scan():
 @app.post("/refresh")
 async def refresh_data(background_tasks: BackgroundTasks):
     """
-    Standard refresh: Triggers DEEP SCAN in background.
+    Standard refresh: Triggers Modal Cloud scrapers.
     """
-    # Quick foreground check
-    foreground = generate_smart_fill("electronics", limit=3) # Instant response
-    background_tasks.add_task(run_deep_scan)
-    return {"status": "refreshing", "message": "Background scan started.", "products": foreground}
+    try:
+        import modal
+        print("☁️ Triggering Modal scheduled run from Render...")
+        f = modal.Function.from_name("pickspy-scrapers", "scheduled_scrapers")
+        f.spawn()
+        return {"status": "refreshing", "message": "Modal Cloud scrapers triggered. Database will update shortly."}
+    except Exception as e:
+        print(f"⚠️ Modal trigger failed: {e}")
+        # Fallback to background local scan if modal trigger fails
+        background_tasks.add_task(run_deep_scan)
+        return {"status": "refreshing", "message": "Local backup scan started (Cloud trigger failed)."}
 
 @app.post("/deep-scan")
 async def trigger_deep_scan(background_tasks: BackgroundTasks):
-    background_tasks.add_task(run_deep_scan)
-    return {"message": "Deep scan started."}
+    """Deep scan trigger - also prefers Modal"""
+    try:
+        import modal
+        f = modal.Function.from_name("pickspy-scrapers", "scheduled_scrapers")
+        f.spawn()
+        return {"message": "Cloud deep scan started via Modal."}
+    except:
+        background_tasks.add_task(run_deep_scan)
+        return {"message": "Local deep scan started (fallback)."}
 
 @app.get("/health")
 def health():
@@ -520,11 +534,26 @@ async def get_analytics():
 @app.get("/api/product-analysis/{product_name}")
 async def get_product_analysis(product_name: str):
     """
-    Get comprehensive live product analysis from native scrapers
-    Includes: market trends, ecommerce prices, sentiment, FAQs, and search data
+    Get comprehensive live product analysis.
+    Favors Modal Cloud for high-reliability scraping.
     """
     try:
+        # Try Modal First
+        try:
+            import modal
+            print(f"☁️ Using Modal Cloud for analysis of: {product_name}")
+            f = modal.Function.from_name("pickspy-scrapers", "run_product_analysis_on_modal")
+            result = f.remote(product_name)
+            if result.get("success"):
+                return {"success": True, "data": result.get("data")}
+            else:
+                print(f"⚠️ Modal analysis returned success=False, falling back...")
+        except Exception as modal_e:
+            print(f"⚠️ Modal Analysis Trigger failed: {modal_e}")
+            
+        # --- Fallback to Local (Render) Scrapers ---
         scrapers = get_native_scrapers()
+        # ... (rest of the existing logic)
         
         print(f"\n📊 Fetching comprehensive analysis for: {product_name}")
         
