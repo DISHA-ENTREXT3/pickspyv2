@@ -93,7 +93,12 @@ def run_product_analysis_on_modal(product_query: str):
 
 # --- SCHEDULING ---
 # Automatically run every day at midnight (UTC)
-@app.function(schedule=modal.Cron("0 0 * * *"), timeout=7200) 
+@app.function(
+    image=image, 
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+    schedule=modal.Cron("0 0 * * *"), 
+    timeout=7200
+) 
 def scheduled_scrapers():
     """Daily job to refresh all product data"""
     spiders = ["amazon_bestsellers", "flipkart_trending", "ebay_search", "google_shopping"]
