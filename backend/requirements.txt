@@ -14,5 +14,4 @@ fake-useragent==1.4.0
 instagrapi==2.1.2
 google-generativeai==0.8.3
 Pillow==10.4.0
-pypexels==1.0.2
 modal==0.62.0
