@@ -1,4 +1,4 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:8000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || "https://pickspy-backend.onrender.com";
 
 export interface AIAnalysisResult {
   viabilityScore: number;

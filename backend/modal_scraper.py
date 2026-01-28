@@ -1,0 +1,123 @@
+import modal
+import os
+import sys
+import subprocess
+
+# Define the Modal App
+app = modal.App("pickspy-scrapers")
+
+# Define the image with necessary dependencies
+# We copy the local backend directory to the remote container so it has access to the spiders
+image = (
+    modal.Image.debian_slim()
+    .pip_install(
+        "scrapy",
+        "supabase",
+        "fake-useragent",
+        "requests",
+        "python-dotenv",
+        "pandas",
+        "beautifulsoup4",
+        "pytrends",
+        "lxml",
+        "itemadapter",
+        "scrapy-user-agents",
+        "instagrapi",
+        "pillow"
+    )
+    .add_local_dir("d:/PickSpy-main/backend", remote_path="/root/backend", ignore=["venv", "__pycache__", ".git", ".env"])
+)
+
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+    timeout=3600
+)
+def run_spider_on_modal(spider_name: str):
+    import os
+    import subprocess
+    print(f"🕷️ Starting spider: {spider_name} on Modal...", flush=True)
+    try:
+        os.chdir("/root/backend")
+        cmd = ["scrapy", "crawl", spider_name]
+        print(f"Running command: {' '.join(cmd)}", flush=True)
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"✅ Spider {spider_name} finished successfully.", flush=True)
+            return {"success": True, "log": result.stdout}
+        else:
+            print(f"❌ Spider {spider_name} failed.", flush=True)
+            return {"success": False, "error": result.stderr}
+    except Exception as e:
+        print(f"Error running spider: {e}", flush=True)
+        return {"success": False, "error": str(e)}
+
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+    timeout=3600
+)
+def run_product_analysis_on_modal(product_query: str):
+    """Runs the GoogleProductInsightsAnalyzer on Modal"""
+    import os
+    import sys
+    sys.path.append("/root/backend")
+    from scrapers.spiders.product_insights_analyzer import get_product_insights_analyzer
+    
+    print(f"📊 Starting analysis for: {product_query}", flush=True)
+    try:
+        analyzer = get_product_insights_analyzer()
+        result = analyzer.get_comprehensive_product_analysis(product_query)
+        if result:
+            print(f"✅ Analysis for {product_query} completed.", flush=True)
+            return {"success": True, "data": result}
+        else:
+            print(f"❌ Analysis for {product_query} failed.", flush=True)
+            return {"success": False, "error": "Analyzer returned no results"}
+    except Exception as e:
+        print(f"💥 Error in analysis: {e}", flush=True)
+        return {"success": False, "error": str(e)}
+
+# --- SCHEDULING ---
+# Automatically run every day at midnight (UTC)
+@app.function(schedule=modal.Cron("0 0 * * *"), timeout=7200) 
+def scheduled_scrapers():
+    """Daily job to refresh all product data"""
+    spiders = ["amazon_bestsellers", "flipkart_trending", "ebay_search", "google_shopping"]
+    print(f"⏰ Starting scheduled maintenance run for {len(spiders)} spiders...", flush=True)
+    
+    results = {}
+    for spider in spiders:
+        try:
+            print(f"🔄 Running scheduled spider: {spider}", flush=True)
+            results[spider] = run_spider_on_modal.remote(spider)
+        except Exception as e:
+            print(f"❌ Scheduled spider {spider} failed: {e}", flush=True)
+            results[spider] = {"success": False, "error": str(e)}
+            
+    print("✅ Scheduled maintenance run completed.", flush=True)
+    return results
+
+@app.local_entrypoint()
+def main(spider_name: str = None, analyze: str = None):
+    """
+    Usage:
+    - Run spider: modal run backend/modal_scraper.py --spider-name amazon_bestsellers
+    - Run analysis: modal run backend/modal_scraper.py --analyze "wireless earbuds"
+    """
+    if analyze:
+        print(f"🚀 Triggering Analysis for: {analyze}")
+        ret = run_product_analysis_on_modal.remote(analyze)
+        print(f"Result: {ret}")
+    elif spider_name:
+        print(f"🚀 Triggering Spider: {spider_name}")
+        ret = run_spider_on_modal.remote(spider_name)
+        print(f"Result: {ret}")
+    else:
+        print("💡 Please provide --spider-name or --analyze argument.")
+
+# Instructions for user:
+# 1. Install modal: pip install modal
+# 2. Setup token: modal setup
+# 3. Create secrets: modal secret create pickspy-secrets SUPABASE_URL=... SUPABASE_KEY=...
+# 4. Run: modal run backend/modal_scraper.py

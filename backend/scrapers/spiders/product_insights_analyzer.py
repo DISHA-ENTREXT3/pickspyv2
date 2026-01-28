@@ -10,7 +10,13 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 # Import native scrapers
-from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
+# Import native scrapers
+# Assuming running from backend/ directory where native_scrapers.py resides
+try:
+    from native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
+except ImportError:
+    # Fallback for relative import if running as package
+    from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
 import json
 
 class GoogleProductInsightsAnalyzer:
@@ -177,11 +183,14 @@ class GoogleProductInsightsAnalyzer:
             print(f"📊 Getting comprehensive analysis for: {product_query}")
             
             # 1. Basic Product Info
+            print("Step 1: Fetching Basic Product Info...", flush=True)
             main_product = self.fetch_product_insights(product_query, country, language)
             if not main_product:
+                print("❌ Step 1 Failed: No product insights found.", flush=True)
                 return None
                 
             # 2. Competitors (Search for "similar to X")
+            print("Step 2: Searching for Competitors...", flush=True)
             competitors = []
             comp_search = self.scrapers["google_search"].search(f"products similar to {product_query}", limit=3)
             if comp_search:
@@ -191,20 +200,27 @@ class GoogleProductInsightsAnalyzer:
                         "price": self._extract_price(comp.get("snippet", "")),
                         "url": comp.get("url")
                     })
+            print(f"✅ Step 2 Success: Found {len(competitors)} competitors", flush=True)
 
             # 3. Market Metrics (Trends)
+            print("Step 3: Fetching Trends Data...", flush=True)
             trends_data = {}
             try:
                 trend_res = self.scrapers["google_trends"].get_trends(product_query)
                 if trend_res:
                     trends_data = trend_res
             except Exception as e:
-                print(f"Trends error: {e}")
+                print(f"⚠️ Trends error: {e}", flush=True)
+            print("✅ Step 3 Success", flush=True)
 
+            print("Step 4: Extracting Features...", flush=True)
             features = self.extract_product_features(main_product)
+            print("✅ Step 4 Success", flush=True)
             
             # 4. Instagram Trends
+            print("Step 5: Analyzing Instagram Trends...", flush=True)
             insta_data = self.analyze_instagram_trends(product_query)
+            print(f"✅ Step 5 Success: Status {insta_data.get('status')}", flush=True)
 
             # Combine
             comprehensive_analysis = {
@@ -219,7 +235,7 @@ class GoogleProductInsightsAnalyzer:
                 "analysis_timestamp": datetime.now().isoformat()
             }
             
-            print(f"✅ Completed comprehensive analysis for {product_query}")
+            print(f"✅ Finalizing comprehensive analysis for {product_query}", flush=True)
             return comprehensive_analysis
             
         except Exception as e:

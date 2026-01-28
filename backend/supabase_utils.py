@@ -6,6 +6,10 @@ Handles all Supabase interactions with proper error handling.
 import os
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 try:
     from supabase import create_client, Client

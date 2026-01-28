@@ -2,8 +2,8 @@
 
 BOT_NAME = 'pickspy'
 
-SPIDER_MODULES = ['backend.scrapers.spiders']
-NEWSPIDER_MODULE = 'backend.scrapers.spiders'
+SPIDER_MODULES = ['scrapers.spiders']
+NEWSPIDER_MODULE = 'scrapers.spiders'
 
 # Crawl responsibly by identifying yourself
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
@@ -47,7 +47,9 @@ RETRY_TIMES = 3
 RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 429]
 
 # Configure item pipelines
-ITEM_PIPELINES = {}
+ITEM_PIPELINES = {
+    'scrapers.pipelines.SupabasePipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension
 AUTOTHROTTLE_ENABLED = True

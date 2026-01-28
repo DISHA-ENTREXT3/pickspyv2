@@ -41,7 +41,10 @@ class GoogleShoppingSpider(scrapy.Spider):
                     link = parsed.get('url', [link])[0]
                 
                 if title and price:
+                    import hashlib
+                    product_id = hashlib.md5(f"{title}{query}".encode()).hexdigest()[:12]
                     yield {
+                        'id': f'gs-{product_id}',
                         'name': title.strip(),
                         'price': price.strip(),
                         'url': link if link.startswith('http') else f"https://google.com{link}",

@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from supabase_utils import get_db
 from native_scrapers import get_native_scrapers
 from ai_utils import get_ai_analysis
+from image_fetcher import get_product_image_with_fallback
 
 app = FastAPI()
 
@@ -80,14 +81,9 @@ def get_header():
         'Accept-Language': 'en-US,en;q=0.5',
     }
 
-def get_related_product_image(name, category="product"):
-    """Fetches a high-quality product image based on name/category from Unsplash"""
-    search_term = f"{name} {category}".replace(" ", ",")
-    # Using Unsplash source for real images instead of initials
-    return f"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800" if "demo" in name.lower() else f"https://source.unsplash.com/featured/800x800?{search_term}"
-
 def build_product(p_id, name, price, img, source, category):
-    final_img = get_related_product_image(name, category) if (not img or "placeholder" in img or "ui-avatars" in img) else img
+    # Use smart image selection: scraped image → Pexels → Unsplash fallback
+    final_img = get_product_image_with_fallback(name, img, category)
     
     seed = int(hashlib.md5(name.encode()).hexdigest(), 16)
     random.seed(seed)

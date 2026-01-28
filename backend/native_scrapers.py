@@ -12,7 +12,7 @@ from urllib.parse import quote, urlencode
 import json
 import random
 import time
-from instagrapi import Client
+# from instagrapi import Client  <-- Moved to local import
 import logging
 
 try:
@@ -762,6 +762,7 @@ class InstagramScraper(BaseRequestScraper):
             if IG_USERNAME and IG_PASSWORD:
                 try:
                     print(f"✨ Authenticating instagrapi for: @{IG_USERNAME}")
+                    from instagrapi import Client
                     cl = Client()
                     # Add simple local caching for sessions if possible (optional)
                     cl.login(IG_USERNAME, IG_PASSWORD)

@@ -30,7 +30,10 @@ class EbaySpider(scrapy.Spider):
                 img = p.css('.s-item__image-img::attr(src)').get()
                 
                 if title and "Shop on eBay" not in title:
+                    import hashlib
+                    product_id = hashlib.md5(f"{title}{query}".encode()).hexdigest()[:12]
                     yield {
+                        'id': f'eb-{product_id}',
                         'name': title,
                         'price': price,
                         'url': link,

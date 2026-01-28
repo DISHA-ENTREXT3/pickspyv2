@@ -88,29 +88,42 @@ class FlipkartSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
             
     def parse(self, response):
-        # Flipkart product selector strategy
-        # Class names change often, using generic structure when possible
-        for item in response.css('div._1AtVbE'): 
-            name = item.css('div._4rR01T::text, a.s1Q9rs::text').get()
-            price_text = item.css('div._30jeq3::text').get()
-            img = item.css('img._396cs4::attr(src)').get()
+        # Flipkart product selector strategy (Updated for 2025/2026)
+        # Using multiple potential selectors to handle different layout styles (grid/list)
+        items = response.css('div[data-id], ._1AtVbE, .cPHDOP, ._75_9zl, ._13oc-S')
+        
+        for item in items:
+            # Resilient Name Extraction
+            name = item.css('a.IRpwTa::text, div._4rR01T::text, a.s1Q9rs::text, a[title]::attr(title), .w6nN96::text').get()
+            
+            # Resilient Price Extraction
+            price_text = item.css('._30jeq3::text, .Nx9W0j::text, ._25b18c::text, span[class*="price"]::text').get()
+            
+            # Resilient Image Extraction
+            img = item.css('img._396cs4::attr(src), img._2r_T1_::attr(src), img::attr(src), img._53u_M-::attr(src)').get()
+            
+            # Resilient Link Extraction
+            link = item.css('a._1fQY7K::attr(href), a.IRpwTa::attr(href), a::attr(href)').get()
             
             price = 0
             if price_text:
                 # Remove currency symbol and commas
                 clean_price = re.sub(r'[^\d]', '', price_text)
                 if clean_price:
-                    price = float(clean_price)
+                    try:
+                        price = float(clean_price)
+                    except:
+                        price = 0
             
-            if name:
+            if name and len(name.strip()) > 3:
                 product_id = hashlib.md5(name.encode()).hexdigest()[:12]
                 yield {
                     'id': f'fk-{product_id}',
                     'name': name.strip()[:100],
                     'category': 'electronics' if 'electronics' in response.url else 'general',
-                    'price': price, # Flipkart prices are INR, usually needs conversion logic if multi-currency
+                    'price': price,
                     'imageUrl': img or '',
-                    'rating': 4.2, # Placeholder or extract from div._3LWZlK
+                    'rating': 4.2,
                     'source': 'flipkart',
                     'scraper': 'scrapy'
                 }
