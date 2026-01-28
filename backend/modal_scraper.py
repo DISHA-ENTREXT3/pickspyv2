@@ -170,9 +170,15 @@ async def analyze_ai(request: dict):
     result = run_product_analysis_on_modal.remote(product_name)
     return {"success": True, "data": result.get("data")}
 
+@web_app.post("/deep-scan")
+async def deep_scan():
+    """Alias for refresh to support all frontend buttons"""
+    scheduled_scrapers.spawn()
+    return {"message": "Cloud deep scan started via Modal."}
+
 @web_app.get("/health")
 async def health():
-    return {"status": "online", "provider": "Modal Serverless"}
+    return {"status": "online", "provider": "Modal Serverless", "version": "1.2.0"}
 
 @app.function(
     image=image,
