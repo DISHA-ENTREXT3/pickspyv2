@@ -359,8 +359,9 @@ async def refresh_data(background_tasks: BackgroundTasks):
     """
     try:
         import modal
-        print("☁️ Triggering Modal scheduled run from Render...")
-        f = modal.Function.from_name("pickspy-scrapers", "scheduled_scrapers")
+        print("☁️ Triggering Modal scheduled run from Render via lookup...")
+        # Using Function.lookup is more reliable for hydrated remote calls
+        f = modal.Function.lookup("pickspy-scrapers", "scheduled_scrapers")
         f.spawn()
         return {"status": "refreshing", "message": "Modal Cloud scrapers triggered. Database will update shortly."}
     except Exception as e:
@@ -374,10 +375,11 @@ async def trigger_deep_scan(background_tasks: BackgroundTasks):
     """Deep scan trigger - also prefers Modal"""
     try:
         import modal
-        f = modal.Function.from_name("pickspy-scrapers", "scheduled_scrapers")
+        f = modal.Function.lookup("pickspy-scrapers", "scheduled_scrapers")
         f.spawn()
         return {"message": "Cloud deep scan started via Modal."}
-    except:
+    except Exception as e:
+        print(f"⚠️ Modal deep-scan failed: {e}")
         background_tasks.add_task(run_deep_scan)
         return {"message": "Local deep scan started (fallback)."}
 
