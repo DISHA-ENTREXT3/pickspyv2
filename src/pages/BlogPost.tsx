@@ -259,6 +259,29 @@ const BlogPost = () => {
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </section>
+
+                {/* FAQ Section */}
+                {blog.faqs && blog.faqs.length > 0 && (
+                  <section className="mt-16 space-y-8 animate-fade-in-up">
+                    <div className="flex items-center gap-4 mb-8">
+                      <h3 className="text-3xl font-bold tracking-tight">Expert Q&A</h3>
+                      <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+                    </div>
+                    <div className="grid gap-6">
+                      {blog.faqs.map((faq, i) => (
+                        <div key={i} className="glass-card p-8 rounded-3xl border border-white/5 hover:border-primary/20 transition-all duration-300 group">
+                           <h4 className="font-bold text-xl mb-3 text-foreground group-hover:text-primary transition-colors flex items-start gap-3">
+                             <span className="text-primary/40 mt-1.5">•</span>
+                             {faq.question}
+                           </h4>
+                           <p className="text-muted-foreground leading-relaxed pl-6 border-l border-white/10 ml-2">
+                             {faq.answer}
+                           </p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
 

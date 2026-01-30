@@ -25,15 +25,6 @@ except ImportError:
         def random(self):
             return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
-try:
-    from fake_useragent import UserAgent
-except ImportError:
-    print("⚠️  fake-useragent not available, using default")
-    class UserAgent:
-        def __init__(self): pass
-        @property
-        def random(self):
-            return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
 try:
     from pytrends.request import TrendReq
@@ -89,6 +80,20 @@ class BaseRequestScraper:
             print(f"❌ Error getting page {url}: {e}")
             return None
 
+    def _clean_price(self, text: Any) -> str:
+        if not text: return "0.00"
+        if isinstance(text, (int, float)): return f"{text:.2f}"
+        try:
+            import re
+            # Remove currency symbols and commas
+            clean_text = re.sub(r'[₹$£€,]', '', str(text))
+            # Find the first numeric block
+            match = re.search(r'(\d+\.?\d{0,2})', clean_text)
+            if match:
+                return match.group(1)
+            return "0.00"
+        except: return "0.00"
+
     def extract_generic_product_data(self, soup):
         """Fallback: Extract product data from OG tags and Schema.org"""
         data = {}
@@ -127,12 +132,15 @@ class BaseRequestScraper:
         self.session.close()
 
 
-class WalmartScraper:
+class WalmartScraper(BaseRequestScraper):
     """Scrape products from Walmart.com with enhanced resilience"""
     
     BASE_URL = "https://www.walmart.com/search"
     API_URL = "https://www.walmart.com/search/api/preso"
     
+    def __init__(self):
+        super().__init__()
+
     def search(self, query: str, limit: int = 50) -> Optional[List[Dict[str, Any]]]:
         """Search products on Walmart"""
         try:
@@ -179,7 +187,7 @@ class WalmartScraper:
                         
                         product = {
                             "name": name,
-                            "price": str(current_price) if current_price else "0",
+                            "price": self._clean_price(current_price),
                             "url": f"https://www.walmart.com{item.get('canonicalUrl', '')}" if item.get('canonicalUrl') else f"https://www.walmart.com/ip/{item.get('usItemId', '')}",
                             "rating": item.get("rating", {}).get("averageRating", 0),
                             "reviews": item.get("rating", {}).get("numberOfReviews", 0),
@@ -258,11 +266,9 @@ class EbayScraper(BaseRequestScraper):
                     name = name_elem.text.strip() if name_elem else ""
                     if "Shop on eBay" in name or not name: continue
                     
-                    price = price_elem.text.strip().replace("$", "").replace(",", "") if price_elem else ""
-                    
                     products.append({
                         "name": name,
-                        "price": price,
+                        "price": self._clean_price(price_elem.text if price_elem else ""),
                         "url": link_elem.get("href") if link_elem else "",
                         "imageUrl": img_elem.get("src") or img_elem.get("data-src") if img_elem else "",
                         "source": "ebay"
@@ -309,11 +315,10 @@ class FlipkartScraper(BaseRequestScraper):
                     
                     if name_elem and price_elem:
                         name = name_elem.get('title') or name_elem.text.strip()
-                        price = price_elem.text.strip().replace("₹", "").replace(",", "")
                         
                         products.append({
                             "name": name,
-                            "price": price,
+                            "price": self._clean_price(price_elem.text if price_elem else ""),
                             "url": f"https://flipkart.com{link_elem.get('href')}" if link_elem and link_elem.get('href', '').startswith('/') else link_elem.get('href') if link_elem else "",
                             "imageUrl": img_elem.get('src') or img_elem.get('data-src') or img_elem.get('srcset', '').split(' ')[0] if img_elem else "",
                             "source": "flipkart"
@@ -506,7 +511,7 @@ class AmazonScraper(BaseRequestScraper):
                         
                         products.append({
                             "name": title_elem.text.strip(),
-                            "price": price,
+                            "price": self._clean_price(price),
                             "imageUrl": image_elem.get('src') if image_elem else "",
                             "url": f"https://www.amazon.com{link_elem.get('href')}" if link_elem else "",
                             "rating": rating_elem.text.split()[0] if rating_elem else "0",

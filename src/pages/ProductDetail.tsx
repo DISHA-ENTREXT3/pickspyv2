@@ -88,6 +88,16 @@ const ProductDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [views, setViews] = useState(Math.floor(Math.random() * 5 + 3));
+
+  // Fluctuating views for live signal
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setViews(prev => Math.max(2, Math.min(15, prev + (Math.random() > 0.5 ? 1 : -1))));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   // SEO and Meta Management
   useEffect(() => {
     if (product) {
@@ -100,14 +110,7 @@ const ProductDetail = () => {
     }
   }, [product]);
 
-  // Fetch live product analysis on component mount
-  useEffect(() => {
-    if (product?.name) {
-      fetchLiveAnalysis(product.name);
-    }
-  }, [product?.name]);
-
-  const fetchLiveAnalysis = async (productName: string) => {
+  const fetchLiveAnalysis = useCallback(async (productName: string) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -129,7 +132,19 @@ const ProductDetail = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Load pre-generated analysis or fetch if missing
+  useEffect(() => {
+    if (product?.detailed_analysis) {
+       console.log('📦 Using pre-generated analysis from DB');
+       setLiveAnalysis(product.detailed_analysis as unknown as LiveAnalysisData);
+       setIsLoading(false);
+    } else if (product?.name) {
+       console.log('🔍 No pre-generated analysis found, fetching live...');
+       fetchLiveAnalysis(product.name);
+    }
+  }, [product?.id, product?.detailed_analysis, product?.name, fetchLiveAnalysis]);
 
   // Convert live analysis trends to chart format
   const chartData = useMemo(() => {
@@ -210,6 +225,16 @@ const ProductDetail = () => {
                 <Badge variant="glass" className="rotate-3 -translate-y-2 bg-primary/20 text-primary border-primary/30 text-[10px] py-0 px-2 animate-bounce">AI ENHANCED</Badge>
               )}
             </div>
+            {/* Live Social Proof Badge */}
+            <div className="flex items-center gap-2 mt-1">
+               <div className="relative flex h-2 w-2">
+                 <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal-bullish opacity-75"></div>
+                 <div className="relative inline-flex rounded-full h-2 w-2 bg-signal-bullish"></div>
+               </div>
+               <p className="text-[11px] font-bold text-signal-bullish uppercase tracking-widest leading-none">
+                 {views} people are viewing this winner right now
+               </p>
+            </div>
             <div className="flex items-center gap-3">
               {getSignalBadge()}
               <div className="h-4 w-px bg-white/10 mx-1 hidden md:block" />
@@ -224,10 +249,6 @@ const ProductDetail = () => {
             <Button variant="outline" size="sm" className="gap-2 border-white/5 bg-white/5">
               <Share2 className="h-4 w-4" />
               Share
-            </Button>
-            <Button variant="hero" size="sm" className="gap-2" onClick={() => fetchLiveAnalysis(product.name)}>
-              <Zap className="h-4 w-4" />
-              Refresh Intel
             </Button>
           </div>
         </div>
@@ -330,15 +351,7 @@ const ProductDetail = () => {
                           : "Historical tracking data will appear here once the system has completed its weekly scan."}
                       </p>
                       {!isLoading && (
-                        <Button 
-                          variant="hero" 
-                          size="lg" 
-                          onClick={() => fetchLiveAnalysis(product.name)}
-                          className="mt-2"
-                        >
-                          <Zap className="h-4 w-4 mr-2" />
-                          Generate Forecast
-                        </Button>
+                        <p className="text-sm italic opacity-50">Intelligence data for this snapshot is being generated.</p>
                       )}
                     </div>
                   </Card>

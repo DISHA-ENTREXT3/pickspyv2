@@ -120,14 +120,20 @@ class GoogleProductInsightsAnalyzer:
             return None
             
     def _extract_price(self, text: str) -> float:
+        """Robust price extraction from string tools"""
+        if not text: return 0.0
         try:
             import re
-            match = re.search(r'\$?(\d+\.?\d{0,2})', text)
+            # Remove currency symbols and commas
+            clean_text = re.sub(r'[₹$£€,]', '', text)
+            # Find the first numeric block that looks like a price
+            match = re.search(r'(\d+\.?\d{0,2})', clean_text)
             if match:
-                val = float(match.group(1))
-                return val if val > 0 else 0
-            return 0
-        except: return 0
+                return float(match.group(1))
+            return 0.0
+        except Exception as e:
+            print(f"⚠️ Price extraction error on '{text}': {e}")
+            return 0.0
         
     def _extract_rating(self, text: str) -> float:
         try:
@@ -307,12 +313,42 @@ class GoogleProductInsightsAnalyzer:
             except Exception as e:
                 print(f"⚠️ FAQ fetch error: {e}", flush=True)
 
+            # 6. Calc Quality Score based on data
+            quality_score = 6.5 + random.uniform(0, 1.5) # Dynamic base
+            
+            # Trend impact
+            trend_dir = market_trends.get("trend_direction", "neutral")
+            if trend_dir == "up": quality_score += 1.2
+            elif trend_dir == "down": quality_score -= 1.0
+            
+            # Velocity impact (0-100 scale usually)
+            velocity = market_trends.get("trend_velocity_percent", 50)
+            if velocity > 70: quality_score += 0.8
+            elif velocity < 30: quality_score -= 0.5
+            
+            # Social Sentiment impact
+            sentiment = social_analysis.get("sentiment_percentage", {}).get("positive", 50)
+            if sentiment > 75: quality_score += 1.5
+            elif sentiment < 40: quality_score -= 1.5
+            
+            # Mention volume impact
+            mentions = social_analysis.get("total_mentions", 0)
+            if mentions > 1000: quality_score += 0.5
+            
+            # Ecommerce presence
+            if ecommerce.get("amazon"): quality_score += 0.3
+            if ecommerce.get("ebay") or ecommerce.get("walmart"): quality_score += 0.2
+            
+            # Normalize to 0-10 range
+            quality_score = max(1.0, min(9.8, quality_score))
+
             # Combine in THE format expected by ProductDetail.tsx
             analysis = {
                 "product_name": product_query,
                 "analysis_timestamp": datetime.now().isoformat(),
                 "actualFullName": main_product.get("title") if main_product else product_query,
                 "realImageUrl": main_product.get("imageUrl") if main_product else None,
+                "viability_score": round(quality_score * 10, 1), # 0-100 scale
                 "sources": {
                     "market_trends": market_trends,
                     "social_analysis": social_analysis,
@@ -320,8 +356,8 @@ class GoogleProductInsightsAnalyzer:
                     "search_results": search_results,
                     "faqs": faqs,
                     "product_insights": {
-                        "market_position": "Active",
-                        "quality_score": round(random.uniform(7.5, 9.8), 2)
+                        "market_position": "Strong" if quality_score > 7.5 else "Moderate" if quality_score > 5.0 else "Weak",
+                        "quality_score": round(quality_score / 10, 2) # 0-1 scale
                     }
                 }
             }

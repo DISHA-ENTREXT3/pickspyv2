@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Zap, Target, AlertTriangle, Lightbulb, ArrowRight, X, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Zap, Target, AlertTriangle, Lightbulb, ArrowRight, X, Loader2, Lock } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -21,11 +23,15 @@ interface AIAnalyzerProps {
 }
 
 export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
   const [productIdea, setProductIdea] = useState(selectedProduct?.name || '');
   const [targetPrice, setTargetPrice] = useState(selectedProduct?.price.toString() || '');
   const [region, setRegion] = useState('us');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<ProductAnalysis | null>(null);
+
+  const isFreeTier = profile?.subscription_tier === 'Free' || !profile;
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
@@ -88,6 +94,26 @@ export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
       </CardHeader>
 
       <CardContent className="relative space-y-6">
+        {isFreeTier && (
+          <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+             <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                <Lock className="h-8 w-8 text-primary shadow-glow" />
+             </div>
+             <h3 className="text-2xl font-bold mb-3">AI Analyzer PRO</h3>
+             <p className="text-muted-foreground mb-8 max-w-sm">
+               Get specialized market viability scores and risk analysis. 
+               AI insights are available exclusively on Pro and Business plans.
+             </p>
+             <div className="flex flex-col sm:flex-row gap-4">
+               <Button variant="hero" onClick={() => navigate('/pricing')}>
+                 Upgrade to Unlock
+               </Button>
+               <Button variant="outline" onClick={onClose} className="border-white/10">
+                 Maybe Later
+               </Button>
+             </div>
+          </div>
+        )}
         {/* Input form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">

@@ -17,7 +17,7 @@ const MemoizedProductCard = memo(ProductCard);
 
 export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
   const { toast } = useToast();
-  const { products, isLoading, refreshProducts } = useProducts();
+  const { products, isLoading, refreshDates, selectedDate, setSelectedDate } = useProducts();
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
     priceBand: 'all',
@@ -66,6 +66,11 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
   // Memoize filtered products to prevent heavy calculation on every render
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      // Filter by selected snapshot date
+      if (selectedDate && product.created_at && !product.created_at.startsWith(selectedDate)) {
+        return false;
+      }
+
       // Search query
       if (filters.searchQuery && !product.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
         return false;
@@ -143,19 +148,23 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">Trending Products</h2>
-                <p className="text-sm text-muted-foreground font-medium">Real-time demand signals from across the web</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-sm text-muted-foreground font-medium mr-2">Intel snapshots from the last 7 days:</p>
+                  <div className="flex gap-1 overflow-x-auto pb-1 max-w-[400px]">
+                    {refreshDates.map(date => (
+                      <Badge 
+                        key={date}
+                        variant={selectedDate === date ? 'bullish' : 'outline'}
+                        className="cursor-pointer whitespace-nowrap"
+                        onClick={() => setSelectedDate(date)}
+                      >
+                        {new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh} 
-              disabled={isLoading}
-              className="gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Refreshing...' : 'Refresh Data'}
-            </Button>
           </div>
 
           {/* Search and filters */}

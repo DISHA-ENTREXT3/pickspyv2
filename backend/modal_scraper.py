@@ -91,6 +91,51 @@ def run_product_analysis_on_modal(product_query: str):
         print(f"💥 Error in analysis: {e}", flush=True)
         return {"success": False, "error": str(e)}
 
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("pickspy-secrets")],
+    timeout=3600
+)
+def enrich_new_products():
+    """Finds products without analysis and enriches them with AI intelligence"""
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    from scrapers.spiders.product_insights_analyzer import get_product_insights_analyzer
+    
+    db = get_db()
+    print("🧠 Starting product enrichment task...", flush=True)
+    
+    # Get products without detailed analysis, priority to newest
+    try:
+        response = db.client.table("products").select("*").is_("detailed_analysis", "null").order("created_at", desc=True).limit(50).execute()
+        products = response.data
+        if not products:
+            print("✨ No new products to enrich.", flush=True)
+            return
+        
+        print(f"🔬 Enrching {len(products)} products...", flush=True)
+        analyzer = get_product_insights_analyzer()
+        
+        for p in products:
+            try:
+                print(f"🤖 Analyzing: {p['name']}", flush=True)
+                analysis = analyzer.get_comprehensive_product_analysis(p['name'])
+                if analysis:
+                    # Update record with pre-generated analysis
+                    db.client.table("products").update({
+                        "detailed_analysis": analysis,
+                        "sentiment_score": analysis.get("viability_score", 70) # Map to existing column
+                    }).eq("record_id", p["record_id"]).execute()
+                else:
+                    print(f"⚠️ No analysis results for {p['name']}", flush=True)
+            except Exception as e:
+                print(f"❌ Failed to enrich {p['name']}: {e}", flush=True)
+                
+        print("✅ Enrichment task completed.", flush=True)
+    except Exception as e:
+        print(f"💥 Enrichment Failed: {e}", flush=True)
+
 # --- SCHEDULING ---
 # Automatically run every day at midnight (UTC)
 @app.function(
@@ -101,9 +146,14 @@ def run_product_analysis_on_modal(product_query: str):
 ) 
 def scheduled_scrapers():
     """Daily job to refresh all product data"""
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    
     spiders = ["amazon_bestsellers", "flipkart_trending", "ebay_search", "google_shopping"]
     print(f"⏰ Starting scheduled maintenance run for {len(spiders)} spiders...", flush=True)
     
+    # 1. Run Spiders
     results = {}
     for spider in spiders:
         try:
@@ -112,7 +162,21 @@ def scheduled_scrapers():
         except Exception as e:
             print(f"❌ Scheduled spider {spider} failed: {e}", flush=True)
             results[spider] = {"success": False, "error": str(e)}
-    print("✅ Scheduled maintenance run completed.", flush=True)
+            
+    # 2. Enrich products with AI (spawn background task)
+    print("🚀 Triggering AI Enrichment for new products...", flush=True)
+    enrich_new_products.spawn()
+    
+    # 3. Cleanup data older than 7 days
+    try:
+        print("🗑️ Running 7-day data retention cleanup...", flush=True)
+        db = get_db()
+        cleanup = db.delete_old_data(days=7)
+        print(f"✅ Cleanup finished: {cleanup}", flush=True)
+    except Exception as e:
+         print(f"❌ Cleanup failed: {e}", flush=True)
+         
+    print("✅ Scheduled maintenance run fully completed.", flush=True)
     return results
 
 # --- WEB API (REPLACING RENDER) ---
@@ -151,6 +215,13 @@ class AnalyzeRequest(BaseModel):
     price: str = "0"
     region: str = "Global"
 
+class SupportRequest(BaseModel):
+    product: str
+    category: str
+    message: str
+    user_email: str
+    metadata: Optional[dict] = None
+
 @web_app.get("/")
 async def root():
     return {"message": "PickSpy Serverless API is running on Modal!", "status": "online"}
@@ -187,6 +258,45 @@ async def analyze_ai(request: AnalyzeRequest):
     """AI Analysis endpoint"""
     result = run_product_analysis_on_modal.remote(request.productName)
     return result
+
+@web_app.post("/support")
+async def submit_support(payload: SupportRequest):
+    import os
+    import requests
+    
+    SUPABASE_SUPPORT_URL = "https://ldewwmfkymjmokopulys.supabase.co/functions/v1/submit-support"
+    FORM_SECRET = os.environ.get("FORM_SECRET")
+    
+    # If explicit URL is provided in env, use it
+    if os.environ.get("SUPPORT_WEBHOOK_URL"):
+        SUPABASE_SUPPORT_URL = os.environ.get("SUPPORT_WEBHOOK_URL")
+
+    try:
+        response = requests.post(
+            SUPABASE_SUPPORT_URL,
+            headers={
+                "Content-Type": "application/json",
+                "x-form-secret": FORM_SECRET or "" 
+            },
+            json=payload.dict()
+        )
+
+        if response.status_code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="Too many submissions. Try again later."
+            )
+
+        if not response.ok:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=response.text
+            )
+
+        return response.json()
+    except Exception as e:
+        print(f"Support submission error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @web_app.get("/health")
 async def health():

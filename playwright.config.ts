@@ -14,7 +14,7 @@ export default defineConfig({
     ['list']
   ],
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:8080',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://127.0.0.1:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -22,7 +22,7 @@ export default defineConfig({
 
   webServer: process.env.CI ? undefined : {
     command: 'npm run dev',
-    url: 'http://localhost:8080',
+    url: 'http://127.0.0.1:8080',
     reuseExistingServer: true,
   },
 

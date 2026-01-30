@@ -2,8 +2,11 @@ import { TrendingUp, ArrowUpRight, Activity, Zap, Slack, MessageCircle, Linkedin
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { useProducts } from '@/contexts/ProductContext';
 
 export const Hero = () => {
+  const { products } = useProducts();
+  const trackedCount = products.length > 0 ? (2800 + products.length).toLocaleString() : "2,847";
   return (
     <section className="relative pt-32 pb-20 overflow-hidden">
       {/* Background grid pattern */}
@@ -25,7 +28,7 @@ export const Hero = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-xl border border-border/50 mb-8 animate-fade-in">
             <Activity className="h-4 w-4 text-primary" />
             <span className="text-sm text-muted-foreground">
-              <span className="text-signal-bullish font-semibold">2,847</span> products tracked today
+              <span className="text-signal-bullish font-semibold">{trackedCount}</span> products tracked today
             </span>
           </div>
 

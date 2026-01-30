@@ -59,6 +59,8 @@ export interface Product {
   competitors?: CompetitorData[];
   socialSignals?: string[];
   trendData?: TrendDataPoint[];
+  detailed_analysis?: Record<string, unknown>;
+  created_at?: string;
 }
 
 export interface CompetitorData {

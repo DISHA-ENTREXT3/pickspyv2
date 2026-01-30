@@ -15,6 +15,9 @@ interface ProductContextType {
   getSavedProducts: () => Promise<string[]>;
   createComparison: (productIds: string[], notes?: string) => Promise<string | null>;
   trackProductView: (productId: string) => Promise<void>;
+  refreshDates: string[];
+  selectedDate: string | null;
+  setSelectedDate: (date: string | null) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -51,6 +54,8 @@ interface RawProduct {
   faqs?: FAQ[];
   competitors?: CompetitorData[];
   social_signals?: string[];
+  detailed_analysis?: Record<string, unknown>;
+  created_at?: string;
 }
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
@@ -60,8 +65,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [refreshDates, setRefreshDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'https://pickspy-backend.onrender.com';
+  const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
   const getDemoProducts = (): Product[] => {
     const pexels = (id: string) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
@@ -337,13 +344,19 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       }));
 
       setProducts(mappedProducts);
+      
+      // Extract unique dates for history
+      const dates = Array.from(new Set(mappedProducts.map(p => p.created_at?.split('T')[0]).filter(Boolean) as string[]))
+        .sort((a, b) => b.localeCompare(a));
+      setRefreshDates(dates);
+      if (!selectedDate && dates.length > 0) setSelectedDate(dates[0]);
     } catch (error) {
       console.error('Refresh error:', error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [BACKEND_API_URL]);
+  }, [BACKEND_API_URL, selectedDate]);
 
   // Fetch initial data and subscribe to realtime updates
   useEffect(() => {
@@ -435,6 +448,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     redditThreads: item.reddit_threads || [],
     faqs: item.faqs || [],
     socialSignals: item.social_signals || [],
+    detailed_analysis: item.detailed_analysis,
+    created_at: item.created_at,
   });
 
   return (
@@ -448,7 +463,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       removeSavedProduct,
       getSavedProducts,
       createComparison,
-      trackProductView
+      trackProductView,
+      refreshDates,
+      selectedDate,
+      setSelectedDate,
     }}>
       {children}
     </ProductContext.Provider>

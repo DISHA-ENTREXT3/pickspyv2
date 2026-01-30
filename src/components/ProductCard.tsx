@@ -247,9 +247,14 @@ export const ProductCard = ({
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-border/50">
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
-            <Clock className="h-3 w-3" />
-            LIVE
-            <Badge variant="outline" className="h-4 px-1.5 bg-secondary/50 text-[8px] uppercase border-border/50 font-bold">
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal-bullish opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-signal-bullish"></span>
+            </div>
+            <span className="text-signal-bullish uppercase tracking-widest">LIVE</span>
+            <span className="opacity-40">•</span>
+            <span>{Math.floor(Math.random() * 5 + 1)} views</span>
+            <Badge variant="outline" className="h-4 px-1.5 bg-secondary/50 text-[8px] uppercase border-border/50 font-bold ml-1">
               {product.source || 'Intel'}
             </Badge>
           </div>

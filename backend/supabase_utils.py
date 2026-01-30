@@ -74,37 +74,33 @@ class SupabaseDB:
                     "social_signals": p.get("social_signals"),
                     "faqs": p.get("faqs"),
                     "competitors": p.get("competitors"),
-                    "reddit_threads": p.get("redditThreads")
+                    "reddit_threads": p.get("redditThreads"),
+                    "detailed_analysis": p.get("detailed_analysis"),
+                    "created_at": datetime.now().isoformat()
                 })
             
-            # Batch upsert in chunks of 50
+            # Batch insert in chunks of 50 (changed from upsert to allow history)
             total_saved = 0
             for i in range(0, len(data), 50):
                 chunk = data[i:i+50]
                 
-                # Deduplication and Null checks
-                seen_chunk_ids = set()
-                clean_chunk = []
-                for item in chunk:
-                    if item.get("id") and item["id"] not in seen_chunk_ids:
-                        clean_chunk.append(item)
-                        seen_chunk_ids.add(item["id"])
+                # Null checks (no deduplication here to keep history)
+                clean_chunk = [item for item in chunk if item.get("id")]
                 
                 if not clean_chunk: continue
 
-                print(f"📦 Upserting chunk of {len(clean_chunk)} items...")
+                print(f"📦 Inserting snapshot chunk of {len(clean_chunk)} items...")
                 try:
-                    response = self.client.table("products").upsert(clean_chunk, on_conflict="id").execute()
+                    # We use insert() now to allow multiple versions of same product id
+                    response = self.client.table("products").insert(clean_chunk).execute()
                     total_saved += len(clean_chunk)
                 except Exception as inner_e:
-                    print(f"❌ Chunk Upsert Failed: {inner_e}")
-                    # If it's a constraint error, we might want to try items one by one in this chunk
-                    # or just proceed to next chunk to avoid failing everything
+                    print(f"❌ Chunk Insert Failed: {inner_e}")
                     continue
             
             return {
                 "success": total_saved > 0,
-                "message": f"Successfully upserted {total_saved} products",
+                "message": f"Successfully saved {total_saved} product snapshots",
                 "count": total_saved
             }
             
@@ -116,6 +112,23 @@ class SupabaseDB:
                 "error": error_msg,
                 "count": 0
             }
+
+    def delete_old_data(self, days: int = 7) -> Dict[str, Any]:
+        """Delete product data older than N days"""
+        if not self.is_connected():
+            return {"success": False, "error": "Not connected"}
+        
+        try:
+            # Current date minus days
+            import datetime as dt
+            threshold = (dt.datetime.now() - dt.timedelta(days=days)).isoformat()
+            
+            print(f"🗑️ Cleaning up products older than {threshold}...")
+            response = self.client.table("products").delete().lt("created_at", threshold).execute()
+            return {"success": True, "count": len(response.data) if response.data else 0}
+        except Exception as e:
+            print(f"❌ Cleanup failed: {e}")
+            return {"success": False, "error": str(e)}
 
     def clear_category_products(self, category: str) -> bool:
         """Clear all products in a given category"""
