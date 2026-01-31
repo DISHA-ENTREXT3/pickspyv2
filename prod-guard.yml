@@ -1,0 +1,19 @@
+gates:
+  allow_autofix: true
+
+cors:
+  allow_wildcard: false
+
+rate_limit:
+  requests_per_minute:
+    max: 300
+
+network:
+  timeout_ms:
+    min: 3000
+
+load:
+  p95_latency_ms: 2000
+
+security:
+  block_on: [High, Medium]

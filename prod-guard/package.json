@@ -1,24 +1,8 @@
 {
   "name": "prod-guard",
   "version": "0.1.0",
-  "description": "Production readiness CLI: test, auto-fix safe issues, block unsafe deploys",
   "type": "module",
   "bin": {
     "prod-guard": "./bin/prod-guard.js"
-  },
-  "keywords": [
-    "devops",
-    "ci",
-    "production",
-    "testing",
-    "vercel",
-    "security",
-    "cors",
-    "rate-limit"
-  ],
-  "author": "PickSpy Team",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
   }
 }

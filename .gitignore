@@ -30,3 +30,8 @@ venv/
 *.njsproj
 *.sln
 *.sw?
+load-test-result.json
+zap-report.json
+prod_guard_out.txt
+debug_out.txt
+prod-guard-test.txt

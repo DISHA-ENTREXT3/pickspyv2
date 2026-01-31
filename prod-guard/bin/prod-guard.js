@@ -5,7 +5,5 @@ const args = process.argv.slice(2);
 
 run({
   ci: args.includes("--ci"),
-  dry: args.includes("--dry"),
-  debug: args.includes("--debug"),
-  only: args.find(a => a.startsWith("--only="))?.split("=")[1]
+  dry: args.includes("--dry")
 });
