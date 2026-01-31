@@ -26,7 +26,7 @@ import {
   ShoppingCart,
   ExternalLink,
 } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { TrendChart } from '@/components/product/TrendChart';
 import { CompetitorAnalysis } from '@/components/product/CompetitorAnalysis';
