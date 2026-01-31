@@ -2,10 +2,12 @@
 
 **A platform to discover trending products on Amazon using AI analysis, Reddit sentiment tracking, and real-time market signals.**
 
+---
+
 ## 🎯 Quick Links
 
+- **🛡️ [PROD-GUARD READINESS](prod-guard/README.md)** - Security & Deployment Gate
 - **🚀 [QUICK DEPLOY GUIDE](QUICK_DEPLOY.md)** - Deploy in 30 minutes
-- **📋 [PROJECT STATUS](PROJECT_STATUS.md)** - Current status and checklist
 - **📚 [DEPLOYMENT GUIDE](DEPLOYMENT_GUIDE.md)** - Detailed deployment instructions
 - **🗄️ [DATABASE SETUP](SUPABASE_SETUP_FINAL.sql)** - Supabase configuration
 
@@ -13,302 +15,97 @@
 
 ## ✨ Features
 
-- 🔍 **Smart Product Discovery** - Find trending products before they blow up
-- 🤖 **AI Analysis** - Powered by Claude AI for intelligent insights
-- 📊 **Market Signals** - Real-time demand tracking, velocity scores, saturation analysis
-- 💬 **Reddit Integration** - Track sentiment and discussions on Reddit
-- 📈 **Trend Analysis** - See what's trending on different platforms
-- 🛒 **Product Comparison** - Compare multiple products side-by-side
-- ⭐ **Watchlist** - Save products and track them over time
-- 👥 **Community Insights** - See what others are discussing
+- 🔍 **Smart Product Discovery**: Find trending products before they become mainstream.
+- 🤖 **AI-Enhanced Analysis**: Powered by Google Gemini & OpenRouter for deep market insights.
+- 📊 **Real-time Market Signals**: Velocity scores, saturation analysis, and growth tracking.
+- 💬 **Reddit Sentiment Tracking**: Native integration to monitor community discussions and hype.
+- 🎥 **Social Proof Integration**: Viral Instagram reels and social signals directly on product pages.
+- 🛡️ **Production-Ready**: Built-in "Prod-Guard" security gates to prevent unsafe deployments.
 
 ---
 
-## 🏗️ Architecture
+## 🛠 Tech Stack
 
-**Frontend**: React + Vite + TypeScript (deployed on Vercel)
-**Backend**: Python + FastAPI (deployed on Render)
-**Database**: PostgreSQL + Supabase (managed cloud database)
-**APIs**: ScrapingDog (web scraping), Claude AI (analysis)
+**Frontend**: React 18, TypeScript, Vite, TailwindCSS, Shadcn UI
+**Backend**: Python 3, FastAPI, Modal (Serverless Scrapers)
+**Database**: PostgreSQL (via Supabase)
+**AI**: Google Gemini, OpenRouter (Llama 3.1 Sonar)
 
 ---
 
-## 🚀 Getting Started
+## 🔐 Security & Environment Variables
 
-### For Development
+To ensure your API keys and secrets are never leaked, PickSpy uses environment variables exclusively. **Never commit your `.env` file.**
 
-1. **Clone the repository**:
+### Required Variables
 
-   ```sh
-   git clone https://github.com/DISHA-ENTREXT3/pickspyv2.git
-   cd pickspyv2
-   ```
+| Variable                    | Source                                           | Purpose                               |
+| --------------------------- | ------------------------------------------------ | ------------------------------------- |
+| `VITE_SUPABASE_URL`         | Supabase Settings                                | Frontend database connection          |
+| `VITE_SUPABASE_ANON_KEY`    | Supabase Settings                                | Frontend public access                |
+| `VITE_BACKEND_API_URL`      | Render/Modal                                     | URL of your deployed backend          |
+| `SUPABASE_URL`              | Supabase Settings                                | Backend database connection           |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Settings                                | **SECRET** Admin access for crawler   |
+| `OPENROUTER_API_KEY`        | [OpenRouter](https://openrouter.ai/)             | **SECRET** AI analysis credits        |
+| `GEMINI_API_KEY`            | [Google AI Studio](https://aistudio.google.com/) | **SECRET** Fallback AI analysis       |
+| `FORM_SECRET`               | Custom String                                    | **SECRET** Security for support forms |
 
-2. **Install frontend dependencies**:
+---
 
-   ```sh
-   npm i
-   npm run dev
-   ```
+## 🚀 How to Make Everything Working Fine (Production)
 
-3. **Install backend dependencies**:
+Follow these steps to ensure a flawless production environment:
 
-   ```sh
-   cd backend
-   pip install -r requirements.txt
-   python -m uvicorn main:app --reload
-   ```
+### 1. Configure GitHub Secrets (For CI/CD Gate)
 
-4. **Set up environment variables** (see `.env.example`)
+The "Prod-Guard" gate in your CI/CD pipeline needs these variables to run readiness tests.
 
-### For Production
+1. Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
+2. Click **New repository secret** for each of the following:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `OPENROUTER_API_KEY`
+   - `FORM_SECRET`
 
-**⚠️ See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for step-by-step deployment instructions**
+### 2. Configure Vercel (Frontend)
 
-In summary:
+1. Go to your Vercel Project -> **Settings** -> **Environment Variables**.
+2. Add:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_BACKEND_API_URL` (Set this to your Render or Modal URL)
 
-1. Deploy frontend to Vercel
-2. Deploy backend to Render
-3. Configure Supabase database
-4. Set environment variables
-5. Done! 🎉
+### 3. Configure Modal (Scrapers)
+
+If you are using Modal for serverless scraping:
+
+1. Run `modal secret create pickspy-secrets` in your terminal.
+2. Add all secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, `INSTAGRAM_USERNAME`, `INSTAGRAM_PASSWORD`, `FORM_SECRET`.
+
+### 4. Configure Render (Backend API)
+
+1. Go to your Render Dashboard -> **Environment**.
+2. Add all backend secrets listed in the table above.
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 pickspyv2/
-├── src/                    # React frontend
-│   ├── components/         # React components
-│   ├── pages/             # Page components
-│   ├── contexts/          # Context providers
-│   ├── lib/               # Utility functions
-│   └── App.tsx            # Main app component
-├── backend/               # Python backend
-│   ├── main.py            # FastAPI app
-│   ├── scrapers/          # Scraping logic
-│   ├── requirements.txt    # Python dependencies
-│   └── supabase_utils.py  # Database utilities
-├── supabase_schema.sql    # Database schema
-├── package.json           # Frontend dependencies
-└── README.md              # This file
+├── src/                    # React Frontend
+├── backend/               # Python FastAPI & Scrapers
+├── prod-guard/            # Production Readiness CLI
+├── tests/                 # End-to-end readiness tests
+├── .github/workflows/     # CI/CD (GitHub Actions)
+└── prod-guard.yml         # Readiness Policy
 ```
 
 ---
 
-## 🔧 How can I edit this code?
+**Made with ❤️ by PickSpy Team**
 
-**Use your preferred IDE**:
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository
-git clone https://github.com/DISHA-ENTREXT3/pickspyv2.git
-
-# Step 2: Navigate to the project directory
-cd pickspyv2
-
-# Step 3: Install dependencies
-npm i
-
-# Step 4: Start the development server
-npm run dev
-```
-
-**Edit directly in GitHub**:
-
-- Navigate to any file
-- Click the "Edit" button (pencil icon) at the top right
-- Make your changes and commit
-
-**Use GitHub Codespaces**:
-
-- Click "Code" → "Codespaces" → "New codespace"
-- Edit files and commit changes
-
----
-
-## 🛠 Tech Stack
-
-This project uses:
-
-## 🛠 Tech Stack
-
-This project uses:
-
-**Frontend**:
-
-- React 18
-- TypeScript
-- Vite
-- TailwindCSS
-- Shadcn UI components
-
-**Backend**:
-
-- Python 3
-- FastAPI
-- PostgreSQL (via Supabase)
-- BeautifulSoup4 (scraping)
-- Pydantic (validation)
-
-**External Services**:
-
-- Supabase (database & auth)
-- Claude AI (analysis)
-- ScrapingDog (web scraping)
-
----
-
-## 📦 API Endpoints
-
-### Public Endpoints
-
-- `GET /api/products` - Get all products
-- `GET /api/products/:id` - Get product details
-- `GET /api/trends` - Get trending products
-
-### Authenticated Endpoints
-
-- `POST /api/save-product` - Save product to watchlist
-- `POST /api/compare` - Compare products
-- `GET /api/user/activity` - Get user activity
-- `GET /api/user/watchlist` - Get saved products
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env.local` file with these variables:
-
-```env
-# Frontend (Vite)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
-VITE_BACKEND_API_URL=https://pickspy-backend.onrender.com
-
-# Backend (Python)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-SCRAPINGDOG_API_KEY=your_api_key
-```
-
-**For production (Vercel/Render/Supabase):**
-
-- Use production Supabase URL (not localhost)
-- Set VITE_BACKEND_API_URL to your Render backend URL
-- Store all keys in environment variables, never commit `.env` files
-
-See `.env.example` for the full list.
-
----
-
-## 📊 Database Schema
-
-The project uses Supabase PostgreSQL with these tables:
-
-- `products` - Product catalog
-- `user_activity` - User interactions
-- `saved_products` - Watchlisted products
-- `comparisons` - Product comparisons
-
-Run [SUPABASE_SETUP_FINAL.sql](SUPABASE_SETUP_FINAL.sql) to initialize the database.
-
----
-
-## 🧪 Testing
-
-```sh
-# Run tests
-npm run test
-
-# Watch mode
-npm run test:watch
-
-# Lint
-npm run lint
-```
-
----
-
-## 🛡️ Production Readiness (prod-guard)
-
-PickSpy uses **prod-guard** to ensure the application is safe for deployment.
-
-### Features
-
-- **CORS Scanning**: Detects open or unsafe origin configurations.
-- **Rate-Limit Verification**: Ensures protection against brute-force/spam.
-- **CI/CD Gating**: Blocks unsafe builds in GitHub Actions.
-
-### Usage
-
-```bash
-# Run all checks
-npx prod-guard run
-
-# CI Mode (Fast-fail)
-npx prod-guard run --ci
-```
-
----
-
----
-
-## 🚀 Deployment
-
-### Quick Deploy (Recommended)
-
-Follow [QUICK_DEPLOY.md](QUICK_DEPLOY.md) - deploy in 30 minutes!
-
-### Detailed Instructions
-
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for comprehensive steps.
-
-### Status & Checklist
-
-Check [PROJECT_STATUS.md](PROJECT_STATUS.md) for current status and verification checklists.
-
----
-
-## 📈 Performance
-
-- Frontend: Served globally via Vercel CDN
-- Backend: Serverless Python on Render
-- Database: Managed PostgreSQL on Supabase
-- Caching: Optimized indexes and queries
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/DISHA-ENTREXT3/pickspyv2/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/DISHA-ENTREXT3/pickspyv2/discussions)
-
----
-
-**Made with ❤️ by DISHA-ENTREXT3**
-
-- React
-- shadcn-ui
-- Tailwind CSS
+- [Enterprise Extraction](https://www.entrext.in)
+- [Linktree](https://linktr.ee/entrext.pro)

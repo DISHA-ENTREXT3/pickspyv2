@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 # Load env variables (Production)
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://fogfnvewxeqxqtsrclbd.supabase.co")
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("VITE_SUPABASE_ANON_KEY")
 
 # If still missing, fail or use a placeholder (no hardcoded keys in repo)
