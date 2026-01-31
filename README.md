@@ -39,17 +39,16 @@ To ensure your API keys and secrets are never leaked, PickSpy uses environment v
 
 ### Required Variables
 
-| Variable                    | Source                                           | Purpose                                |
-| --------------------------- | ------------------------------------------------ | -------------------------------------- |
-| `VITE_SUPABASE_URL`         | Supabase Settings                                | Frontend database connection           |
-| `VITE_SUPABASE_ANON_KEY`    | Supabase Settings                                | Frontend public access                 |
-| `VITE_BACKEND_API_URL`      | Render/Modal                                     | URL of your deployed backend           |
-| `SUPABASE_URL`              | Supabase Settings                                | Backend database connection            |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Settings                                | **SECRET** Admin access for crawler    |
-| `OPENROUTER_API_KEY`        | [OpenRouter](https://openrouter.ai/)             | **SECRET** AI analysis credits         |
-| `GEMINI_API_KEY`            | [Google AI Studio](https://aistudio.google.com/) | **SECRET** Fallback AI analysis        |
-| `FORM_SECRET`               | Support Project                                  | **SECRET** Security for support forms  |
-| `SUPPORT_WEBHOOK_URL`       | https://ldewwmfkymjmokopulys.supabase.co/...     | **SECRET** URL for support submissions |
+| Variable                    | Source                                           | Purpose                               |
+| --------------------------- | ------------------------------------------------ | ------------------------------------- |
+| `VITE_SUPABASE_URL`         | Supabase Settings                                | Frontend database connection          |
+| `VITE_SUPABASE_ANON_KEY`    | Supabase Settings                                | Frontend public access                |
+| `VITE_BACKEND_API_URL`      | Render/Modal                                     | URL of your deployed backend          |
+| `SUPABASE_URL`              | Supabase Settings                                | Backend database connection           |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Settings                                | **SECRET** Admin access for crawler   |
+| `OPENROUTER_API_KEY`        | [OpenRouter](https://openrouter.ai/)             | **SECRET** AI analysis credits        |
+| `GEMINI_API_KEY`            | [Google AI Studio](https://aistudio.google.com/) | **SECRET** Fallback AI analysis       |
+| `FORM_SECRET`               | Custom String                                    | **SECRET** Security for support forms |
 
 ---
 

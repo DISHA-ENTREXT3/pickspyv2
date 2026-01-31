@@ -31,21 +31,20 @@ We use Modal for Python serverless functions, including scrapers and the API pro
 
     ```bash
     modal secret create pickspy-secrets \
-    SUPABASE_URL=https://your-project.supabase.co \
+    SUPABASE_URL=https://fogfnvewxeqxqtsrclbd.supabase.co \
     SUPABASE_SERVICE_ROLE_KEY=your_service_role_key \
     OPENROUTER_API_KEY=your_openrouter_key \
-    FORM_SECRET=your_secure_form_secret_here \
-    SUPPORT_WEBHOOK_URL=https://ldewwmfkymjmokopulys.supabase.co/functions/v1/submit-support
+    FORM_SECRET=of4BOyqAGkV6S5pvpQnjXcuVN9VXPfPyuI9CBNALojxCRRFyDNbbEpSumZz5pdRz9HhTpS
     ```
 
-    _(Note: `FORM_SECRET` and `SUPPORT_WEBHOOK_URL` are for the separate support project)_
+    _(Note: `FORM_SECRET` is critical for secure support ticket submission)_
 
 3.  **Deploy:**
     ```bash
     modal deploy backend/modal_scraper.py
     ```
 4.  **Get API URL:**
-    Your Backend API URL will be displayed in the terminal.
+    Your Backend API URL is: `https://disha-entrext3--pickspy-scrapers-api.modal.run`
 
 ## 3. Frontend Deployment (Vercel)
 
@@ -64,11 +63,11 @@ We use Modal for Python serverless functions, including scrapers and the API pro
 3.  **Environment Variables (Vercel Project Settings):**
     Add the following variables:
 
-    | Variable Name            | Value                                  |
-    | ------------------------ | -------------------------------------- |
-    | `VITE_SUPABASE_URL`      | `https://your-project.supabase.co`     |
-    | `VITE_SUPABASE_ANON_KEY` | `your_supabase_anon_key`               |
-    | `VITE_BACKEND_API_URL`   | **The Modal URL you copied in Step 2** |
+    | Variable Name | Value |
+    |Str|Str|
+    | `VITE_SUPABASE_URL` | `https://fogfnvewxeqxqtsrclbd.supabase.co` |
+    | `VITE_SUPABASE_ANON_KEY` | `your_supabase_anon_key` |
+    | `VITE_BACKEND_API_URL` | **The Modal URL you copied in Step 2** |
 
 4.  **Deploy:**
     Click "Deploy".
@@ -76,6 +75,6 @@ We use Modal for Python serverless functions, including scrapers and the API pro
 ## 4. Verification
 
 - Open your Vercel app URL.
-- Browse products.
+- Go to `/blog` -> All images should load.
 - Click the "Support" widget (bottom right). Submit a ticket. It should succeed.
-- Check Supabase to ensure data is syncing.
+- Check Supabase `saved_products` table to ensure data is syncing.
