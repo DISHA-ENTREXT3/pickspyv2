@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, Minus, MessageCircle, Clock, ArrowUpRight, Eye, Check, ShoppingCart, Info, Star } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MessageCircle, Clock, ArrowUpRight, Eye, Check, ShoppingCart, Info, Star, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -77,6 +78,14 @@ export const ProductCard = ({
     if (product.saturationScore <= 40) return 'text-signal-bullish';
     if (product.saturationScore <= 70) return 'text-signal-caution';
     return 'text-signal-bearish';
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/product/${product.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success('Link copied!');
+    });
   };
 
   return (
@@ -259,6 +268,15 @@ export const ProductCard = ({
             </Badge>
           </div>
           <div className="flex items-center gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-7 w-7 p-0"
+                title="Copy product link"
+                onClick={handleShare}
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </Button>
             <Button 
               variant="ghost" 
               size="sm"

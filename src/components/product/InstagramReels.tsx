@@ -61,6 +61,17 @@ export const InstagramReels = ({ productName, productImage, externalPosts }: Ins
         { id: 'c5', username: 'ecom_warrior', text: 'This is crushing it for me lately.', likes: 890 },
         { id: 'c6', username: 'biz_owner', text: 'Quality is much better than previous models.', likes: 210 },
       ]
+    },
+    {
+      id: 'r4',
+      thumbnail: 'https://images.pexels.com/photos/5926444/pexels-photo-5926444.jpeg?auto=compress&cs=tinysrgb&w=800',
+      likes: '340K',
+      comments: '5.1K',
+      caption: `Testing out the viral ${productName} you've seen everywhere. Is it worth the hype? 🤷‍♂️ #trending #viralvideo`,
+      topComments: [
+        { id: 'c7', username: 'hype_beast', text: 'Looks like a solid winner for Q1.', likes: 1100 },
+        { id: 'c8', username: 'consumer_rights', text: 'Make sure to check the shipping times before ordering.', likes: 45 },
+      ]
     }
   ];
 

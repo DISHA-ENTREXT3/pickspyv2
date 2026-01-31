@@ -200,6 +200,15 @@ const ProductDetail = () => {
     return <Minus className="h-5 w-5 text-signal-neutral" />;
   };
 
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success('Product link copied to clipboard!');
+    }).catch(() => {
+      toast.error('Failed to copy link');
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -246,7 +255,12 @@ const ProductDetail = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 border-white/5 bg-white/5">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 border-white/5 bg-white/5"
+              onClick={handleShare}
+            >
               <Share2 className="h-4 w-4" />
               Share
             </Button>

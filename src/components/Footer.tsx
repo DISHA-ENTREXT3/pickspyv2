@@ -62,6 +62,15 @@ export const Footer = () => {
                   <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z" />
                 </svg>
               </a>
+              <a 
+                href="https://linktr.ee/entrext.pro" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-10 h-10 rounded-full bg-secondary/50 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all cursor-pointer border border-border/50"
+                title="Linktree"
+              >
+                <LinkIcon className="h-5 w-5" />
+              </a>
             </div>
 
             <a 
