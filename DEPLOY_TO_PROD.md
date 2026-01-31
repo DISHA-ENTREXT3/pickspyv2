@@ -11,6 +11,7 @@ Ensure your Supabase project is active and you have the following credentials:
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 Your Supabase project should also have the `submit-support` Edge Function deployed.
+_No additional schema changes are required for this update._
 
 ## 2. Backend Deployment (Modal)
 
@@ -20,8 +21,10 @@ We use Modal for Python serverless functions, including scrapers and the API pro
 
     ```bash
     pip install modal
-    modal setup
+    python -m modal setup
     ```
+
+    _(If `modal` command is not found, use `python -m modal` instead)_
 
 2.  **Create Secrets:**
     Create a secret named `pickspy-secrets` in Modal dashboard or via CLI:
@@ -41,7 +44,7 @@ We use Modal for Python serverless functions, including scrapers and the API pro
     modal deploy backend/modal_scraper.py
     ```
 4.  **Get API URL:**
-    After deployment, Modal will provide a web endpoint URL (e.g., `https://your-username--pickspy-scrapers-api.modal.run`). **Copy this URL.**
+    Your Backend API URL is: `https://disha-entrext3--pickspy-scrapers-api.modal.run`
 
 ## 3. Frontend Deployment (Vercel)
 

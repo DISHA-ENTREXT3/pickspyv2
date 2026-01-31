@@ -58,14 +58,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let mounted = true;
 
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      if (session) {
-        setUser(session.user);
-        fetchProfile(session.user.id);
-      }
-      setIsLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        if (session) {
+          setUser(session.user);
+          fetchProfile(session.user.id);
+        }
+      })
+      .catch((err) => {
+        console.error('[Auth] Session check failed:', err);
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
 
     // Unified Auth Listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -73,17 +79,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       console.log(`[Auth] Event: ${event}`);
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+      try {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        } else if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+          setUser(null);
+          setProfile(null);
         }
-      } else if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-        setUser(null);
-        setProfile(null);
+      } catch (err) {
+        console.error('[Auth] Auth state change error:', err);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     });
 
     return () => {

@@ -10,12 +10,12 @@ from dotenv import load_dotenv
 # Load env variables (Production)
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-SUPABASE_URL = "https://fogfnvewxeqxqtsrclbd.supabase.co"
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://fogfnvewxeqxqtsrclbd.supabase.co")
 SUPABASE_KEY = os.environ.get("VITE_SUPABASE_ANON_KEY")
 
+# If still missing, fail or use a placeholder (no hardcoded keys in repo)
 if not SUPABASE_KEY:
-    # Explicit backup key from context if env missing
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZvZ2ZudmV3eGVxeHF0c3JjbGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MjI3MTksImV4cCI6MjA4NDQ5ODcxOX0.a1P7RLDzoz-v4aphUABMs5HLeIHz0j2cxYWluA15j34"
+    print("⚠️  VITE_SUPABASE_ANON_KEY not found in environment!")
 
 # REST API Headers
 HEADERS = {

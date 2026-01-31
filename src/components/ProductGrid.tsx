@@ -134,7 +134,7 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
 
       return true;
     });
-  }, [products, filters]);
+  }, [products, filters, selectedDate]);
 
   return (
     <>
@@ -183,7 +183,12 @@ export const ProductGrid = ({ onAnalyze }: ProductGridProps) => {
           </div>
 
           {/* Product grid */}
-          {filteredProducts.length > 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <RefreshCw className="h-10 w-10 animate-spin text-primary mb-4" />
+              <p className="text-muted-foreground animate-pulse">Scanning market intelligence...</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <MemoizedProductCard 

@@ -9,7 +9,8 @@ app = modal.App("pickspy-scrapers")
 # Define the image with necessary dependencies
 # We copy the local backend directory to the remote container so it has access to the spiders
 image = (
-    modal.Image.debian_slim()
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("libxml2-dev", "libxslt-dev", "libjpeg-dev", "zlib1g-dev", "gcc", "g++")
     .pip_install(
         "scrapy",
         "supabase",
@@ -26,7 +27,7 @@ image = (
         "pillow",
         "fastapi"
     )
-    .add_local_dir("d:/PickSpy-main/backend", remote_path="/root/backend", ignore=["venv", "__pycache__", ".git", ".env"])
+    .add_local_dir(os.path.dirname(os.path.abspath(__file__)), remote_path="/root/backend", ignore=["venv", "__pycache__", ".git", ".env"])
 )
 
 @app.function(
