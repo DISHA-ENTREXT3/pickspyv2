@@ -1,0 +1,4 @@
+{
+  "requestsPerMinute": 60,
+  "burst": 10
+}

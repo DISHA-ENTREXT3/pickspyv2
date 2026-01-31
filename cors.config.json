@@ -1,0 +1,4 @@
+{
+  "allowedOrigins": ["https://pickspyv2.vercel.app"],
+  "allowCredentials": false
+}

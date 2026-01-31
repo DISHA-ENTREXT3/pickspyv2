@@ -1,0 +1,7 @@
+{
+  "corsConfig": "cors.config.json",
+  "rateLimitConfig": "rate-limit.config.json",
+  "networkConfig": "http-client.config.json",
+  "loadResult": "load-test-result.json",
+  "securityReport": "zap-report.json"
+}

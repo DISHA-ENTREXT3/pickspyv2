@@ -38,18 +38,21 @@
 ### For Development
 
 1. **Clone the repository**:
+
    ```sh
    git clone https://github.com/DISHA-ENTREXT3/pickspyv2.git
    cd pickspyv2
    ```
 
 2. **Install frontend dependencies**:
+
    ```sh
    npm i
    npm run dev
    ```
 
 3. **Install backend dependencies**:
+
    ```sh
    cd backend
    pip install -r requirements.txt
@@ -63,6 +66,7 @@
 **⚠️ See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for step-by-step deployment instructions**
 
 In summary:
+
 1. Deploy frontend to Vercel
 2. Deploy backend to Render
 3. Configure Supabase database
@@ -137,6 +141,7 @@ This project uses:
 This project uses:
 
 **Frontend**:
+
 - React 18
 - TypeScript
 - Vite
@@ -144,6 +149,7 @@ This project uses:
 - Shadcn UI components
 
 **Backend**:
+
 - Python 3
 - FastAPI
 - PostgreSQL (via Supabase)
@@ -151,6 +157,7 @@ This project uses:
 - Pydantic (validation)
 
 **External Services**:
+
 - Supabase (database & auth)
 - Claude AI (analysis)
 - ScrapingDog (web scraping)
@@ -160,11 +167,13 @@ This project uses:
 ## 📦 API Endpoints
 
 ### Public Endpoints
+
 - `GET /api/products` - Get all products
 - `GET /api/products/:id` - Get product details
 - `GET /api/trends` - Get trending products
 
 ### Authenticated Endpoints
+
 - `POST /api/save-product` - Save product to watchlist
 - `POST /api/compare` - Compare products
 - `GET /api/user/activity` - Get user activity
@@ -189,6 +198,7 @@ SCRAPINGDOG_API_KEY=your_api_key
 ```
 
 **For production (Vercel/Render/Supabase):**
+
 - Use production Supabase URL (not localhost)
 - Set VITE_BACKEND_API_URL to your Render backend URL
 - Store all keys in environment variables, never commit `.env` files
@@ -225,15 +235,42 @@ npm run lint
 
 ---
 
+## 🛡️ Production Readiness (prod-guard)
+
+PickSpy uses **prod-guard** to ensure the application is safe for deployment.
+
+### Features
+
+- **CORS Scanning**: Detects open or unsafe origin configurations.
+- **Rate-Limit Verification**: Ensures protection against brute-force/spam.
+- **CI/CD Gating**: Blocks unsafe builds in GitHub Actions.
+
+### Usage
+
+```bash
+# Run all checks
+npx prod-guard run
+
+# CI Mode (Fast-fail)
+npx prod-guard run --ci
+```
+
+---
+
+---
+
 ## 🚀 Deployment
 
 ### Quick Deploy (Recommended)
+
 Follow [QUICK_DEPLOY.md](QUICK_DEPLOY.md) - deploy in 30 minutes!
 
 ### Detailed Instructions
+
 See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for comprehensive steps.
 
 ### Status & Checklist
+
 Check [PROJECT_STATUS.md](PROJECT_STATUS.md) for current status and verification checklists.
 
 ---
@@ -271,7 +308,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **Made with ❤️ by DISHA-ENTREXT3**
+
 - React
 - shadcn-ui
 - Tailwind CSS
-

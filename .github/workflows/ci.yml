@@ -34,3 +34,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Production Readiness Gate
+        run: npx prod-guard run --ci
