@@ -27,6 +27,7 @@ export const PLANS = [
     period: '/month',
     icon: Zap,
     id: 'pro',
+    checkoutUrl: 'https://checkout.dodopayments.com/buy/pdt_0NY3IHReMQC9KOCw0JLrM?quantity=1',
     features: [
       { text: 'Everything in Free', included: true },
       { text: 'Unlimited product views', included: true },
@@ -46,6 +47,7 @@ export const PLANS = [
     period: '/month',
     icon: Crown,
     id: 'business',
+    checkoutUrl: 'https://checkout.dodopayments.com/buy/pdt_0NY3ILPFd7lhczuaQ59Ld?quantity=1',
     features: [
       { text: 'Everything in Pro', included: true },
       { text: 'Unlimited AI analyses', included: true },

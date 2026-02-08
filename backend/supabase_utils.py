@@ -79,23 +79,23 @@ class SupabaseDB:
                     "created_at": datetime.now().isoformat()
                 })
             
-            # Batch insert in chunks of 50 (changed from upsert to allow history)
+            # Batch upsert in chunks of 50 to handle already existing products
             total_saved = 0
             for i in range(0, len(data), 50):
                 chunk = data[i:i+50]
                 
-                # Null checks (no deduplication here to keep history)
+                # Ensure all items have an ID
                 clean_chunk = [item for item in chunk if item.get("id")]
                 
                 if not clean_chunk: continue
 
-                print(f"📦 Inserting snapshot chunk of {len(clean_chunk)} items...")
+                print(f"📦 Upserting snapshot chunk of {len(clean_chunk)} items...")
                 try:
-                    # We use insert() now to allow multiple versions of same product id
-                    response = self.client.table("products").insert(clean_chunk).execute()
+                    # Use upsert to update existing products by ID
+                    response = self.client.table("products").upsert(clean_chunk, on_conflict="id").execute()
                     total_saved += len(clean_chunk)
                 except Exception as inner_e:
-                    print(f"❌ Chunk Insert Failed: {inner_e}")
+                    print(f"❌ Chunk Upsert Failed: {inner_e}")
                     continue
             
             return {
@@ -173,6 +173,18 @@ class SupabaseDB:
             print(f"Error tracking activity: {e}")
             return False
     
+    def get_user_tier(self, user_id: str) -> str:
+        """Fetch the subscription tier for a user"""
+        if not self.is_connected() or not user_id:
+            return "Free"
+        try:
+            response = self.client.table("profiles").select("subscription_tier").eq("id", user_id).single().execute()
+            if response.data:
+                return response.data.get("subscription_tier", "Free")
+            return "Free"
+        except:
+            return "Free"
+
     def save_product(self, user_id: str, product_id: str) -> Dict[str, Any]:
         """
         Save a product to user's favorites

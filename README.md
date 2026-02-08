@@ -4,90 +4,70 @@
 
 ---
 
-## 🎯 Quick Links
-
-- **🛡️ [PROD-GUARD READINESS](prod-guard/README.md)** - Security & Deployment Gate
-- **🚀 [QUICK DEPLOY GUIDE](QUICK_DEPLOY.md)** - Deploy in 30 minutes
-- **📚 [DEPLOYMENT GUIDE](DEPLOYMENT_GUIDE.md)** - Detailed deployment instructions
-- **🗄️ [DATABASE SETUP](SUPABASE_SETUP_FINAL.sql)** - Supabase configuration
-
----
-
 ## ✨ Features
 
 - 🔍 **Smart Product Discovery**: Find trending products before they become mainstream.
-- 🤖 **AI-Enhanced Analysis**: Powered by Google Gemini & OpenRouter for deep market insights.
+- 🤖 **AI-Enhanced Analysis**: Powered by Google Gemini 2.5 Flash Lite via Pollinations.ai.
 - 📊 **Real-time Market Signals**: Velocity scores, saturation analysis, and growth tracking.
-- 💬 **Reddit Sentiment Tracking**: Native integration to monitor community discussions and hype.
-- 🎥 **Social Proof Integration**: Viral Instagram reels and social signals directly on product pages.
-- 🛡️ **Production-Ready**: Built-in "Prod-Guard" security gates to prevent unsafe deployments.
+- 💬 **Reddit Sentiment Tracking**: Native integration to monitor community discussions.
+- 🎥 **Social Proof Integration**: Viral Instagram reels and social signals.
+- 🛡️ **Multi-Cloud Architecture**: Optimized for performance and security using industry-leading platforms.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack & Platforms
 
-**Frontend**: React 18, TypeScript, Vite, TailwindCSS, Shadcn UI
-**Backend**: Python 3, FastAPI, Modal (Serverless Scrapers)
-**Database**: PostgreSQL (via Supabase)
-**AI**: Google Gemini, OpenRouter (Llama 3.1 Sonar)
+| Component          | Platform                                | Description                               |
+| :----------------- | :-------------------------------------- | :---------------------------------------- |
+| **Frontend**       | [Vercel](https://vercel.com)            | React 18, TypeScript, Vite                |
+| **Backend**        | [Modal](https://modal.com)              | Python FastAPI, Serverless Scrapers       |
+| **Main Database**  | [Supabase (A)](https://supabase.com)    | PostgreSQL, Auth, Real-time Data          |
+| **Support System** | [Supabase (B)](https://supabase.com)    | Dedicated account for Concierge & Tickets |
+| **AI Engine**      | [Pollinations](https://pollinations.ai) | Google Gemini 2.5 Flash Lite              |
 
 ---
 
-## 🔐 Security & Environment Variables
+## 🔐 Environment Variables
 
-To ensure your API keys and secrets are never leaked, PickSpy uses environment variables exclusively. **Never commit your `.env` file.**
+PickSpy uses environment variables to manage connections across different accounts. **Never commit your `.env` file.**
 
 ### Required Variables
 
-| Variable                    | Source                                           | Purpose                               |
-| --------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `VITE_SUPABASE_URL`         | Supabase Settings                                | Frontend database connection          |
-| `VITE_SUPABASE_ANON_KEY`    | Supabase Settings                                | Frontend public access                |
-| `VITE_BACKEND_API_URL`      | Render/Modal                                     | URL of your deployed backend          |
-| `SUPABASE_URL`              | Supabase Settings                                | Backend database connection           |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Settings                                | **SECRET** Admin access for crawler   |
-| `OPENROUTER_API_KEY`        | [OpenRouter](https://openrouter.ai/)             | **SECRET** AI analysis credits        |
-| `GEMINI_API_KEY`            | [Google AI Studio](https://aistudio.google.com/) | **SECRET** Fallback AI analysis       |
-| `FORM_SECRET`               | Custom String                                    | **SECRET** Security for support forms |
+| Variable                    | Platform | Purpose                                                          |
+| :-------------------------- | :------- | :--------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`         | Vercel   | Main DB (Account A) URL                                          |
+| `VITE_SUPABASE_ANON_KEY`    | Vercel   | Main DB (Account A) Public Key                                   |
+| `VITE_BACKEND_API_URL`      | Vercel   | Your [Modal](https://modal.com/apps/disha-entrext3/main) API URL |
+| `SUPABASE_URL`              | Modal    | Main DB (Account A) connection                                   |
+| `SUPABASE_SERVICE_ROLE_KEY` | Modal    | Main DB (Account A) Admin access                                 |
+| `SUPPORT_WEBHOOK_URL`       | Modal    | **Support DB (Account B)** Edge Function URL                     |
+| `FORM_SECRET`               | Modal    | **Support DB (Account B)** Function Secret                       |
+| `POLLINATIONS_API_KEY`      | Modal    | AI Analysis credits                                              |
 
 ---
 
-## 🚀 How to Make Everything Working Fine (Production)
+## 🚀 Setup Guides
 
-Follow these steps to ensure a flawless production environment:
+### ⚙️ 1. Main Database (Supabase Account A)
 
-### 1. Configure GitHub Secrets (For CI/CD Gate)
+1. Create a project on your primary Supabase account.
+2. Execute `SUPABASE_SETUP_FINAL.sql` in the SQL Editor.
+3. Note the Project URL and `service_role` key.
 
-The "Prod-Guard" gate in your CI/CD pipeline needs these variables to run readiness tests.
+### ⚙️ 2. Support System (Supabase Account B)
 
-1. Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-2. Click **New repository secret** for each of the following:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `OPENROUTER_API_KEY`
-   - `FORM_SECRET`
+1. Use your **second Supabase account** for support ticket handling.
+2. Deploy the support edge function and note its `submit-support` URL.
+3. This adds a layer of isolation and security to your support data.
 
-### 2. Configure Vercel (Frontend)
+### 🐍 3. Backend (Modal)
 
-1. Go to your Vercel Project -> **Settings** -> **Environment Variables**.
-2. Add:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-   - `VITE_BACKEND_API_URL` (Set this to your Render or Modal URL)
+1. Run `modal secret create pickspy-secrets` and add all secrets (Main DB, Support DB, and AI).
+2. Deploy the backend: `modal deploy backend/modal_scraper.py`.
 
-### 3. Configure Modal (Scrapers)
+### ⚛️ 4. Frontend (Vercel)
 
-If you are using Modal for serverless scraping:
-
-1. Run `modal secret create pickspy-secrets` in your terminal.
-2. Add all secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, `INSTAGRAM_USERNAME`, `INSTAGRAM_PASSWORD`, `FORM_SECRET`.
-
-### 4. Configure Render (Backend API)
-
-1. Go to your Render Dashboard -> **Environment**.
-2. Add all backend secrets listed in the table above.
+1. Add `VITE_SUPABASE_URL` (Account A), `VITE_SUPABASE_ANON_KEY` (Account A), and `VITE_BACKEND_API_URL` (Modal URL) to Vercel environment variables.
 
 ---
 
@@ -95,17 +75,12 @@ If you are using Modal for serverless scraping:
 
 ```text
 pickspyv2/
-├── src/                    # React Frontend
-├── backend/               # Python FastAPI & Scrapers
+├── src/                    # React Frontend (Vercel)
+├── backend/               # Python FastAPI & Scrapers (Modal)
 ├── prod-guard/            # Production Readiness CLI
-├── tests/                 # End-to-end readiness tests
-├── .github/workflows/     # CI/CD (GitHub Actions)
-└── prod-guard.yml         # Readiness Policy
+└── .github/workflows/     # CI/CD Gates
 ```
 
 ---
 
 **Made with ❤️ by PickSpy Team**
-
-- [Enterprise Extraction](https://www.entrext.in)
-- [Linktree](https://linktr.ee/entrext.pro)

@@ -1,2 +1,0 @@
-Set-Location D:\PickSpy-main\backend
-& "D:\PickSpy-main\backend\venv\Scripts\python.exe" -m uvicorn main:app --host 0.0.0.0 --port 8000

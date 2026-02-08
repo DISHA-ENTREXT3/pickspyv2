@@ -2,6 +2,10 @@ import modal
 import os
 import sys
 import subprocess
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request
 
 # Define the Modal App
 app = modal.App("pickspy-scrapers")
@@ -127,7 +131,7 @@ def enrich_new_products():
                     db.client.table("products").update({
                         "detailed_analysis": analysis,
                         "sentiment_score": analysis.get("viability_score", 70) # Map to existing column
-                    }).eq("record_id", p["record_id"]).execute()
+                    }).eq("id", p["id"]).execute()
                 else:
                     print(f"⚠️ No analysis results for {p['name']}", flush=True)
             except Exception as e:
@@ -227,10 +231,51 @@ class SupportRequest(BaseModel):
 async def root():
     return {"message": "PickSpy Serverless API is running on Modal!", "status": "online"}
 
+@web_app.post("/api/webhook/dodopayments")
+async def dodo_webhook(request: Request):
+    """Handle Dodo Payments Webhook for Subscription Upgrades"""
+    payload = await request.json()
+    event_type = payload.get("event_type", "order.paid")
+    data = payload.get("data", {})
+    
+    # Extract User ID from the client_reference_id we passed during checkout
+    user_id = data.get("client_reference_id")
+    product_id = data.get("product_id")
+    
+    if not user_id or not product_id:
+        return {"status": "ignored", "reason": "missing user or product metadata"}
+    
+    # Map Dodo Product IDs to PickSpy Plan Names
+    PLAN_MAPPING = {
+        "pdt_0NY3IHReMQC9KOCw0JLrM": "Pro",
+        "pdt_0NY3ILPFd7lhczuaQ59Ld": "Business"
+    }
+    
+    tier = PLAN_MAPPING.get(product_id)
+    if not tier:
+        return {"status": "ignored", "reason": "unknown product id"}
+        
+    print(f"💰 Webhook: Upgrading user {user_id} to {tier}...")
+    
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    try:
+        db = get_db()
+        # Update user tier in profiles table
+        db.client.table("profiles").update({"subscription_tier": tier}).eq("id", user_id).execute()
+        return {"status": "success", "user": user_id, "tier": tier}
+    except Exception as e:
+        print(f"❌ Webhook Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update subscription")
+
 @web_app.post("/refresh")
 @web_app.post("/deep-scan")
-async def trigger_refresh():
+async def trigger_refresh(request: Request):
     """Trigger daily scrapers on demand and return current data"""
+    # Optional: Restricted to Pro/Business only if triggered from UI
+    # For now, let's keep it open but spawn daily anyway
+    
     scheduled_scrapers.spawn()
     
     import sys
@@ -256,8 +301,30 @@ async def get_analysis(product_name: str):
 
 @web_app.post("/api/ai/analyze")
 async def analyze_ai(request: AnalyzeRequest):
-    """AI Analysis endpoint"""
+    """AI Analysis endpoint with Plan-based gating"""
+    import sys
+    sys.path.append("/root/backend")
+    from supabase_utils import get_db
+    
+    # Check Plan / Usage
+    if request.userId:
+        db = get_db()
+        tier = db.get_user_tier(request.userId)
+        
+        # Simple daily limit check for Free users
+        if tier == "Free":
+            today = datetime.now().date().isoformat()
+            activity = db.client.table("user_activity").select("id").eq("user_id", request.userId).eq("activity_type", "analyze").gte("created_at", today).execute()
+            if len(activity.data) >= 2:
+                raise HTTPException(status_code=403, detail="Free tier limit reached (2/day). Upgrade to Pro for unlimited AI insights!")
+
+    print(f"🧠 AI Analysis for: {request.productName} (Tier: {tier if 'tier' in locals() else 'Unknown'})")
     result = run_product_analysis_on_modal.remote(request.productName)
+    
+    # Track the activity if user_id is present
+    if request.userId and result.get("success"):
+        db.track_user_activity(request.userId, "analyze", metadata={"product": request.productName})
+        
     return result
 
 @web_app.post("/support")
@@ -265,12 +332,8 @@ async def submit_support(payload: SupportRequest):
     import os
     import requests
     
-    SUPABASE_SUPPORT_URL = "https://ldewwmfkymjmokopulys.supabase.co/functions/v1/submit-support"
+    SUPABASE_SUPPORT_URL = os.environ.get("SUPPORT_WEBHOOK_URL", "https://your-project.supabase.co/functions/v1/submit-support")
     FORM_SECRET = os.environ.get("FORM_SECRET")
-    
-    # If explicit URL is provided in env, use it
-    if os.environ.get("SUPPORT_WEBHOOK_URL"):
-        SUPABASE_SUPPORT_URL = os.environ.get("SUPPORT_WEBHOOK_URL")
 
     try:
         response = requests.post(

@@ -665,7 +665,7 @@ async def get_product_analysis(product_name: str):
 
 @app.post("/api/ai/analyze")
 async def analyze_ai(request: AnalyzeRequest):
-    """Analyze product viability using multiple AI layers (Gemini/OpenRouter)"""
+    """Analyze product viability using Pollinations.ai (Gemini 2.5 Flash Lite)"""
     try:
         print(f"🧠 Backend AI Analysis requested for: {request.productName}")
         result = get_ai_analysis(request.productName, request.price, request.region)

@@ -8,15 +8,14 @@ import time
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from bs4 import BeautifulSoup
+from urllib.parse import quote
 
 # Import native scrapers
-# Import native scrapers
-# Assuming running from backend/ directory where native_scrapers.py resides
 try:
-    from native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
+    from native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, POLLINATIONS_API_KEY, AI_MODEL
 except ImportError:
     # Fallback for relative import if running as package
-    from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, OPENROUTER_API_KEY, AI_MODEL
+    from ...native_scrapers import get_native_scrapers, GoogleSearchScraper, GoogleTrendsScraper, POLLINATIONS_API_KEY, AI_MODEL
 import json
 
 class GoogleProductInsightsAnalyzer:
@@ -56,33 +55,43 @@ class GoogleProductInsightsAnalyzer:
                 if retail_results:
                     search_results = [{"title": r["name"], "snippet": f"Found on {r['source']}. Price: {r['price']}", "url": r["url"]} for r in retail_results]
 
-            # Try 4: AI Synthetic Insight (The 'Never Fail' Fallback)
-            if not search_results and OPENROUTER_API_KEY:
-                print("🤖 All scrapers blocked. Generating AI synthetic product info...")
+            # Try 4: AI Synthetic Insight (The 'Never Fail' Fallback via Pollinations.ai)
+            if not search_results:
+                print("🤖 All scrapers blocked. Generating AI synthetic product info via Pollinations.ai...")
                 try:
                     prompt = f"Generate a realistic product specification and market report for '{product_query}'. Return ONLY a JSON object: {{\"title\": \"...\", \"description\": \"...\", \"price\": 0.0, \"rating\": 4.5, \"reviews_count\": 100}}"
+                    
+                    headers = {"Content-Type": "application/json"}
+                    if POLLINATIONS_API_KEY:
+                        headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
                     res = requests.post(
-                        "https://openrouter.ai/api/v1/chat/completions",
-                        headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                        "https://text.pollinations.ai/",
+                        headers=headers,
                         json={
                             "model": AI_MODEL,
-                            "messages": [{"role": "user", "content": prompt}]
+                            "messages": [{"role": "user", "content": prompt}],
+                            "jsonMode": True
                         },
                         timeout=10
                     )
                     if res.status_code == 200:
-                        ai_data = json.loads(res.json()["choices"][0]["message"]["content"])
-                        return {
-                            "title": ai_data.get("title", product_query),
-                            "description": ai_data.get("description", "Premium trending product."),
-                            "price": ai_data.get("price", 49.99),
-                            "currency": "USD",
-                            "rating": ai_data.get("rating", 4.5),
-                            "reviews_count": ai_data.get("reviews_count", 150),
-                            "url": f"https://www.google.com/search?q={quote(product_query)}",
-                            "source": "ai_synthetic",
-                            "product_id": str(hash(product_query))
-                        }
+                        ai_res = res.text
+                        import re
+                        match = re.search(r'\{.*\}', ai_res, re.DOTALL)
+                        if match:
+                            ai_data = json.loads(match.group())
+                            return {
+                                "title": ai_data.get("title", product_query),
+                                "description": ai_data.get("description", "Premium trending product."),
+                                "price": ai_data.get("price", 49.99),
+                                "currency": "USD",
+                                "rating": ai_data.get("rating", 4.5),
+                                "reviews_count": ai_data.get("reviews_count", 150),
+                                "url": f"https://www.google.com/search?q={quote(product_query)}",
+                                "source": "ai_synthetic",
+                                "product_id": str(hash(product_query))
+                            }
                 except: pass
 
             if not search_results:
@@ -158,26 +167,32 @@ class GoogleProductInsightsAnalyzer:
         return product
     
     def extract_product_features(self, product: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract features (enhanced with AI if available)"""
+        """Extract features (enhanced with AI via Pollinations.ai)"""
         desc = product.get("description", "")
         
-        if OPENROUTER_API_KEY and desc:
+        if desc:
             try:
                 prompt = (
                     f"Extract key specifications and highlights for this product based on its description: '{desc}'. "
                     "Format as a JSON: {\"key_specs\": [\"...\"], \"highlights\": [\"...\"]}"
                 )
+                
+                headers = {"Content-Type": "application/json"}
+                if POLLINATIONS_API_KEY:
+                    headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
                 res = requests.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                    "https://text.pollinations.ai/",
+                    headers=headers,
                     json={
                         "model": AI_MODEL,
-                        "messages": [{"role": "user", "content": prompt}]
+                        "messages": [{"role": "user", "content": prompt}],
+                        "jsonMode": True
                     },
                     timeout=10
                 )
                 if res.status_code == 200:
-                    ai_res = res.json()["choices"][0]["message"]["content"]
+                    ai_res = res.text
                     import re
                     match = re.search(r'\{.*\}', ai_res, re.DOTALL)
                     if match:
@@ -194,31 +209,36 @@ class GoogleProductInsightsAnalyzer:
         product: Dict[str, Any],
         competitor_products: List[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Analyze competitiveness (enhanced with AI if available)"""
-        if OPENROUTER_API_KEY:
-            try:
-                comp_data = json.dumps(competitor_products) if competitor_products else "No specific competitor data available"
-                prompt = (
-                    f"Analyze the market competitiveness for '{product.get('title')}' at price {product.get('price')}. "
-                    f"Competitors: {comp_data}. "
-                    "Provide a JSON with: 'market_position' (string), 'advantages' (list), 'disadvantages' (list)."
-                )
-                res = requests.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
-                    json={
-                        "model": AI_MODEL,
-                        "messages": [{"role": "user", "content": prompt}]
-                    },
-                    timeout=10
-                )
-                if res.status_code == 200:
-                    ai_res = res.json()["choices"][0]["message"]["content"]
-                    import re
-                    match = re.search(r'\{.*\}', ai_res, re.DOTALL)
-                    if match:
-                        return json.loads(match.group())
-            except: pass
+        """Analyze competitiveness (enhanced with AI via Pollinations.ai)"""
+        try:
+            comp_data = json.dumps(competitor_products) if competitor_products else "No specific competitor data available"
+            prompt = (
+                f"Analyze the market competitiveness for '{product.get('title')}' at price {product.get('price')}. "
+                f"Competitors: {comp_data}. "
+                "Provide a JSON with: 'market_position' (string), 'advantages' (list), 'disadvantages' (list)."
+            )
+            
+            headers = {"Content-Type": "application/json"}
+            if POLLINATIONS_API_KEY:
+                headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
+            res = requests.post(
+                "https://text.pollinations.ai/",
+                headers=headers,
+                json={
+                    "model": AI_MODEL,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "jsonMode": True
+                },
+                timeout=10
+            )
+            if res.status_code == 200:
+                ai_res = res.text
+                import re
+                match = re.search(r'\{.*\}', ai_res, re.DOTALL)
+                if match:
+                    return json.loads(match.group())
+        except: pass
 
         # Simple logic based on price comparison fallback
         return {

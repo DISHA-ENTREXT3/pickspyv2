@@ -32,8 +32,8 @@ except ImportError:
     print("⚠️  pytrends not available, will use fallback")
     TrendReq = None
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
-AI_MODEL = os.environ.get("AI_MODEL", "openai/gpt-4o-mini")
+POLLINATIONS_API_KEY = os.environ.get("POLLINATIONS_API_KEY")
+AI_MODEL = "gemini" # Gemini 2.5 Flash Lite on Pollinations.ai
 IG_USERNAME = os.environ.get("INSTAGRAM_USERNAME")
 IG_PASSWORD = os.environ.get("INSTAGRAM_PASSWORD")
 
@@ -579,30 +579,36 @@ class SocialMediaScraper:
                 "timestamp": datetime.now().isoformat()
             }
 
-            # Enhance with AI if available
-            if OPENROUTER_API_KEY and results:
+            # Enhance with AI if available (Pollinations.ai)
+            if results:
                 try:
                     snippet_blob = "\n".join([r['snippet'] for r in results[:10]])
                     prompt = f"Analyze the following social media snippets about '{product_name}' and provide a sentiment report in JSON with 'positive', 'negative', 'neutral' percentages (total 100) and top 3 insights:\n{snippet_blob}"
                     
+                    headers = {"Content-Type": "application/json"}
+                    if POLLINATIONS_API_KEY:
+                        headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
                     res = requests.post(
-                        "https://openrouter.ai/api/v1/chat/completions",
-                        headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                        "https://text.pollinations.ai/",
+                        headers=headers,
                         json={
                             "model": AI_MODEL,
-                            "messages": [{"role": "user", "content": prompt}]
+                            "messages": [{"role": "user", "content": prompt}],
+                            "jsonMode": True
                         },
                         timeout=10
                     )
                     if res.status_code == 200:
-                        ai_res = res.json()["choices"][0]["message"]["content"]
+                        ai_res = res.text
                         import re
                         match = re.search(r'\{.*\}', ai_res, re.DOTALL)
                         if match:
                             ai_data = json.loads(match.group())
                             analysis["sentiment_percentage"] = ai_data.get("sentiment_percentage", analysis["sentiment_percentage"])
                             analysis["ai_insights"] = ai_data.get("insights", [])
-                except: pass
+                except Exception as e:
+                    print(f"⚠️ Pollinations sentiment analysis failed: {e}")
 
             return analysis
             
@@ -637,28 +643,34 @@ class FAQScraper:
             if not results:
                 return None
             
-            # Use AI to generate clean FAQs if available
-            if OPENROUTER_API_KEY and results:
+            # Use AI to generate clean FAQs if available (Pollinations.ai)
+            if results:
                 try:
                     snippets = "\n".join([f"- {r.get('title')}: {r.get('snippet')}" for r in results[:10]])
                     prompt = f"Based on these search results about '{product_name}', generate 5-8 frequently asked questions and answers in JSON format list [{{\"question\": \"...\", \"answer\": \"...\"}}]:\n{snippets}"
                     
+                    headers = {"Content-Type": "application/json"}
+                    if POLLINATIONS_API_KEY:
+                        headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
                     res = requests.post(
-                        "https://openrouter.ai/api/v1/chat/completions",
-                        headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                        "https://text.pollinations.ai/",
+                        headers=headers,
                         json={
                             "model": AI_MODEL,
-                            "messages": [{"role": "user", "content": prompt}]
+                            "messages": [{"role": "user", "content": prompt}],
+                            "jsonMode": True
                         },
                         timeout=10
                     )
                     if res.status_code == 200:
-                        ai_res = res.json()["choices"][0]["message"]["content"]
+                        ai_res = res.text
                         import re
                         match = re.search(r'\[.*\]', ai_res, re.DOTALL)
                         if match:
                             return json.loads(match.group())
-                except: pass
+                except Exception as e:
+                    print(f"⚠️ Pollinations FAQ generation failed: {e}")
 
             # Extract FAQ-like content from search results if AI fails
             faqs = []
@@ -826,48 +838,50 @@ class AIProductFetcher:
     def fetch_trending_products(self, category: str, limit: int = 10) -> List[Dict[str, Any]]:
         print(f"🤖 AI Fetcher activated for category: {category}")
         
-        if OPENROUTER_API_KEY:
-            try:
-                print(f"✨ Generating trending products via OpenRouter...")
-                prompt = (
-                    f"Generate a list of {limit} trending or viral e-commerce products in the '{category}' category. "
-                    "For each product, provide: name, target_price (USD), and a 1-sentence description. "
-                    "Format as a JSON list: [{\"name\": \"...\", \"price\": 0.0, \"desc\": \"...\"}]"
-                )
-                
-                res = requests.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": AI_MODEL,
-                        "messages": [{"role": "user", "content": prompt}]
-                    },
-                    timeout=15
-                )
-                
-                if res.status_code == 200:
-                    ai_res = res.json()["choices"][0]["message"]["content"]
-                    import re
-                    match = re.search(r'\[.*\]', ai_res, re.DOTALL)
-                    if match:
-                        ai_products = json.loads(match.group())
-                        results = []
-                        for i, p in enumerate(ai_products):
-                            name = p.get("name")
-                            results.append({
-                                "name": name,
-                                "price": p.get("price"),
-                                "url": f"https://www.google.com/search?q={quote(name)}",
-                                "imageUrl": f"https://source.unsplash.com/featured/800x800?{quote(name)},product",
-                                "source": "ai_insight",
-                                "ai_score": round(random.uniform(8.5, 9.8), 1)
-                            })
-                        return results
-            except Exception as e:
-                print(f"⚠️ OpenRouter Error: {e}, falling back to knowledge base")
+        # Try Pollinations.ai for AI-driven discovery
+        try:
+            print(f"✨ Generating trending products via Pollinations.ai...")
+            prompt = (
+                f"Generate a list of {limit} trending or viral e-commerce products in the '{category}' category. "
+                "For each product, provide: name, target_price (USD), and a 1-sentence description. "
+                "Format as a JSON list: [{\"name\": \"...\", \"price\": 0.0, \"desc\": \"...\"}]"
+            )
+            
+            headers = {"Content-Type": "application/json"}
+            if POLLINATIONS_API_KEY:
+                headers["Authorization"] = f"Bearer {POLLINATIONS_API_KEY}"
+
+            res = requests.post(
+                "https://text.pollinations.ai/",
+                headers=headers,
+                json={
+                    "model": AI_MODEL,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "jsonMode": True
+                },
+                timeout=15
+            )
+            
+            if res.status_code == 200:
+                ai_res = res.text
+                import re
+                match = re.search(r'\[.*\]', ai_res, re.DOTALL)
+                if match:
+                    ai_products = json.loads(match.group())
+                    results = []
+                    for i, p in enumerate(ai_products):
+                        name = p.get("name")
+                        results.append({
+                            "name": name,
+                            "price": p.get("price"),
+                            "url": f"https://www.google.com/search?q={quote(name)}",
+                            "imageUrl": f"https://source.unsplash.com/featured/800x800?{quote(name)},product",
+                            "source": "ai_insight",
+                            "ai_score": round(random.uniform(8.5, 9.8), 1)
+                        })
+                    return results
+        except Exception as e:
+            print(f"⚠️ Pollinations AI Fetcher Error: {e}, falling back to knowledge base")
 
         # Broad Knowledge Base for ALL Categories
         knowledge_base = {

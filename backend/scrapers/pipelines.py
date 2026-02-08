@@ -39,7 +39,7 @@ class SupabasePipeline:
         # Upserting one by one is slow. Let's buffer.
         self.items_buffer.append(item)
         
-        if len(self.items_buffer) >= 20:
+        if len(self.items_buffer) >= 50:
             self._flush()
             
         return item

@@ -16,6 +16,7 @@ import {
 } from './ui/select';
 import { Product, ProductAnalysis } from '@/types/product';
 import { analyzeProductWithAI } from '@/lib/ai';
+import { useToast } from '@/hooks/use-toast';
 
 interface AIAnalyzerProps {
   selectedProduct?: Product | null;
@@ -23,6 +24,7 @@ interface AIAnalyzerProps {
 }
 
 export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
+  const { toast } = useToast();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [productIdea, setProductIdea] = useState(selectedProduct?.name || '');
@@ -86,7 +88,7 @@ export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
               AI Product Analyzer
-              <Badge variant="premium">PRO</Badge>
+              {isFreeTier ? <Badge variant="outline">2/Day FREE</Badge> : <Badge variant="premium">PRO ACTIVE</Badge>}
             </CardTitle>
             <CardDescription>Get data-driven go/no-go decisions in seconds</CardDescription>
           </div>
@@ -94,26 +96,6 @@ export const AIAnalyzer = ({ selectedProduct, onClose }: AIAnalyzerProps) => {
       </CardHeader>
 
       <CardContent className="relative space-y-6">
-        {isFreeTier && (
-          <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-fade-in">
-             <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
-                <Lock className="h-8 w-8 text-primary shadow-glow" />
-             </div>
-             <h3 className="text-2xl font-bold mb-3">AI Analyzer PRO</h3>
-             <p className="text-muted-foreground mb-8 max-w-sm">
-               Get specialized market viability scores and risk analysis. 
-               AI insights are available exclusively on Pro and Business plans.
-             </p>
-             <div className="flex flex-col sm:flex-row gap-4">
-               <Button variant="hero" onClick={() => navigate('/pricing')}>
-                 Upgrade to Unlock
-               </Button>
-               <Button variant="outline" onClick={onClose} className="border-white/10">
-                 Maybe Later
-               </Button>
-             </div>
-          </div>
-        )}
         {/* Input form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">

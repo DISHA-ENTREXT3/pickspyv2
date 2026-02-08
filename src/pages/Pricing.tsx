@@ -91,31 +91,43 @@ const Pricing = () => {
     });
   }, []);
 
-  const handlePlanSelect = async (planName: string) => {
+  const handlePlanSelect = async (plan: typeof PLANS[0]) => {
     if (!user) {
-      navigate('/signup');
+      navigate('/login', { state: { from: '/pricing' } });
       return;
     }
 
-    if (planName === currentTier) {
+    if (plan.name === currentTier) {
+      toast.info(`You are already on the ${plan.name} plan`);
       return;
     }
 
-    // Mock Upgrade Logic - In reality this would go to Stripe
+    // Paid Plans redirect to Dodo Payments
+    if (plan.checkoutUrl) {
+      const checkoutUrl = new URL(plan.checkoutUrl);
+      checkoutUrl.searchParams.append('client_reference_id', user.id);
+      checkoutUrl.searchParams.append('customer_email', user.email || '');
+      
+      toast.loading('Redirecting to secure checkout...');
+      window.location.href = checkoutUrl.toString();
+      return;
+    }
+
+    // Free Plan setup (Immediate activation or downgrade)
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ subscription_tier: planName })
+        .update({ subscription_tier: plan.name })
         .eq('id', user.id);
 
       if (error) throw error;
       
-      setCurrentTier(planName);
-      toast.success(`Plan updated to ${planName}`);
+      setCurrentTier(plan.name);
+      toast.success(`Plan updated to ${plan.name}`);
       navigate('/dashboard');
     } catch (e) {
       toast.error('Failed to update plan. Please try again.');
-      console.warn('Subscription upgrade failed:', e);
+      console.warn('Subscription update failed:', e);
     }
   };
 
@@ -177,7 +189,7 @@ const Pricing = () => {
                     variant={plan.name === 'Pro' ? 'hero' : 'glass'} 
                     className="w-full"
                     size="lg"
-                    onClick={() => handlePlanSelect(plan.name)}
+                    onClick={() => handlePlanSelect(plan)}
                     disabled={user && currentTier === plan.name}
                   >
                      {user ? (currentTier === plan.name ? 'Current Plan' : `Switch to ${plan.name}`) : 'Get Started'}
@@ -278,9 +290,9 @@ const Pricing = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-signal-bullish/10" />
             <div className="relative">
               <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="text-3xl font-bold mb-4">14-day money-back guarantee</h2>
+              <h2 className="text-3xl font-bold mb-4">7-day money-back guarantee</h2>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Try any paid plan risk-free. If you're not finding winning products within 14 days, we'll refund you—no questions asked.
+                Try any paid plan risk-free. If you're not finding winning products within 7 days, we'll refund you—no questions asked.
               </p>
               <Button variant="hero" size="lg" onClick={() => navigate('/signup')}>
                 Start Your Free Trial

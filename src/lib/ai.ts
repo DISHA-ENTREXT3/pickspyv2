@@ -11,7 +11,8 @@ export interface AIAnalysisResult {
 export const analyzeProductWithAI = async (
   productName: string,
   price: string,
-  region: string
+  region: string,
+  userId?: string
 ): Promise<AIAnalysisResult> => {
   try {
     const response = await fetch(`${BACKEND_URL}/api/ai/analyze`, {
@@ -22,7 +23,8 @@ export const analyzeProductWithAI = async (
       body: JSON.stringify({
         productName,
         price,
-        region
+        region,
+        userId
       })
     });
 

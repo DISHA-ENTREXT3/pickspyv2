@@ -243,8 +243,9 @@ export default function SignupPage() {
         
         <div className="mt-8 text-center text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
           By {isLoginPage ? 'signing in' : 'signing up'}, you agree to our{' '}
-          <Link to="/privacy" className="underline hover:text-primary transition-colors">Privacy Policy</Link> and{' '}
-          <Link to="/terms" className="underline hover:text-primary transition-colors">Terms of Service</Link>.
+          <Link to="/privacy" className="underline hover:text-primary transition-colors">Privacy Policy</Link>,{' '}
+          <Link to="/terms" className="underline hover:text-primary transition-colors">Terms of Service</Link>, and{' '}
+          <Link to="/cookies" className="underline hover:text-primary transition-colors">Cookie Policy</Link>.
         </div>
       </div>
     </div>
