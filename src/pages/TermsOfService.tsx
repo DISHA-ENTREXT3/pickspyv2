@@ -108,7 +108,7 @@ export default function TermsOfService() {
                 <p className="text-slate-300">
                   We reserve the right to suspend or terminate your account at any time for violations of these terms, specifically those relating to platform abuse or non-payment. Upon termination, your right to use the service ceases immediately.
                 </p>
-                <a href="mailto:legal@entrext.in" className="text-primary hover:underline font-bold mt-4 inline-block">legal@entrext.in</a>
+                <a href="mailto:business@entrext.in" className="text-primary hover:underline font-bold mt-4 inline-block">business@entrext.in</a>
               </section>
             </div>
           </div>

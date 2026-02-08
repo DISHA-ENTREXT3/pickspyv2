@@ -106,7 +106,7 @@ export default function CookiePolicy() {
                 <p className="text-slate-300">
                   We update this policy periodically to reflect changes in the cookies we use or for legal and regulatory reasons. For more information, please contact our transparency team at:
                   <br />
-                  <a href="mailto:transparency@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">transparency@entrext.in</a>
+                  <a href="mailto:business@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">business@entrext.in</a>
                 </p>
               </section>
             </div>

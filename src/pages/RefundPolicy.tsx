@@ -103,7 +103,7 @@ export default function RefundPolicy() {
                 <p className="text-slate-300">
                   Simply email our billing department with your account email and transaction ID. We process all valid requests within 48 business hours.
                   <br />
-                  <a href="mailto:billing@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">billing@entrext.in</a>
+                  <a href="mailto:business@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">business@entrext.in</a>
                 </p>
               </section>
             </div>

@@ -130,7 +130,7 @@ export default function PrivacyPolicy() {
                 <p className="text-slate-300">
                   For any privacy-related requests or questions about GDPR/CCPA compliance, please contact our Data Protection Officer at:
                   <br />
-                  <a href="mailto:privacy@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">privacy@entrext.in</a>
+                  <a href="mailto:business@entrext.in" className="text-primary hover:underline font-bold mt-2 inline-block">business@entrext.in</a>
                 </p>
               </section>
             </div>
